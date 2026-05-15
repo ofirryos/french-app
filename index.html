@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#007AFF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="צרפתית">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>🇫🇷 לומד צרפתית</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Helvetica Neue',Arial,sans-serif;background:#F5F5F7;color:#000;direction:rtl;max-width:390px;margin:0 auto;min-height:100vh;overflow-x:hidden}
+:root{--blue:#007AFF;--green:#27DC03;--red:#E73D00;--gray:#6C757D;--card-radius:14px}
+.header{position:sticky;top:0;z-index:100;background:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #E5E5EA;transition:box-shadow .2s}
+.header.scrolled{box-shadow:0 2px 12px rgba(0,0,0,.1)}
+.header-title{font-size:18px;font-weight:700;flex:1;text-align:center}
+.header-actions{display:flex;gap:8px}
+.btn-icon{width:36px;height:36px;border-radius:50%;border:none;background:#F2F2F7;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;transition:transform .15s,background .15s;flex-shrink:0}
+.btn-icon:active{transform:scale(.97);background:#E5E5EA}
+.btn{padding:10px 18px;border-radius:10px;border:none;cursor:pointer;font-size:15px;font-weight:600;transition:transform .15s,opacity .15s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-danger{background:var(--red);color:#fff}
+.btn-secondary{background:#E5E5EA;color:#3C3C43}
+.screen{padding:12px 16px 80px;min-height:calc(100vh - 60px)}
+.card{background:#fff;border-radius:var(--card-radius);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.07);transition:transform .15s,box-shadow .15s}
+.card:active{transform:scale(.98);box-shadow:0 0 0 rgba(0,0,0,0)}
+.card-icon{font-size:22px;margin-left:12px;flex-shrink:0}
+.card-info{flex:1;min-width:0}
+.card-name{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-sub{font-size:13px;color:var(--gray);margin-top:2px}
+.card-arrow{color:#C7C7CC;font-size:18px;flex-shrink:0}
+.empty{text-align:center;padding:48px 24px;color:var(--gray);font-size:16px}
+.empty-icon{font-size:48px;margin-bottom:12px}
+input[type=text],input[type=search]{width:100%;padding:12px 14px;border:1.5px solid #E5E5EA;border-radius:10px;font-size:16px;outline:none;transition:border-color .2s;background:#fff;color:#000}
+input[type=text]:focus,input[type=search]:focus{border-color:var(--blue)}
+input[type=text].from-dict{border-color:var(--blue);background:#F0F6FF}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:24px 20px;width:100%;max-width:390px;max-height:90vh;overflow-y:auto}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:16px;text-align:center}
+.modal-actions{display:flex;gap:10px;margin-top:16px}
+.modal-actions .btn{flex:1}
+.dropdown{position:absolute;z-index:50;background:#fff;border:1px solid #E5E5EA;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.12);max-height:200px;overflow-y:auto;width:100%;left:0;top:100%;margin-top:4px}
+.dropdown-item{padding:12px 14px;cursor:pointer;font-size:15px;transition:background .1s;display:flex;justify-content:space-between;align-items:center}
+.dropdown-item:hover,.dropdown-item:active{background:#F2F2F7}
+.dd-fr{direction:ltr;text-align:left}
+.dd-he{color:var(--gray);font-size:13px}
+.progress-bar{height:6px;background:#E5E5EA;border-radius:3px;overflow:hidden;margin-bottom:16px}
+.progress-fill{height:100%;background:var(--blue);border-radius:3px;transition:width .3s}
+.flashcard-wrap{perspective:1000px;width:100%;height:200px;cursor:pointer;margin-bottom:20px}
+.flashcard{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .35s ease-in-out}
+.flashcard.flipped{transform:rotateY(180deg)}
+.card-face{position:absolute;inset:0;border-radius:20px;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.1);display:flex;flex-direction:column;align-items:center;justify-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;padding:24px}
+.card-face.back{transform:rotateY(180deg)}
+.card-word{font-size:30px;font-weight:700;text-align:center;margin-bottom:8px}
+.card-word.fr{direction:ltr}
+.card-word.he{direction:rtl}
+.card-tts{font-size:26px;cursor:pointer;margin-top:8px;opacity:.7;transition:opacity .15s;user-select:none}
+.card-tts:hover{opacity:1}
+.fc-actions{display:flex;gap:10px;margin-top:4px}
+.fc-btn{flex:1;padding:14px;border-radius:12px;border:none;cursor:pointer;font-size:14px;font-weight:700;transition:transform .15s}
+.fc-btn:active{transform:scale(.97)}
+.fc-know{background:#EAFEE6;color:#1A8C00}
+.fc-forgot{background:#FFF0ED;color:#C0310A}
+.fc-flip{background:#F2F2F7;color:#3C3C43}
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.match-col{display:flex;flex-direction:column;gap:8px}
+.match-card{padding:14px 8px;border-radius:12px;background:#fff;border:2px solid #E5E5EA;text-align:center;cursor:pointer;font-size:14px;font-weight:600;transition:all .15s;word-break:break-word;min-height:52px;display:flex;align-items:center;justify-content:center}
+.match-card.selected{border-color:var(--blue);background:#F0F6FF;color:var(--blue)}
+.match-card.correct{border-color:var(--green);background:#EAFEE6;color:#1A8C00;pointer-events:none}
+.match-card.wrong{border-color:var(--red);background:#FFF0ED;color:var(--red)}
+.match-card.matched{opacity:.3;pointer-events:none;border-color:#E5E5EA;background:#F9F9F9}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin:16px 0 10px}
+.section-title{font-size:17px;font-weight:700}
+.link-btn{background:none;border:none;color:var(--blue);font-size:13px;cursor:pointer;padding:4px 8px;font-weight:600}
+.word-row{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.word-fr{direction:ltr;font-size:15px;font-weight:600;flex:1;text-align:left}
+.word-he{font-size:15px;color:#444;flex:1;text-align:right}
+.del-btn{background:none;border:none;color:#FF3B30;font-size:22px;cursor:pointer;padding:2px 6px;flex-shrink:0;line-height:1}
+.edit-input{border:none;outline:none;font-size:inherit;font-weight:inherit;background:transparent;border-bottom:2px solid var(--blue);min-width:60px;max-width:180px;font-family:inherit}
+.tag-recent{font-size:11px;background:#F2F2F7;color:var(--gray);padding:2px 8px;border-radius:6px;margin-top:4px;display:inline-block}
+.action-bar{display:flex;gap:10px;margin-bottom:16px}
+.action-bar .btn{flex:1;padding:13px 8px;font-size:14px}
+.finish-screen{text-align:center;padding:40px 24px}
+.finish-icon{font-size:64px;margin-bottom:16px}
+.finish-title{font-size:24px;font-weight:700;margin-bottom:8px}
+.finish-sub{font-size:15px;color:var(--gray);margin-bottom:24px}
+.finish-actions{display:flex;flex-direction:column;gap:10px}
+.select-field{width:100%;padding:12px 14px;border:1.5px solid #E5E5EA;border-radius:10px;font-size:16px;outline:none;background:#fff;color:#000;margin-bottom:12px;appearance:none;-webkit-appearance:none}
+.offline-banner{background:#FF9500;color:#fff;text-align:center;font-size:13px;padding:6px;font-weight:600;display:none}
+.offline-banner.show{display:block}
+.counter-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.counter-label{font-size:14px;color:var(--gray)}
+.counter-num{font-size:14px;font-weight:700;color:var(--blue)}
+</style>
+</head>
+<body>
+
+<div class="offline-banner" id="offline-banner">📵 מצב אופליין — האפליקציה עובדת ללא אינטרנט</div>
+<div id="app"></div>
+
+<script>
+// ===================== DICTIONARY =====================
+const DICT=[
+  {fr:"bonjour",he:"שלום"},{fr:"merci",he:"תודה"},{fr:"au revoir",he:"להתראות"},
+  {fr:"s'il vous plaît",he:"בבקשה"},{fr:"oui",he:"כן"},{fr:"non",he:"לא"},
+  {fr:"chat",he:"חתול"},{fr:"chien",he:"כלב"},{fr:"maison",he:"בית"},
+  {fr:"voiture",he:"מכונית"},{fr:"école",he:"בית ספר"},{fr:"livre",he:"ספר"},
+  {fr:"eau",he:"מים"},{fr:"pain",he:"לחם"},{fr:"table",he:"שולחן"},
+  {fr:"chaise",he:"כיסא"},{fr:"fenêtre",he:"חלון"},{fr:"porte",he:"דלת"},
+  {fr:"jardin",he:"גן"},{fr:"soleil",he:"שמש"},{fr:"lune",he:"ירח"},
+  {fr:"étoile",he:"כוכב"},{fr:"fleur",he:"פרח"},{fr:"arbre",he:"עץ"},
+  {fr:"montagne",he:"הר"},{fr:"mer",he:"ים"},{fr:"rivière",he:"נהר"},
+  {fr:"ciel",he:"שמיים"},{fr:"nuit",he:"לילה"},{fr:"jour",he:"יום"},
+  {fr:"matin",he:"בוקר"},{fr:"soir",he:"ערב"},{fr:"après-midi",he:"אחר הצהריים"},
+  {fr:"semaine",he:"שבוע"},{fr:"mois",he:"חודש"},{fr:"année",he:"שנה"},
+  {fr:"rouge",he:"אדום"},{fr:"bleu",he:"כחול"},{fr:"vert",he:"ירוק"},
+  {fr:"jaune",he:"צהוב"},{fr:"blanc",he:"לבן"},{fr:"noir",he:"שחור"},
+  {fr:"grand",he:"גדול"},{fr:"petit",he:"קטן"},{fr:"beau",he:"יפה"},
+  {fr:"nouveau",he:"חדש"},{fr:"vieux",he:"ישן"},{fr:"bon",he:"טוב"},
+  {fr:"mauvais",he:"רע"},{fr:"chaud",he:"חם"},{fr:"froid",he:"קר"},
+  {fr:"rapide",he:"מהיר"},{fr:"lent",he:"איטי"},{fr:"manger",he:"לאכול"},
+  {fr:"boire",he:"לשתות"},{fr:"dormir",he:"לישון"},{fr:"courir",he:"לרוץ"},
+  {fr:"marcher",he:"ללכת"},{fr:"parler",he:"לדבר"},{fr:"écouter",he:"להאזין"},
+  {fr:"lire",he:"לקרוא"},{fr:"écrire",he:"לכתוב"},{fr:"apprendre",he:"ללמוד"},
+  {fr:"travailler",he:"לעבוד"},{fr:"jouer",he:"לשחק"},{fr:"aimer",he:"לאהוב"},
+  {fr:"voir",he:"לראות"},{fr:"venir",he:"לבוא"},{fr:"aller",he:"ללכת (לאן)"},
+  {fr:"avoir",he:"יש"},{fr:"être",he:"להיות"},{fr:"faire",he:"לעשות"},
+  {fr:"pouvoir",he:"יכול"},{fr:"vouloir",he:"רוצה"},{fr:"devoir",he:"חייב"},
+  {fr:"savoir",he:"לדעת"},{fr:"père",he:"אבא"},{fr:"mère",he:"אמא"},
+  {fr:"frère",he:"אח"},{fr:"sœur",he:"אחות"},{fr:"enfant",he:"ילד"},
+  {fr:"ami",he:"חבר"},{fr:"homme",he:"גבר"},{fr:"femme",he:"אישה"},
+  {fr:"garçon",he:"ילד"},{fr:"fille",he:"ילדה"},{fr:"téléphone",he:"טלפון"},
+  {fr:"ordinateur",he:"מחשב"},{fr:"argent",he:"כסף"},{fr:"travail",he:"עבודה"},
+  {fr:"temps",he:"זמן / מזג אוויר"},{fr:"ville",he:"עיר"},{fr:"rue",he:"רחוב"},
+  {fr:"magasin",he:"חנות"},{fr:"restaurant",he:"מסעדה"},{fr:"hôpital",he:"בית חולים"},
+  {fr:"pharmacie",he:"בית מרקחת"},{fr:"banque",he:"בנק"},{fr:"gare",he:"תחנת רכבת"},
+  {fr:"avion",he:"מטוס"},{fr:"train",he:"רכבת"},{fr:"bus",he:"אוטובוס"},
+  {fr:"ticket",he:"כרטיס"},{fr:"heure",he:"שעה"},{fr:"minute",he:"דקה"},
+];
+
+// ===================== STATE =====================
+const STORAGE_KEY='french_app_v2';
+
+function loadState(){
+  try{
+    const saved=localStorage.getItem(STORAGE_KEY);
+    if(saved) return JSON.parse(saved);
+  }catch(e){}
+  return {
+    folders:[
+      {id:'f1',name:'מילים בסיסיות',subfolders:[],lists:[
+        {id:'l1',name:'ברכות',words:[{fr:'bonjour',he:'שלום'},{fr:'merci',he:'תודה'},{fr:'au revoir',he:'להתראות'},{fr:'s\'il vous plaît',he:'בבקשה'}]},
+        {id:'l2',name:'צבעים',words:[{fr:'rouge',he:'אדום'},{fr:'bleu',he:'כחול'},{fr:'vert',he:'ירוק'},{fr:'jaune',he:'צהוב'},{fr:'noir',he:'שחור'}]}
+      ]},
+      {id:'f2',name:'בית וסביבה',subfolders:[],lists:[
+        {id:'l3',name:'רהיטים',words:[{fr:'table',he:'שולחן'},{fr:'chaise',he:'כיסא'},{fr:'fenêtre',he:'חלון'},{fr:'porte',he:'דלת'}]}
+      ]}
+    ],
+    recentPaths:[],
+  };
+}
+
+let appState=loadState();
+let navHistory=[];
+let currentScreen='home';
+let currentFolderId=null;
+let currentListId=null;
+let activeModal=null;
+let editingId=null;
+
+// Game states
+let fcState={initialized:false};
+let mgState={initialized:false};
+let activeMatchWords=[];
+let activeFcWords=[];
+
+function saveState(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));}catch(e){}
+}
+
+// ===================== HELPERS =====================
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+function getAllWords(folders){
+  let w=[];
+  for(const f of folders){
+    for(const l of f.lists) w.push(...l.words);
+    if(f.subfolders) w.push(...getAllWords(f.subfolders));
+  }
+  return w;
+}
+
+function countWords(folder){
+  let n=0;
+  for(const l of folder.lists) n+=l.words.length;
+  for(const sf of (folder.subfolders||[])) n+=countWords(sf);
+  return n;
+}
+
+function findFolder(id,folders){
+  for(const f of folders){
+    if(f.id===id) return f;
+    const found=findFolder(id,f.subfolders||[]);
+    if(found) return found;
+  }
+  return null;
+}
+
+function findList(id,folders){
+  for(const f of folders){
+    for(const l of f.lists) if(l.id===id) return l;
+    const found=findList(id,f.subfolders||[]);
+    if(found) return found;
+  }
+  return null;
+}
+
+function deleteFolder(id,folders){
+  return folders.filter(f=>{
+    if(f.id===id) return false;
+    f.subfolders=deleteFolder(id,f.subfolders||[]);
+    return true;
+  });
+}
+
+function deleteList(id,folders){
+  for(const f of folders){
+    f.lists=f.lists.filter(l=>l.id!==id);
+    if(f.subfolders) deleteList(id,f.subfolders);
+  }
+}
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function speak(text){
+  if(!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='fr-FR'; u.rate=0.9;
+  speechSynthesis.speak(u);
+}
+
+function addRecent(entry){
+  appState.recentPaths=appState.recentPaths.filter(r=>r.id!==entry.id);
+  appState.recentPaths.unshift(entry);
+  if(appState.recentPaths.length>5) appState.recentPaths.pop();
+  saveState();
+}
+
+// ===================== NAVIGATION =====================
+function navigate(screen,data={}){
+  navHistory.push({screen:currentScreen,folderId:currentFolderId,listId:currentListId});
+  currentScreen=screen;
+  if(data.folderId!==undefined) currentFolderId=data.folderId;
+  if(data.listId!==undefined) currentListId=data.listId;
+  if(data.fcWords) activeFcWords=data.fcWords;
+  if(data.matchWords) activeMatchWords=data.matchWords;
+  render();
+}
+
+function goBack(){
+  if(!navHistory.length) return;
+  const prev=navHistory.pop();
+  currentScreen=prev.screen;
+  currentFolderId=prev.folderId;
+  currentListId=prev.listId;
+  render();
+}
+
+// ===================== RENDER =====================
+function render(){
+  const app=document.getElementById('app');
+  app.innerHTML='';
+
+  const isGame=['flashcards','matching'].includes(currentScreen);
+
+  // Header
+  const hdr=document.createElement('div');
+  hdr.className='header';
+  hdr.id='main-hdr';
+
+  let title='🇫🇷 לומד צרפתית';
+  if(currentScreen==='folder'&&currentFolderId) title=findFolder(currentFolderId,appState.folders)?.name||'תיקייה';
+  if(currentScreen==='list'&&currentListId) title=findList(currentListId,appState.folders)?.name||'רשימה';
+  if(currentScreen==='flashcards') title='🃏 כרטיסיות';
+  if(currentScreen==='matching') title='🎮 משחק התאמה';
+
+  const leftActions=document.createElement('div');
+  leftActions.className='header-actions';
+  const rightActions=document.createElement('div');
+  rightActions.className='header-actions';
+
+  // Back button (right side in RTL)
+  if(navHistory.length>0){
+    const b=document.createElement('button');
+    b.className='btn-icon';b.innerHTML='‹';b.title='חזור';
+    b.style.fontSize='24px';
+    b.onclick=goBack;
+    rightActions.appendChild(b);
+  }
+
+  if(!isGame){
+    const af=document.createElement('button');
+    af.className='btn-icon';af.innerHTML='📁';af.title='הוסף תיקייה';
+    af.onclick=()=>showAddFolderModal();
+    const al=document.createElement('button');
+    al.className='btn-icon';al.innerHTML='📝';al.title='הוסף רשימה';
+    al.onclick=()=>showAddListModal();
+    leftActions.appendChild(af);
+    leftActions.appendChild(al);
+  }
+
+  const titleEl=document.createElement('div');
+  titleEl.className='header-title';titleEl.textContent=title;
+
+  hdr.appendChild(rightActions);
+  hdr.appendChild(titleEl);
+  hdr.appendChild(leftActions);
+  app.appendChild(hdr);
+
+  window.onscroll=()=>hdr.classList.toggle('scrolled',window.scrollY>4);
+
+  const screen=document.createElement('div');
+  screen.className='screen';
+
+  if(currentScreen==='home') renderHome(screen);
+  else if(currentScreen==='folder') renderFolder(screen);
+  else if(currentScreen==='list') renderList(screen);
+  else if(currentScreen==='flashcards') renderFlashcards(screen);
+  else if(currentScreen==='matching') renderMatching(screen);
+
+  app.appendChild(screen);
+  if(activeModal) app.appendChild(activeModal);
+}
+
+// ===================== HOME =====================
+function renderHome(screen){
+  if(appState.recentPaths.length>0){
+    const sh=makeSection('אחרונים');
+    screen.appendChild(sh);
+    for(const r of appState.recentPaths.slice(0,3)){
+      const c=makeCard(r.type==='folder'?'📁':'📝',r.name,'אחרון',()=>{
+        if(r.type==='folder') navigate('folder',{folderId:r.id});
+        else navigate('list',{listId:r.id});
+      });
+      screen.appendChild(c);
+    }
+  }
+
+  const sh=document.createElement('div');
+  sh.className='section-header';
+  const st=document.createElement('span');st.className='section-title';st.textContent='תיקיות';
+  const allBtn=document.createElement('button');
+  allBtn.className='link-btn';allBtn.textContent='🎮 כל המילים';
+  allBtn.onclick=()=>{
+    const words=getAllWords(appState.folders);
+    if(!words.length){alert('אין מילים עדיין');return;}
+    mgState.initialized=false;
+    navigate('matching',{matchWords:shuffle(words).slice(0,8)});
+  };
+  sh.appendChild(allBtn);sh.appendChild(st);
+  screen.appendChild(sh);
+
+  if(!appState.folders.length){
+    screen.appendChild(makeEmpty('📁','אין תיקיות עדיין\nלחץ 📁 בראש המסך'));
+  } else {
+    for(const f of appState.folders) renderFolderCard(screen,f,appState.folders);
+  }
+}
+
+// ===================== FOLDER SCREEN =====================
+function renderFolder(screen){
+  const f=findFolder(currentFolderId,appState.folders);
+  if(!f){currentScreen='home';render();return;}
+  if(!(f.subfolders||[]).length&&!f.lists.length){
+    screen.appendChild(makeEmpty('📂','תיקייה ריקה\nהוסף תת-תיקיות ורשימות'));
+  }
+  for(const sf of (f.subfolders||[])) renderFolderCard(screen,sf,f.subfolders);
+  for(const l of f.lists) renderListCard(screen,l,f);
+}
+
+// ===================== LIST SCREEN =====================
+function renderList(screen){
+  const l=findList(currentListId,appState.folders);
+  if(!l){currentScreen='home';render();return;}
+
+  const ab=document.createElement('div');ab.className='action-bar';
+  const fcBtn=document.createElement('button');
+  fcBtn.className='btn btn-primary';fcBtn.textContent='🃏 כרטיסיות';
+  fcBtn.onclick=()=>{
+    if(!l.words.length){alert('אין מילים ברשימה');return;}
+    fcState.initialized=false;
+    navigate('flashcards',{fcWords:[...l.words]});
+  };
+  const mgBtn=document.createElement('button');
+  mgBtn.className='btn btn-secondary';mgBtn.textContent='🎮 התאמה';
+  mgBtn.onclick=()=>{
+    if(!l.words.length){alert('אין מילים ברשימה');return;}
+    mgState.initialized=false;
+    navigate('matching',{matchWords:l.words});
+  };
+  ab.appendChild(fcBtn);ab.appendChild(mgBtn);
+  screen.appendChild(ab);
+
+  const sh=document.createElement('div');sh.className='section-header';
+  const st=document.createElement('span');st.className='section-title';
+  st.textContent=`מילים (${l.words.length})`;
+  const addBtn=document.createElement('button');addBtn.className='link-btn';addBtn.textContent='+ הוסף מילה';
+  addBtn.onclick=()=>showAddWordModal(l);
+  sh.appendChild(addBtn);sh.appendChild(st);
+  screen.appendChild(sh);
+
+  if(!l.words.length){
+    screen.appendChild(makeEmpty('💬','אין מילים עדיין'));
+  } else {
+    for(let i=0;i<l.words.length;i++){
+      const w=l.words[i];
+      const row=document.createElement('div');row.className='word-row';
+      const frSpan=document.createElement('span');frSpan.className='word-fr';frSpan.textContent=w.fr;
+      const heSpan=document.createElement('span');heSpan.className='word-he';heSpan.textContent=w.he;
+      const delBtn=document.createElement('button');delBtn.className='del-btn';delBtn.textContent='×';
+      delBtn.onclick=()=>{l.words.splice(i,1);saveState();render();};
+      const ttsBtn=document.createElement('button');
+      ttsBtn.style.cssText='background:none;border:none;font-size:18px;cursor:pointer;opacity:.6;padding:2px 4px';
+      ttsBtn.textContent='🔊';
+      ttsBtn.onclick=()=>speak(w.fr);
+      row.appendChild(frSpan);row.appendChild(ttsBtn);row.appendChild(heSpan);row.appendChild(delBtn);
+      screen.appendChild(row);
+    }
+  }
+}
+
+// ===================== FLASHCARDS =====================
+function renderFlashcards(screen){
+  if(!activeFcWords.length){goBack();return;}
+
+  if(!fcState.initialized){
+    fcState={
+      words:shuffle([...activeFcWords]),
+      flipped:false,
+      known:[],
+      initialized:true,
+    };
+  }
+
+  const remaining=fcState.words;
+  const total=fcState.known.length+remaining.length;
+  const done=fcState.known.length;
+
+  if(!remaining.length){
+    const fs=document.createElement('div');fs.className='finish-screen';
+    fs.innerHTML=`<div class="finish-icon">🎉</div><div class="finish-title">סיימת סבב!</div><div class="finish-sub">למדת ${fcState.known.length} מילים</div>`;
+    const fa=document.createElement('div');fa.className='finish-actions';
+    const again=document.createElement('button');again.className='btn btn-primary';again.textContent='🔄 תרגל שוב';
+    again.onclick=()=>{fcState.initialized=false;render();};
+    const rand=document.createElement('button');rand.className='btn btn-secondary';rand.textContent='🔀 רשימה אקראית';
+    rand.onclick=()=>{
+      const all=getAllWords(appState.folders);
+      if(!all.length) return;
+      activeFcWords=shuffle(all).slice(0,12);
+      fcState.initialized=false;render();
+    };
+    fa.appendChild(again);fa.appendChild(rand);
+    fs.appendChild(fa);screen.appendChild(fs);
+    return;
+  }
+
+  // Progress bar
+  const pb=document.createElement('div');pb.className='progress-bar';
+  const pf=document.createElement('div');pf.className='progress-fill';
+  pf.style.width=`${Math.round((done/total)*100)}%`;
+  pb.appendChild(pf);screen.appendChild(pb);
+
+  const cr=document.createElement('div');
+  cr.className='counter-row';
+  cr.innerHTML=`<span class="counter-label">כרטיסייה</span><span class="counter-num">${done+1} / ${total}</span>`;
+  screen.appendChild(cr);
+
+  const w=remaining[0];
+
+  const wrap=document.createElement('div');wrap.className='flashcard-wrap';
+  const fc=document.createElement('div');fc.className='flashcard'+(fcState.flipped?' flipped':'');
+
+  // Front (French)
+  const front=document.createElement('div');front.className='card-face front';
+  const fw=document.createElement('div');fw.className='card-word fr';fw.textContent=w.fr;
+  const ftts=document.createElement('div');ftts.className='card-tts';ftts.textContent='🔊';
+  ftts.onclick=e=>{e.stopPropagation();speak(w.fr);};
+  front.appendChild(fw);front.appendChild(ftts);
+
+  // Back (Hebrew)
+  const back=document.createElement('div');back.className='card-face back';
+  const bw=document.createElement('div');bw.className='card-word he';bw.textContent=w.he;
+  const btts=document.createElement('div');btts.className='card-tts';btts.textContent='🔊';
+  btts.onclick=e=>{e.stopPropagation();speak(w.fr);};
+  back.appendChild(bw);back.appendChild(btts);
+
+  fc.appendChild(front);fc.appendChild(back);
+  fc.onclick=()=>{fcState.flipped=!fcState.flipped;render();};
+  wrap.appendChild(fc);screen.appendChild(wrap);
+
+  const acts=document.createElement('div');acts.className='fc-actions';
+  const flipBtn=document.createElement('button');flipBtn.className='fc-btn fc-flip';flipBtn.textContent='🔁 הפוך';
+  flipBtn.onclick=()=>{fcState.flipped=!fcState.flipped;render();};
+  const knowBtn=document.createElement('button');knowBtn.className='fc-btn fc-know';knowBtn.textContent='✓ ידעתי';
+  knowBtn.onclick=()=>{fcState.known.push(remaining.shift());fcState.flipped=false;render();};
+  const forgotBtn=document.createElement('button');forgotBtn.className='fc-btn fc-forgot';forgotBtn.textContent='↩ שכחתי';
+  forgotBtn.onclick=()=>{remaining.push(remaining.shift());fcState.flipped=false;render();};
+  acts.appendChild(flipBtn);acts.appendChild(knowBtn);acts.appendChild(forgotBtn);
+  screen.appendChild(acts);
+}
+
+// ===================== MATCHING GAME =====================
+function renderMatching(screen){
+  const words=activeMatchWords;
+  if(!words.length){goBack();return;}
+
+  if(!mgState.initialized){
+    const pool=shuffle([...words]).slice(0,6);
+    mgState={
+      frCards:shuffle(pool.map((w,i)=>({...w,id:'fr'+i,done:false}))),
+      heCards:shuffle(pool.map((w,i)=>({...w,id:'he'+i,done:false}))),
+      selectedFr:null,selectedHe:null,
+      score:0,total:pool.length,
+      initialized:true,locked:false
+    };
+  }
+
+  const matched=mgState.frCards.filter(c=>c.done).length;
+  const pb=document.createElement('div');pb.className='progress-bar';
+  const pf=document.createElement('div');pf.className='progress-fill';
+  pf.style.width=`${Math.round((matched/mgState.total)*100)}%`;
+  pb.appendChild(pf);screen.appendChild(pb);
+
+  const cr=document.createElement('div');cr.className='counter-row';
+  cr.innerHTML=`<span class="counter-label">התאמות</span><span class="counter-num">${matched} / ${mgState.total}</span>`;
+  screen.appendChild(cr);
+
+  if(matched===mgState.total){
+    const fs=document.createElement('div');fs.className='finish-screen';
+    fs.innerHTML=`<div class="finish-icon">🏆</div><div class="finish-title">כל הכבוד!</div><div class="finish-sub">התאמת את כל המילים!</div>`;
+    const fa=document.createElement('div');fa.className='finish-actions';
+    const again=document.createElement('button');again.className='btn btn-primary';again.textContent='🔄 שחק שוב';
+    again.onclick=()=>{mgState.initialized=false;render();};
+    const more=document.createElement('button');more.className='btn btn-secondary';more.textContent='🔀 מילים חדשות';
+    more.onclick=()=>{
+      const all=getAllWords(appState.folders);
+      activeMatchWords=shuffle(all).slice(0,8);
+      mgState.initialized=false;render();
+    };
+    fa.appendChild(again);fa.appendChild(more);
+    fs.appendChild(fa);screen.appendChild(fs);
+    return;
+  }
+
+  const grid=document.createElement('div');grid.className='match-grid';
+  const frCol=document.createElement('div');frCol.className='match-col';
+  const heCol=document.createElement('div');heCol.className='match-col';
+
+  for(const c of mgState.frCards){
+    const el=document.createElement('div');el.className='match-card';
+    el.style.direction='ltr';el.textContent=c.fr;
+    if(c.done) el.classList.add('matched');
+    else if(mgState.selectedFr===c.id) el.classList.add('selected');
+    el.onclick=()=>{
+      if(c.done||mgState.locked) return;
+      speak(c.fr);
+      mgState.selectedFr=c.id;
+      tryMatch();
+      render();
+    };
+    frCol.appendChild(el);
+  }
+
+  for(const c of mgState.heCards){
+    const el=document.createElement('div');el.className='match-card';
+    el.textContent=c.he;
+    if(c.done) el.classList.add('matched');
+    else if(mgState.selectedHe===c.id) el.classList.add('selected');
+    el.onclick=()=>{
+      if(c.done||mgState.locked) return;
+      mgState.selectedHe=c.id;
+      tryMatch();
+      render();
+    };
+    heCol.appendChild(el);
+  }
+
+  grid.appendChild(frCol);grid.appendChild(heCol);
+  screen.appendChild(grid);
+}
+
+function tryMatch(){
+  if(!mgState.selectedFr||!mgState.selectedHe) return;
+  const fr=mgState.frCards.find(c=>c.id===mgState.selectedFr);
+  const he=mgState.heCards.find(c=>c.id===mgState.selectedHe);
+  if(!fr||!he) return;
+
+  mgState.locked=true;
+
+  if(fr.fr===he.fr){
+    setTimeout(()=>{
+      fr.done=true;he.done=true;
+      mgState.score++;
+      mgState.selectedFr=null;mgState.selectedHe=null;
+      mgState.locked=false;
+      render();
+    },350);
+  } else {
+    // Flash wrong color via re-render, then reset
+    setTimeout(()=>{
+      mgState.selectedFr=null;mgState.selectedHe=null;
+      mgState.locked=false;
+      render();
+    },700);
+  }
+}
+
+// ===================== CARD BUILDERS =====================
+function makeCard(icon,name,sub,onclick){
+  const c=document.createElement('div');c.className='card';
+  const ic=document.createElement('span');ic.className='card-icon';ic.textContent=icon;
+  const info=document.createElement('div');info.className='card-info';
+  const nm=document.createElement('div');nm.className='card-name';nm.textContent=name;
+  info.appendChild(nm);
+  if(sub){
+    const s=document.createElement('div');
+    if(sub==='אחרון'){s.className='tag-recent';s.textContent=sub;}
+    else{s.className='card-sub';s.textContent=sub;}
+    info.appendChild(s);
+  }
+  const ar=document.createElement('span');ar.className='card-arrow';ar.textContent='›';
+  c.appendChild(ic);c.appendChild(info);c.appendChild(ar);
+  c.onclick=onclick;
+  return c;
+}
+
+function makeSection(title){
+  const sh=document.createElement('div');sh.className='section-header';
+  const st=document.createElement('span');st.className='section-title';st.textContent=title;
+  sh.appendChild(st);return sh;
+}
+
+function makeEmpty(icon,text){
+  const e=document.createElement('div');e.className='empty';
+  e.innerHTML=`<div class="empty-icon">${icon}</div><div>${text.replace('\n','<br>')}</div>`;
+  return e;
+}
+
+function renderFolderCard(container,f,parentArr){
+  const count=countWords(f);
+  const c=document.createElement('div');c.className='card';
+
+  const ic=document.createElement('span');ic.className='card-icon';ic.textContent='📁';
+  const info=document.createElement('div');info.className='card-info';
+  const nm=document.createElement('div');nm.className='card-name';nm.textContent=f.name;
+  const sub=document.createElement('div');sub.className='card-sub';sub.textContent=`${count} מילים`;
+  info.appendChild(nm);info.appendChild(sub);
+  const ar=document.createElement('span');ar.className='card-arrow';ar.textContent='›';
+
+  nm.onclick=e=>{e.stopPropagation();startEdit(nm,f,parentArr);};
+
+  c.onclick=e=>{
+    if(e.target===nm||nm.contains(e.target)) return;
+    addRecent({id:f.id,name:f.name,type:'folder'});
+    navigate('folder',{folderId:f.id});
+  };
+
+  let pressTimer;
+  const startPress=()=>{pressTimer=setTimeout(()=>showDeleteModal('folder',f,parentArr),600);};
+  const endPress=()=>clearTimeout(pressTimer);
+  c.addEventListener('mousedown',startPress);c.addEventListener('touchstart',startPress,{passive:true});
+  c.addEventListener('mouseup',endPress);c.addEventListener('touchend',endPress);
+
+  c.appendChild(ic);c.appendChild(info);c.appendChild(ar);
+  container.appendChild(c);
+}
+
+function renderListCard(container,l,folder){
+  const c=document.createElement('div');c.className='card';
+  const ic=document.createElement('span');ic.className='card-icon';ic.textContent='📝';
+  const info=document.createElement('div');info.className='card-info';
+  const nm=document.createElement('div');nm.className='card-name';nm.textContent=l.name;
+  const sub=document.createElement('div');sub.className='card-sub';sub.textContent=`${l.words.length} מילים`;
+  info.appendChild(nm);info.appendChild(sub);
+  const ar=document.createElement('span');ar.className='card-arrow';ar.textContent='›';
+
+  nm.onclick=e=>{e.stopPropagation();startEdit(nm,l,folder.lists);};
+
+  c.onclick=e=>{
+    if(e.target===nm||nm.contains(e.target)) return;
+    addRecent({id:l.id,name:l.name,type:'list'});
+    navigate('list',{listId:l.id});
+  };
+
+  let pressTimer;
+  const startPress=()=>{pressTimer=setTimeout(()=>showDeleteModal('list',l,folder.lists),600);};
+  const endPress=()=>clearTimeout(pressTimer);
+  c.addEventListener('mousedown',startPress);c.addEventListener('touchstart',startPress,{passive:true});
+  c.addEventListener('mouseup',endPress);c.addEventListener('touchend',endPress);
+
+  c.appendChild(ic);c.appendChild(info);c.appendChild(ar);
+  container.appendChild(c);
+}
+
+// ===================== EDIT IN PLACE =====================
+function startEdit(el,item,arr){
+  if(editingId===item.id) return;
+  editingId=item.id;
+  const orig=item.name;
+  const inp=document.createElement('input');
+  inp.type='text';inp.className='edit-input';
+  inp.value=orig;inp.maxLength=25;
+  el.replaceWith(inp);
+  inp.focus();inp.select();
+  function done(){
+    editingId=null;
+    const n=inp.value.trim();
+    if(n&&n!==orig){item.name=n.slice(0,25);saveState();}
+    render();
+  }
+  inp.onblur=done;
+  inp.onkeydown=e=>{if(e.key==='Enter')inp.blur();if(e.key==='Escape'){item.name=orig;editingId=null;inp.blur();}};
+}
+
+// ===================== MODALS =====================
+function showModal(content){
+  const bg=document.createElement('div');bg.className='modal-bg';
+  bg.onclick=e=>{if(e.target===bg){closeModal();}};
+  const m=document.createElement('div');m.className='modal';
+  m.appendChild(content);
+  bg.appendChild(m);
+  activeModal=bg;
+  render();
+  return m;
+}
+
+function closeModal(){activeModal=null;render();}
+
+function showAddFolderModal(){
+  const frag=document.createDocumentFragment();
+  const title=document.createElement('div');title.className='modal-title';title.textContent='תיקייה חדשה';
+  const inp=document.createElement('input');inp.type='text';inp.placeholder='שם התיקייה (עד 25 תווים)';inp.maxLength=25;inp.style.marginBottom='12px';
+  const acts=document.createElement('div');acts.className='modal-actions';
+  const cancel=document.createElement('button');cancel.className='btn btn-secondary';cancel.textContent='ביטול';
+  cancel.onclick=closeModal;
+  const add=document.createElement('button');add.className='btn btn-primary';add.textContent='הוסף';
+  add.onclick=()=>{
+    const n=inp.value.trim();if(!n) return;
+    const newF={id:uid(),name:n.slice(0,25),subfolders:[],lists:[]};
+    if(currentFolderId){
+      const pf=findFolder(currentFolderId,appState.folders);
+      if(pf) pf.subfolders.push(newF);
+    } else {
+      appState.folders.push(newF);
+    }
+    saveState();closeModal();
+  };
+  acts.appendChild(cancel);acts.appendChild(add);
+  frag.appendChild(title);frag.appendChild(inp);frag.appendChild(acts);
+  const m=showModal(frag);
+  setTimeout(()=>m.querySelector('input')?.focus(),100);
+}
+
+function showAddListModal(){
+  let targetFolder=currentFolderId?findFolder(currentFolderId,appState.folders):null;
+  if(!targetFolder&&!appState.folders.length){alert('צור תיקייה תחילה');return;}
+
+  const frag=document.createDocumentFragment();
+  const title=document.createElement('div');title.className='modal-title';title.textContent='רשימה חדשה';
+
+  if(!targetFolder){
+    const sel=document.createElement('select');sel.className='select-field';
+    for(const f of appState.folders){
+      const o=document.createElement('option');o.value=f.id;o.textContent=f.name;sel.appendChild(o);
+    }
+    targetFolder=findFolder(appState.folders[0].id,appState.folders);
+    sel.onchange=()=>{targetFolder=findFolder(sel.value,appState.folders);};
+    frag.appendChild(title);frag.appendChild(sel);
+  } else {
+    frag.appendChild(title);
+  }
+
+  const inp=document.createElement('input');inp.type='text';inp.placeholder='שם הרשימה (עד 25 תווים)';inp.maxLength=25;inp.style.marginBottom='12px';
+  const acts=document.createElement('div');acts.className='modal-actions';
+  const cancel=document.createElement('button');cancel.className='btn btn-secondary';cancel.textContent='ביטול';
+  cancel.onclick=closeModal;
+  const add=document.createElement('button');add.className='btn btn-primary';add.textContent='הוסף';
+  add.onclick=()=>{
+    const n=inp.value.trim();if(!n||!targetFolder) return;
+    targetFolder.lists.push({id:uid(),name:n.slice(0,25),words:[]});
+    saveState();closeModal();
+  };
+  acts.appendChild(cancel);acts.appendChild(add);
+  frag.appendChild(inp);frag.appendChild(acts);
+  const m=showModal(frag);
+  setTimeout(()=>m.querySelector('input[type=text]')?.focus(),100);
+}
+
+function showAddWordModal(list){
+  const frag=document.createDocumentFragment();
+  const title=document.createElement('div');title.className='modal-title';title.textContent='הוסף מילה';
+
+  const frWrap=document.createElement('div');frWrap.style.cssText='position:relative;margin-bottom:12px';
+  const frInp=document.createElement('input');frInp.type='text';frInp.placeholder='צרפתית';frInp.style.direction='ltr';
+  const frDd=document.createElement('div');frDd.className='dropdown';frDd.style.display='none';
+  frWrap.appendChild(frInp);frWrap.appendChild(frDd);
+
+  const heWrap=document.createElement('div');heWrap.style.cssText='position:relative;margin-bottom:12px';
+  const heInp=document.createElement('input');heInp.type='text';heInp.placeholder='עברית';
+  const heDd=document.createElement('div');heDd.className='dropdown';heDd.style.display='none';
+  heWrap.appendChild(heInp);heWrap.appendChild(heDd);
+
+  function buildDd(dd,matches,pickFn){
+    dd.innerHTML='';
+    if(!matches.length){dd.style.display='none';return;}
+    dd.style.display='block';
+    for(const d of matches){
+      const item=document.createElement('div');item.className='dropdown-item';
+      item.innerHTML=`<span class="dd-fr" style="direction:ltr">${d.fr}</span><span class="dd-he">${d.he}</span>`;
+      item.onmousedown=e=>{e.preventDefault();pickFn(d);};
+      item.ontouchstart=e=>{e.preventDefault();pickFn(d);};
+      dd.appendChild(item);
+    }
+  }
+
+  frInp.oninput=()=>{
+    frInp.classList.remove('from-dict');
+    const v=frInp.value;
+    buildDd(frDd,DICT.filter(d=>d.fr.toLowerCase().startsWith(v.toLowerCase())).slice(0,7),d=>{
+      frInp.value=d.fr;heInp.value=d.he;
+      frInp.classList.add('from-dict');heInp.classList.add('from-dict');
+      frDd.style.display='none';heDd.style.display='none';
+    });
+  };
+  frInp.onblur=()=>setTimeout(()=>frDd.style.display='none',200);
+
+  heInp.oninput=()=>{
+    heInp.classList.remove('from-dict');
+    const v=heInp.value;
+    buildDd(heDd,DICT.filter(d=>d.he.startsWith(v)).slice(0,7),d=>{
+      heInp.value=d.he;frInp.value=d.fr;
+      frInp.classList.add('from-dict');heInp.classList.add('from-dict');
+      frDd.style.display='none';heDd.style.display='none';
+    });
+  };
+  heInp.onblur=()=>setTimeout(()=>heDd.style.display='none',200);
+
+  const acts=document.createElement('div');acts.className='modal-actions';
+  const cancel=document.createElement('button');cancel.className='btn btn-secondary';cancel.textContent='ביטול';
+  cancel.onclick=closeModal;
+  const add=document.createElement('button');add.className='btn btn-primary';add.textContent='הוסף';
+  add.onclick=()=>{
+    const fr=frInp.value.trim();const he=heInp.value.trim();
+    if(!fr||!he) return;
+    list.words.push({fr,he});
+    saveState();closeModal();
+  };
+  acts.appendChild(cancel);acts.appendChild(add);
+  frag.appendChild(title);frag.appendChild(frWrap);frag.appendChild(heWrap);frag.appendChild(acts);
+  const m=showModal(frag);
+  setTimeout(()=>m.querySelector('input')?.focus(),100);
+}
+
+function showDeleteModal(type,item,arr){
+  const label=type==='folder'?'תיקייה':'רשימה';
+  const frag=document.createDocumentFragment();
+  const title=document.createElement('div');title.className='modal-title';title.textContent=`מחיקת ${label}`;
+  const p=document.createElement('p');
+  p.style.cssText='text-align:center;color:#6C757D;margin-bottom:8px;line-height:1.5';
+  p.innerHTML=`האם למחוק את<br><strong>"${item.name}"</strong>?<br><small>פעולה זו אינה הפיכה</small>`;
+  const acts=document.createElement('div');acts.className='modal-actions';
+  const cancel=document.createElement('button');cancel.className='btn btn-secondary';cancel.textContent='ביטול';
+  cancel.onclick=closeModal;
+  const del=document.createElement('button');del.className='btn btn-danger';del.textContent='מחק';
+  del.onclick=()=>{
+    if(type==='folder'){
+      appState.folders=deleteFolder(item.id,appState.folders);
+      if(currentFolderId===item.id){currentFolderId=null;currentScreen='home';}
+    } else {
+      deleteList(item.id,appState.folders);
+      if(currentListId===item.id){currentListId=null;currentScreen='home';}
+    }
+    saveState();closeModal();
+  };
+  acts.appendChild(cancel);acts.appendChild(del);
+  frag.appendChild(title);frag.appendChild(p);frag.appendChild(acts);
+  showModal(frag);
+}
+
+// ===================== OFFLINE DETECTION =====================
+window.addEventListener('online',()=>document.getElementById('offline-banner').classList.remove('show'));
+window.addEventListener('offline',()=>document.getElementById('offline-banner').classList.add('show'));
+if(!navigator.onLine) document.getElementById('offline-banner').classList.add('show');
+
+// ===================== SERVICE WORKER =====================
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+// ===================== INIT =====================
+render();
+</script>
+</body>
+</html>
