@@ -176,6 +176,16 @@ input.from-dict{border-color:var(--blue);background:#F0F6FF}
 .offline-banner{background:#FF9500;color:#fff;text-align:center;font-size:13px;padding:6px;font-weight:600;display:none}
 .offline-banner.show{display:block}
 
+/* ── HOME PRIMARY BTN ── */
+.home-add-btn{width:100%;padding:16px;border-radius:14px;border:none;background:var(--blue);color:#fff;font-size:17px;font-weight:700;cursor:pointer;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(0,122,255,.25);transition:transform .15s,box-shadow .15s}
+.home-add-btn:active{transform:scale(.97);box-shadow:none}
+
+/* ── RECENT WORDS ── */
+.recent-word-row{background:#fff;border-radius:10px;padding:10px 14px;margin-bottom:6px;display:flex;align-items:center;gap:8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.recent-word-fr{direction:ltr;font-size:14px;font-weight:600;flex:1;text-align:left;color:#000}
+.recent-word-he{font-size:14px;color:#444;flex:1;text-align:right}
+.recent-word-list{font-size:11px;color:var(--gray);flex-shrink:0}
+
 /* ── STAR / HARD WORD ── */
 .word-star{background:none;border:none;font-size:18px;cursor:pointer;padding:2px 4px;flex-shrink:0;opacity:.35;transition:opacity .15s,transform .15s}
 .word-star:active{transform:scale(1.3)}
@@ -952,7 +962,7 @@ function defaultState(){
     {id:'f2',name:'בית וסביבה',subfolders:[],lists:[
       {id:'l3',name:'רהיטים',words:[{fr:'table',he:'שולחן'},{fr:'chaise',he:'כיסא'},{fr:'fenêtre',he:'חלון'},{fr:'porte',he:'דלת'}]}
     ]}
-  ],recentPaths:[]};
+  ],recentPaths:[],recentWords:[]};
 }
 
 function loadState(){
@@ -965,7 +975,7 @@ function loadState(){
         const old=JSON.parse(localStorage.getItem('french_app_v2'));
         if(old.folders)return{...defaultState(),...old};
       }
-      if(d.folders)return d;
+      if(d.folders){if(!d.recentWords)d.recentWords=[];return d;}
     }
   }catch(e){}
   return defaultState();
@@ -1246,22 +1256,51 @@ function makeBreadcrumb(){
 //  HOME SCREEN
 // ════════════════════════════════════════
 function renderHome(screen){
-  if(appState.recentPaths.length>0){
-    screen.appendChild(mkSectionHeader('אחרונים'));
-    for(const r of appState.recentPaths.slice(0,3)){
-      const c=makeCard(r.type==='folder'?'📁':'📝',r.name,'אחרון',()=>{
-        if(r.type==='folder')navigate('folder',{folderId:r.id});
-        else navigate('list',{listId:r.id});
-      });
-      screen.appendChild(c);
+  // Primary action: Add word
+  const addBtn=document.createElement('button');
+  addBtn.className='home-add-btn';
+  addBtn.innerHTML='➕ הוסף מילה חדשה';
+  addBtn.onclick=()=>{
+    const allLists=[];
+    function collectLists(folders){for(const f of folders){allLists.push(...f.lists);if(f.subfolders)collectLists(f.subfolders);}}
+    collectLists(appState.folders);
+    if(!allLists.length){alert('צור תחילה תיקייה ורשימה');return;}
+    if(allLists.length===1){showAddWordModal(allLists[0]);return;}
+    // show picker
+    const frag=document.createDocumentFragment();
+    frag.appendChild(mk('div','modal-title','בחר רשימה'));
+    for(const l of allLists){
+      const btn=document.createElement('button');
+      btn.className='btn btn-secondary';
+      btn.style.cssText='width:100%;margin-bottom:8px;text-align:right';
+      btn.textContent=l.name;
+      btn.onclick=()=>{closeModal();showAddWordModal(l);};
+      frag.appendChild(btn);
+    }
+    frag.appendChild(mkBtn('btn btn-secondary','ביטול',closeModal));
+    showModal(frag);
+  };
+  screen.appendChild(addBtn);
+
+  // Recently added words
+  const rw=appState.recentWords||[];
+  if(rw.length>0){
+    screen.appendChild(mkSectionHeader('נוספו לאחרונה'));
+    for(const w of rw.slice(0,6)){
+      const row=document.createElement('div');
+      row.className='recent-word-row';
+      const frEl=document.createElement('span');frEl.className='recent-word-fr';frEl.textContent=w.fr;
+      const heEl=document.createElement('span');heEl.className='recent-word-he';heEl.textContent=w.he;
+      const listEl=document.createElement('span');listEl.className='recent-word-list';listEl.textContent=w.listName||'';
+      row.appendChild(frEl);row.appendChild(heEl);row.appendChild(listEl);
+      screen.appendChild(row);
     }
   }
 
+  // Folders
   const sh=document.createElement('div');
   sh.className='section-header';
-  const st=document.createElement('span');
-  st.className='section-title';
-  st.textContent='תיקיות';
+  const st=document.createElement('span');st.className='section-title';st.textContent='תיקיות';
   const allBtn=document.createElement('button');
   allBtn.className='link-btn';
   allBtn.textContent='🧠 כל המילים';
@@ -1271,8 +1310,7 @@ function renderHome(screen){
     mgState={initialized:false};
     navigate('matching',{matchWords:shuffle(weightedWords(words)).filter((w,i,a)=>a.findIndex(x=>x.fr===w.fr)===i).slice(0,8)});
   };
-  sh.appendChild(allBtn);
-  sh.appendChild(st);
+  sh.appendChild(allBtn);sh.appendChild(st);
   screen.appendChild(sh);
 
   if(!appState.folders.length){
@@ -1766,7 +1804,7 @@ function renderQuizFinish(screen,q){
     <div class="finish-sub">${pct}% הצלחה</div>`;
   const fa=document.createElement('div');fa.className='finish-actions';
   const again=document.createElement('button');again.className='btn btn-primary';again.textContent='🔄 שחק שוב';
-  again.onclick=()=>{qzState={pendingDirection:q.direction,initialized:false};render();};
+  again.onclick=()=>{qzState={pendingDirection:q.direction,locked:false,initialized:false};render();};
   const flip=document.createElement('button');flip.className='btn btn-secondary';
   flip.textContent=q.direction==='fr2he'?'🔀 עברית ← צרפתית':'🔀 צרפתית ← עברית';
   flip.onclick=()=>{qzState={pendingDirection:q.direction==='fr2he'?'he2fr':'fr2he',initialized:false};render();};
@@ -1786,7 +1824,7 @@ function renderQuiz(screen){
     for(const w of shuffle(weightedWords([...activeQuizWords]))){
       if(!seen.has(w.fr)){seen.add(w.fr);questions.push(w);if(questions.length>=10)break;}
     }
-    qzState={direction:dir,questions,idx:0,score:0,selected:null,options:null,initialized:true,pendingDirection:dir};
+    qzState={direction:dir,questions,idx:0,score:0,options:null,locked:false,initialized:true,pendingDirection:dir};
   }
   const q=qzState;
 
@@ -1835,17 +1873,12 @@ function renderQuiz(screen){
 
   // Options
   const opts=document.createElement('div');opts.className='quiz-options';
-  const answered=q.selected!==null;
   const optIsFr=q.direction==='he2fr';
 
   for(let i=0;i<q.options.length;i++){
     const opt=q.options[i];
     const btn=document.createElement('div');
     btn.className='quiz-opt'+(optIsFr?' fr-opt':'');
-    if(answered){
-      if(opt.correct)btn.classList.add('reveal-ans');
-      else if(i===q.selected)btn.classList.add('wrong-ans');
-    }
     const textEl=document.createElement('span');textEl.className='quiz-opt-text';textEl.textContent=opt.text;
     btn.appendChild(textEl);
     if(optIsFr){
@@ -1853,25 +1886,27 @@ function renderQuiz(screen){
       tts.onclick=e=>{e.stopPropagation();speak(opt.text);};
       btn.appendChild(tts);
     }
-    if(!answered){
-      btn.onclick=()=>{
-        q.selected=i;
-        if(opt.correct){q.score++;}
-        render();
-      };
-    }
+    btn.onclick=()=>{
+      if(q.locked)return;
+      q.locked=true;
+      if(opt.correct){
+        btn.classList.add('correct-ans');
+        q.score++;
+        setTimeout(()=>{
+          q.idx++;q.options=null;q.locked=false;
+          render();
+        },1500);
+      } else {
+        btn.classList.add('wrong-ans');
+        setTimeout(()=>{
+          btn.classList.remove('wrong-ans');
+          q.locked=false;
+        },1500);
+      }
+    };
     opts.appendChild(btn);
   }
   screen.appendChild(opts);
-
-  // Next button after answering
-  if(answered){
-    const nextBtn=document.createElement('button');
-    nextBtn.className='btn btn-primary quiz-next-btn';
-    nextBtn.textContent=q.idx<q.questions.length-1?'הבא ›':'📊 תוצאות';
-    nextBtn.onclick=()=>{q.idx++;q.selected=null;q.options=null;render();};
-    screen.appendChild(nextBtn);
-  }
 }
 
 // ════════════════════════════════════════
@@ -2010,7 +2045,13 @@ function showAddWordModal(list){
   const add=mkBtn('btn btn-primary','הוסף',()=>{
     const fr=frInp.value.trim();const he=heInp.value.trim();
     if(!fr||!he)return;
-    list.words.push({fr,he});saveState();closeModal();
+    const w={fr,he};
+    list.words.push(w);
+    if(!appState.recentWords)appState.recentWords=[];
+    appState.recentWords=appState.recentWords.filter(r=>r.fr!==fr);
+    appState.recentWords.unshift({fr,he,listName:list.name,listId:list.id});
+    if(appState.recentWords.length>12)appState.recentWords.pop();
+    saveState();closeModal();
   });
   acts.appendChild(cancel);acts.appendChild(add);
   frag.appendChild(frWrap);frag.appendChild(heWrap);frag.appendChild(acts);
