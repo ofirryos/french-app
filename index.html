@@ -13,345 +13,1244 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Helvetica Neue',Arial,sans-serif;background:#F5F5F7;color:#000;direction:rtl;max-width:390px;margin:0 auto;min-height:100vh;overflow-x:hidden}
-:root{--blue:#007AFF;--green:#27DC03;--red:#E73D00;--gray:#6C757D;--card-radius:14px}
-.header{position:sticky;top:0;z-index:100;background:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #E5E5EA;transition:box-shadow .2s}
+:root{--blue:#007AFF;--green:#27DC03;--red:#E73D00;--orange:#FF9500;--gray:#6C757D;--card-radius:14px;--hdr:54px;--bc:32px}
+
+/* ── HEADER ── */
+.header{position:sticky;top:0;z-index:100;background:#fff;padding:0 12px;height:var(--hdr);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #E5E5EA;transition:box-shadow .2s}
 .header.scrolled{box-shadow:0 2px 12px rgba(0,0,0,.1)}
-.header-title{font-size:18px;font-weight:700;flex:1;text-align:center}
-.header-actions{display:flex;gap:8px}
-.btn-icon{width:36px;height:36px;border-radius:50%;border:none;background:#F2F2F7;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;transition:transform .15s,background .15s;flex-shrink:0}
-.btn-icon:active{transform:scale(.97);background:#E5E5EA}
-.btn{padding:10px 18px;border-radius:10px;border:none;cursor:pointer;font-size:15px;font-weight:600;transition:transform .15s,opacity .15s}
+.header-title{font-size:17px;font-weight:700;flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px}
+.header-actions{display:flex;gap:6px;min-width:72px}
+.header-actions.left{justify-content:flex-end}
+.header-actions.right{justify-content:flex-start}
+.btn-icon{width:36px;height:36px;border-radius:50%;border:none;background:#F2F2F7;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:transform .15s,background .15s;flex-shrink:0}
+.btn-icon:active{transform:scale(.95);background:#E5E5EA}
+.btn-icon.danger{background:#FFF0ED;color:var(--red)}
+.btn-icon.danger:active{background:#FFE0D9}
+
+/* ── BREADCRUMB ── */
+.breadcrumb{height:var(--bc);background:#fff;border-bottom:1px solid #F0F0F5;padding:0 14px;display:flex;align-items:center;gap:4px;font-size:12px;color:var(--gray);overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
+.breadcrumb::-webkit-scrollbar{display:none}
+.bc-item{cursor:pointer;color:var(--blue);font-weight:500;flex-shrink:0}
+.bc-item.current{color:var(--gray);cursor:default;font-weight:400}
+.bc-sep{flex-shrink:0;opacity:.5}
+
+/* ── BUTTONS ── */
+.btn{padding:10px 18px;border-radius:10px;border:none;cursor:pointer;font-size:15px;font-weight:600;transition:transform .15s,opacity .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .btn:active{transform:scale(.97)}
 .btn-primary{background:var(--blue);color:#fff}
 .btn-danger{background:var(--red);color:#fff}
 .btn-secondary{background:#E5E5EA;color:#3C3C43}
-.screen{padding:12px 16px 80px;min-height:calc(100vh - 60px)}
-.card{background:#fff;border-radius:var(--card-radius);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.07);transition:transform .15s,box-shadow .15s}
-.card:active{transform:scale(.98);box-shadow:0 0 0 rgba(0,0,0,0)}
+.btn-orange{background:var(--orange);color:#fff}
+
+/* ── SCREEN ── */
+.screen{padding:12px 16px 100px;min-height:calc(100vh - var(--hdr))}
+.screen.has-bc{padding-top:12px;min-height:calc(100vh - var(--hdr) - var(--bc))}
+.screen.game-screen{padding:8px 12px 8px;display:flex;flex-direction:column;height:calc(100vh - var(--hdr) - var(--bc) - 1px);overflow:hidden}
+
+/* ── CARDS ── */
+.card{background:#fff;border-radius:var(--card-radius);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.07);transition:transform .15s,box-shadow .15s;-webkit-user-select:none;user-select:none}
+.card:active{transform:scale(.98);box-shadow:none}
 .card-icon{font-size:22px;margin-left:12px;flex-shrink:0}
 .card-info{flex:1;min-width:0}
 .card-name{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card-sub{font-size:13px;color:var(--gray);margin-top:2px}
-.card-arrow{color:#C7C7CC;font-size:18px;flex-shrink:0}
-.empty{text-align:center;padding:48px 24px;color:var(--gray);font-size:16px}
+.card-arrow{color:#C7C7CC;font-size:20px;flex-shrink:0;line-height:1}
+.tag-recent{font-size:11px;background:#F2F2F7;color:var(--gray);padding:2px 8px;border-radius:6px;margin-top:4px;display:inline-block}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:48px 24px;color:var(--gray);font-size:15px;line-height:1.6}
 .empty-icon{font-size:48px;margin-bottom:12px}
+
+/* ── INPUTS ── */
 input[type=text],input[type=search]{width:100%;padding:12px 14px;border:1.5px solid #E5E5EA;border-radius:10px;font-size:16px;outline:none;transition:border-color .2s;background:#fff;color:#000}
 input[type=text]:focus,input[type=search]:focus{border-color:var(--blue)}
-input[type=text].from-dict{border-color:var(--blue);background:#F0F6FF}
+input.from-dict{border-color:var(--blue);background:#F0F6FF}
+
+/* ── MODAL ── */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center}
-.modal{background:#fff;border-radius:20px 20px 0 0;padding:24px 20px;width:100%;max-width:390px;max-height:90vh;overflow-y:auto}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:390px;max-height:88vh;overflow-y:auto}
 .modal-title{font-size:18px;font-weight:700;margin-bottom:16px;text-align:center}
 .modal-actions{display:flex;gap:10px;margin-top:16px}
 .modal-actions .btn{flex:1}
+.modal-label{font-size:13px;color:var(--gray);margin-bottom:6px;font-weight:500}
+
+/* ── DROPDOWN ── */
 .dropdown{position:absolute;z-index:50;background:#fff;border:1px solid #E5E5EA;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.12);max-height:200px;overflow-y:auto;width:100%;left:0;top:100%;margin-top:4px}
 .dropdown-item{padding:12px 14px;cursor:pointer;font-size:15px;transition:background .1s;display:flex;justify-content:space-between;align-items:center}
 .dropdown-item:hover,.dropdown-item:active{background:#F2F2F7}
 .dd-fr{direction:ltr;text-align:left}
 .dd-he{color:var(--gray);font-size:13px}
-.progress-bar{height:6px;background:#E5E5EA;border-radius:3px;overflow:hidden;margin-bottom:16px}
+
+/* ── INPUT WRAP ── */
+.inp-wrap{position:relative;margin-bottom:12px}
+
+/* ── SECTIONS ── */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin:14px 0 8px}
+.section-title{font-size:17px;font-weight:700}
+.link-btn{background:none;border:none;color:var(--blue);font-size:13px;cursor:pointer;padding:4px 8px;font-weight:600}
+
+/* ── WORD ROW ── */
+.word-row{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer;transition:background .15s}
+.word-row:active{background:#F5F5F7}
+.word-fr{direction:ltr;font-size:15px;font-weight:600;flex:1;text-align:left}
+.word-he{font-size:15px;color:#444;flex:1;text-align:right}
+.word-tts{background:none;border:none;font-size:18px;cursor:pointer;opacity:.5;padding:2px 4px;flex-shrink:0}
+.word-tts:active{opacity:1}
+
+/* ── ACTION BAR ── */
+.action-bar{display:flex;gap:10px;margin-bottom:14px}
+.action-bar .btn{flex:1;padding:13px 8px;font-size:14px}
+
+/* ── PROGRESS ── */
+.progress-bar{height:6px;background:#E5E5EA;border-radius:3px;overflow:hidden;margin-bottom:12px;flex-shrink:0}
 .progress-fill{height:100%;background:var(--blue);border-radius:3px;transition:width .3s}
-.flashcard-wrap{perspective:1000px;width:100%;height:200px;cursor:pointer;margin-bottom:20px}
-.flashcard{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .35s ease-in-out}
+.progress-fill.orange{background:var(--orange)}
+.progress-fill.red{background:var(--red)}
+.counter-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-shrink:0}
+.counter-label{font-size:13px;color:var(--gray)}
+.counter-num{font-size:13px;font-weight:700;color:var(--blue)}
+
+/* ── FLASHCARDS ── */
+.flashcard-wrap{perspective:1000px;width:100%;flex:0 0 200px;cursor:pointer;margin-bottom:16px}
+.flashcard{width:100%;height:200px;position:relative;transform-style:preserve-3d;transition:transform .35s ease-in-out}
 .flashcard.flipped{transform:rotateY(180deg)}
 .card-face{position:absolute;inset:0;border-radius:20px;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.1);display:flex;flex-direction:column;align-items:center;justify-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;padding:24px}
 .card-face.back{transform:rotateY(180deg)}
-.card-word{font-size:30px;font-weight:700;text-align:center;margin-bottom:8px}
+.card-word{font-size:28px;font-weight:700;text-align:center;margin-bottom:8px}
 .card-word.fr{direction:ltr}
 .card-word.he{direction:rtl}
-.card-tts{font-size:26px;cursor:pointer;margin-top:8px;opacity:.7;transition:opacity .15s;user-select:none}
+.card-tts{font-size:24px;cursor:pointer;margin-top:6px;opacity:.6;transition:opacity .15s;user-select:none}
 .card-tts:hover{opacity:1}
-.fc-actions{display:flex;gap:10px;margin-top:4px}
-.fc-btn{flex:1;padding:14px;border-radius:12px;border:none;cursor:pointer;font-size:14px;font-weight:700;transition:transform .15s}
+.fc-actions{display:flex;gap:8px;flex-shrink:0}
+.fc-btn{flex:1;padding:14px 8px;border-radius:12px;border:none;cursor:pointer;font-size:14px;font-weight:700;transition:transform .15s}
 .fc-btn:active{transform:scale(.97)}
 .fc-know{background:#EAFEE6;color:#1A8C00}
 .fc-forgot{background:#FFF0ED;color:#C0310A}
 .fc-flip{background:#F2F2F7;color:#3C3C43}
-.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.match-col{display:flex;flex-direction:column;gap:8px}
-.match-card{padding:14px 8px;border-radius:12px;background:#fff;border:2px solid #E5E5EA;text-align:center;cursor:pointer;font-size:14px;font-weight:600;transition:all .15s;word-break:break-word;min-height:52px;display:flex;align-items:center;justify-content:center}
+
+/* ── MATCHING GAME ── */
+.match-top{flex-shrink:0}
+.match-timer-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.match-timer{font-size:22px;font-weight:800;color:var(--blue);font-variant-numeric:tabular-nums;letter-spacing:-0.5px}
+.match-timer.urgent{color:var(--red)}
+.match-mode-btn{background:none;border:1px solid #E5E5EA;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer;color:var(--gray)}
+.match-mode-btn.active{border-color:var(--orange);color:var(--orange);background:#FFF8F0}
+.match-hs{font-size:12px;color:var(--gray);display:flex;align-items:center;gap:4px;margin-bottom:6px}
+.match-grid{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px;overflow:hidden;min-height:0}
+.match-col{display:flex;flex-direction:column;gap:6px;overflow:hidden;min-height:0}
+.match-card{flex:1;padding:8px 6px;border-radius:12px;background:#fff;border:2px solid #E5E5EA;text-align:center;cursor:pointer;font-size:13px;font-weight:600;transition:all .12s;word-break:break-word;display:flex;align-items:center;justify-content:center;line-height:1.2;min-height:0}
+.match-card.fr-card{direction:ltr}
 .match-card.selected{border-color:var(--blue);background:#F0F6FF;color:var(--blue)}
-.match-card.correct{border-color:var(--green);background:#EAFEE6;color:#1A8C00;pointer-events:none}
+.match-card.correct{border-color:var(--green);background:#EAFEE6;color:#1A8C00;pointer-events:none;animation:pulse-green .3s ease}
 .match-card.wrong{border-color:var(--red);background:#FFF0ED;color:var(--red)}
-.match-card.matched{opacity:.3;pointer-events:none;border-color:#E5E5EA;background:#F9F9F9}
-.section-header{display:flex;align-items:center;justify-content:space-between;margin:16px 0 10px}
-.section-title{font-size:17px;font-weight:700}
-.link-btn{background:none;border:none;color:var(--blue);font-size:13px;cursor:pointer;padding:4px 8px;font-weight:600}
-.word-row{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.word-fr{direction:ltr;font-size:15px;font-weight:600;flex:1;text-align:left}
-.word-he{font-size:15px;color:#444;flex:1;text-align:right}
-.del-btn{background:none;border:none;color:#FF3B30;font-size:22px;cursor:pointer;padding:2px 6px;flex-shrink:0;line-height:1}
-.edit-input{border:none;outline:none;font-size:inherit;font-weight:inherit;background:transparent;border-bottom:2px solid var(--blue);min-width:60px;max-width:180px;font-family:inherit}
-.tag-recent{font-size:11px;background:#F2F2F7;color:var(--gray);padding:2px 8px;border-radius:6px;margin-top:4px;display:inline-block}
-.action-bar{display:flex;gap:10px;margin-bottom:16px}
-.action-bar .btn{flex:1;padding:13px 8px;font-size:14px}
-.finish-screen{text-align:center;padding:40px 24px}
-.finish-icon{font-size:64px;margin-bottom:16px}
-.finish-title{font-size:24px;font-weight:700;margin-bottom:8px}
-.finish-sub{font-size:15px;color:var(--gray);margin-bottom:24px}
-.finish-actions{display:flex;flex-direction:column;gap:10px}
-.select-field{width:100%;padding:12px 14px;border:1.5px solid #E5E5EA;border-radius:10px;font-size:16px;outline:none;background:#fff;color:#000;margin-bottom:12px;appearance:none;-webkit-appearance:none}
+.match-card.matched{opacity:.2;pointer-events:none;border-color:transparent;background:transparent;box-shadow:none}
+@keyframes pulse-green{0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
+
+/* ── FINISH ── */
+.finish-screen{text-align:center;padding:32px 24px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.finish-icon{font-size:64px;margin-bottom:12px}
+.finish-title{font-size:24px;font-weight:700;margin-bottom:6px}
+.finish-sub{font-size:15px;color:var(--gray);margin-bottom:6px}
+.finish-hs{font-size:16px;font-weight:700;color:var(--orange);margin-bottom:20px}
+.finish-actions{display:flex;flex-direction:column;gap:10px;width:100%}
+
+/* ── FOLDER NAV FOOTER ── */
+.folder-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:390px;background:#fff;border-top:1px solid #E5E5EA;display:flex;align-items:center;justify-content:space-between;padding:8px 16px;padding-bottom:calc(8px + env(safe-area-inset-bottom));z-index:80}
+.folder-nav-center{font-size:13px;color:var(--gray);font-weight:500;text-align:center;flex:1;padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-arrow-btn{width:40px;height:40px;border-radius:50%;border:none;background:#F2F2F7;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0}
+.nav-arrow-btn:active{background:#E5E5EA}
+.nav-arrow-btn:disabled{opacity:.25;pointer-events:none}
+
+/* ── MENU SHEET ── */
+.menu-sheet{background:#fff;border-radius:20px 20px 0 0;padding:16px 0 32px;width:100%;max-width:390px}
+.menu-item{padding:16px 24px;display:flex;align-items:center;gap:14px;cursor:pointer;font-size:16px;font-weight:500;transition:background .15s}
+.menu-item:active{background:#F5F5F7}
+.menu-item-icon{font-size:22px;width:28px;text-align:center}
+.menu-sep{height:1px;background:#F0F0F5;margin:4px 0}
+.menu-cancel{padding:16px 24px;text-align:center;color:var(--red);font-size:16px;font-weight:600;cursor:pointer}
+
+/* ── SELECT ── */
+.select-field{width:100%;padding:12px 14px;border:1.5px solid #E5E5EA;border-radius:10px;font-size:16px;outline:none;background:#fff;color:#000;appearance:none;-webkit-appearance:none;margin-bottom:12px}
+
+/* ── OFFLINE ── */
 .offline-banner{background:#FF9500;color:#fff;text-align:center;font-size:13px;padding:6px;font-weight:600;display:none}
 .offline-banner.show{display:block}
-.counter-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.counter-label{font-size:14px;color:var(--gray)}
-.counter-num{font-size:14px;font-weight:700;color:var(--blue)}
+
+/* ── STAR / HARD WORD ── */
+.word-star{background:none;border:none;font-size:18px;cursor:pointer;padding:2px 4px;flex-shrink:0;opacity:.35;transition:opacity .15s,transform .15s}
+.word-star:active{transform:scale(1.3)}
+.word-star.hard{opacity:1;color:#FF9500}
+
+/* ── QUIZ GAME ── */
+.quiz-dir-toggle{display:flex;gap:8px;margin-bottom:10px;flex-shrink:0}
+.quiz-dir-btn{flex:1;padding:8px 4px;border-radius:10px;border:1.5px solid #E5E5EA;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:var(--gray);transition:all .15s}
+.quiz-dir-btn.active{border-color:var(--blue);color:var(--blue);background:#F0F6FF}
+.quiz-question{background:#fff;border-radius:16px;padding:18px 16px;text-align:center;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);flex-shrink:0}
+.quiz-word{font-size:28px;font-weight:800;margin-bottom:6px;line-height:1.2}
+.quiz-word.fr{direction:ltr}
+.quiz-tts-row{display:flex;justify-content:center;margin-top:6px}
+.quiz-tts-btn{background:#F2F2F7;border:none;border-radius:8px;padding:6px 16px;font-size:15px;cursor:pointer;font-weight:600}
+.quiz-tts-btn:active{background:#E5E5EA}
+.quiz-options{display:flex;flex-direction:column;gap:8px;flex:1;overflow-y:auto;min-height:0}
+.quiz-opt{background:#fff;border:2px solid #E5E5EA;border-radius:12px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:500;transition:border-color .12s,background .12s;flex-shrink:0}
+.quiz-opt:active{transform:scale(.98)}
+.quiz-opt.correct-ans{border-color:var(--green);background:#EAFEE6;color:#1A8C00}
+.quiz-opt.wrong-ans{border-color:var(--red);background:#FFF0ED;color:#E73D00}
+.quiz-opt.reveal-ans{border-color:var(--green);background:#EAFEE6;color:#1A8C00}
+.quiz-opt-text{flex:1}
+.quiz-opt.fr-opt .quiz-opt-text{direction:ltr;text-align:left}
+.quiz-opt-tts{background:none;border:none;font-size:16px;cursor:pointer;opacity:.45;flex-shrink:0;padding:2px 4px}
+.quiz-opt-tts:active{opacity:1}
+.quiz-next-btn{margin-top:8px;width:100%;flex-shrink:0}
 </style>
 </head>
 <body>
-
 <div class="offline-banner" id="offline-banner">📵 מצב אופליין — האפליקציה עובדת ללא אינטרנט</div>
 <div id="app"></div>
-
 <script>
-// ===================== DICTIONARY =====================
+// ════════════════════════════════════════
+//  DICTIONARY — ~800 entries
+// ════════════════════════════════════════
 const DICT=[
-  {fr:"bonjour",he:"שלום"},{fr:"merci",he:"תודה"},{fr:"au revoir",he:"להתראות"},
-  {fr:"s'il vous plaît",he:"בבקשה"},{fr:"oui",he:"כן"},{fr:"non",he:"לא"},
-  {fr:"chat",he:"חתול"},{fr:"chien",he:"כלב"},{fr:"maison",he:"בית"},
-  {fr:"voiture",he:"מכונית"},{fr:"école",he:"בית ספר"},{fr:"livre",he:"ספר"},
-  {fr:"eau",he:"מים"},{fr:"pain",he:"לחם"},{fr:"table",he:"שולחן"},
-  {fr:"chaise",he:"כיסא"},{fr:"fenêtre",he:"חלון"},{fr:"porte",he:"דלת"},
-  {fr:"jardin",he:"גן"},{fr:"soleil",he:"שמש"},{fr:"lune",he:"ירח"},
-  {fr:"étoile",he:"כוכב"},{fr:"fleur",he:"פרח"},{fr:"arbre",he:"עץ"},
-  {fr:"montagne",he:"הר"},{fr:"mer",he:"ים"},{fr:"rivière",he:"נהר"},
-  {fr:"ciel",he:"שמיים"},{fr:"nuit",he:"לילה"},{fr:"jour",he:"יום"},
-  {fr:"matin",he:"בוקר"},{fr:"soir",he:"ערב"},{fr:"après-midi",he:"אחר הצהריים"},
-  {fr:"semaine",he:"שבוע"},{fr:"mois",he:"חודש"},{fr:"année",he:"שנה"},
-  {fr:"rouge",he:"אדום"},{fr:"bleu",he:"כחול"},{fr:"vert",he:"ירוק"},
-  {fr:"jaune",he:"צהוב"},{fr:"blanc",he:"לבן"},{fr:"noir",he:"שחור"},
-  {fr:"grand",he:"גדול"},{fr:"petit",he:"קטן"},{fr:"beau",he:"יפה"},
-  {fr:"nouveau",he:"חדש"},{fr:"vieux",he:"ישן"},{fr:"bon",he:"טוב"},
-  {fr:"mauvais",he:"רע"},{fr:"chaud",he:"חם"},{fr:"froid",he:"קר"},
-  {fr:"rapide",he:"מהיר"},{fr:"lent",he:"איטי"},{fr:"manger",he:"לאכול"},
-  {fr:"boire",he:"לשתות"},{fr:"dormir",he:"לישון"},{fr:"courir",he:"לרוץ"},
-  {fr:"marcher",he:"ללכת"},{fr:"parler",he:"לדבר"},{fr:"écouter",he:"להאזין"},
-  {fr:"lire",he:"לקרוא"},{fr:"écrire",he:"לכתוב"},{fr:"apprendre",he:"ללמוד"},
-  {fr:"travailler",he:"לעבוד"},{fr:"jouer",he:"לשחק"},{fr:"aimer",he:"לאהוב"},
-  {fr:"voir",he:"לראות"},{fr:"venir",he:"לבוא"},{fr:"aller",he:"ללכת (לאן)"},
-  {fr:"avoir",he:"יש"},{fr:"être",he:"להיות"},{fr:"faire",he:"לעשות"},
-  {fr:"pouvoir",he:"יכול"},{fr:"vouloir",he:"רוצה"},{fr:"devoir",he:"חייב"},
-  {fr:"savoir",he:"לדעת"},{fr:"père",he:"אבא"},{fr:"mère",he:"אמא"},
-  {fr:"frère",he:"אח"},{fr:"sœur",he:"אחות"},{fr:"enfant",he:"ילד"},
-  {fr:"ami",he:"חבר"},{fr:"homme",he:"גבר"},{fr:"femme",he:"אישה"},
-  {fr:"garçon",he:"ילד"},{fr:"fille",he:"ילדה"},{fr:"téléphone",he:"טלפון"},
-  {fr:"ordinateur",he:"מחשב"},{fr:"argent",he:"כסף"},{fr:"travail",he:"עבודה"},
-  {fr:"temps",he:"זמן / מזג אוויר"},{fr:"ville",he:"עיר"},{fr:"rue",he:"רחוב"},
-  {fr:"magasin",he:"חנות"},{fr:"restaurant",he:"מסעדה"},{fr:"hôpital",he:"בית חולים"},
-  {fr:"pharmacie",he:"בית מרקחת"},{fr:"banque",he:"בנק"},{fr:"gare",he:"תחנת רכבת"},
-  {fr:"avion",he:"מטוס"},{fr:"train",he:"רכבת"},{fr:"bus",he:"אוטובוס"},
-  {fr:"ticket",he:"כרטיס"},{fr:"heure",he:"שעה"},{fr:"minute",he:"דקה"},
+// GREETINGS & BASICS
+{fr:"bonjour",he:"שלום (בוקר)"},{fr:"bonsoir",he:"ערב טוב"},{fr:"bonne nuit",he:"לילה טוב"},
+{fr:"salut",he:"היי"},{fr:"coucou",he:"הו-הו (קריאה חברותית)"},{fr:"bienvenue",he:"ברוך הבא"},
+{fr:"merci",he:"תודה"},{fr:"merci beaucoup",he:"תודה רבה"},{fr:"de rien",he:"אין על מה"},
+{fr:"avec plaisir",he:"בכיף"},{fr:"je vous en prie",he:"בבקשה (רשמי מאוד)"},
+{fr:"au revoir",he:"להתראות"},{fr:"à bientôt",he:"להתראות בקרוב"},{fr:"à demain",he:"להתראות מחר"},
+{fr:"à tout à l'heure",he:"להתראות בקרוב מאוד"},{fr:"à plus tard",he:"עד מאוחר יותר"},
+{fr:"s'il vous plaît",he:"בבקשה (רשמי)"},{fr:"s'il te plaît",he:"בבקשה (לא רשמי)"},
+{fr:"oui",he:"כן"},{fr:"non",he:"לא"},{fr:"peut-être",he:"אולי"},{fr:"bien sûr",he:"כמובן"},
+{fr:"absolument",he:"בהחלט"},{fr:"exactement",he:"בדיוק"},{fr:"d'accord",he:"בסדר, מסכים"},
+{fr:"c'est vrai",he:"זה נכון"},{fr:"pas du tout",he:"בכלל לא"},{fr:"bien sûr que non",he:"כמובן שלא"},
+{fr:"excusez-moi",he:"סליחה (רשמי)"},{fr:"pardon",he:"סליחה"},{fr:"désolé",he:"מצטער"},
+{fr:"je suis désolé",he:"אני מצטער"},{fr:"c'est ma faute",he:"זאת אשמתי"},
+{fr:"comment ça va",he:"מה שלומך"},{fr:"ça va bien",he:"שלומי טוב"},{fr:"pas mal",he:"לא רע"},
+{fr:"très bien",he:"מאוד טוב"},{fr:"comme ci comme ça",he:"ככה ככה"},{fr:"ça va",he:"בסדר"},
+{fr:"super",he:"סופר"},{fr:"magnifique",he:"נהדר"},{fr:"formidable",he:"מדהים"},
+{fr:"je ne comprends pas",he:"אני לא מבין"},{fr:"je ne sais pas",he:"אני לא יודע"},
+{fr:"pouvez-vous répéter",he:"תוכל לחזור"},{fr:"plus lentement",he:"יותר לאט"},
+{fr:"parlez-vous français",he:"האם אתה מדבר צרפתית"},{fr:"je parle un peu",he:"אני מדבר קצת"},
+{fr:"comment vous appelez-vous",he:"מה שמך (רשמי)"},{fr:"comment tu t'appelles",he:"מה שמך"},
+{fr:"je m'appelle",he:"שמי"},{fr:"enchanté",he:"נעים להכיר"},{fr:"enchantée",he:"נעים להכיר (נשים)"},
+{fr:"combien ça coûte",he:"כמה זה עולה"},{fr:"c'est combien",he:"כמה זה"},
+{fr:"où est",he:"איפה נמצא"},{fr:"comment aller à",he:"איך מגיעים ל"},
+{fr:"à gauche",he:"שמאלה"},{fr:"à droite",he:"ימינה"},{fr:"tout droit",he:"ישר"},
+{fr:"en face",he:"מולו"},{fr:"à côté de",he:"ליד"},{fr:"derrière",he:"מאחורי"},
+{fr:"devant",he:"לפני/מול"},{fr:"en bas",he:"למטה"},{fr:"en haut",he:"למעלה"},
+{fr:"loin",he:"רחוק"},{fr:"près",he:"קרוב"},{fr:"ici",he:"כאן"},{fr:"là",he:"שם"},
+{fr:"là-bas",he:"שם למרחק"},{fr:"partout",he:"בכל מקום"},{fr:"nulle part",he:"בשום מקום"},
+// NUMBERS
+{fr:"zéro",he:"אפס"},{fr:"un",he:"אחד"},{fr:"deux",he:"שניים"},{fr:"trois",he:"שלושה"},
+{fr:"quatre",he:"ארבעה"},{fr:"cinq",he:"חמישה"},{fr:"six",he:"שישה"},{fr:"sept",he:"שבעה"},
+{fr:"huit",he:"שמונה"},{fr:"neuf",he:"תשעה"},{fr:"dix",he:"עשרה"},{fr:"onze",he:"אחד עשר"},
+{fr:"douze",he:"שנים עשר"},{fr:"treize",he:"שלושה עשר"},{fr:"quatorze",he:"ארבעה עשר"},
+{fr:"quinze",he:"חמישה עשר"},{fr:"seize",he:"שישה עשר"},{fr:"dix-sept",he:"שבעה עשר"},
+{fr:"dix-huit",he:"שמונה עשר"},{fr:"dix-neuf",he:"תשעה עשר"},{fr:"vingt",he:"עשרים"},
+{fr:"vingt et un",he:"עשרים ואחד"},{fr:"vingt-deux",he:"עשרים ושניים"},
+{fr:"trente",he:"שלושים"},{fr:"quarante",he:"ארבעים"},{fr:"cinquante",he:"חמישים"},
+{fr:"soixante",he:"שישים"},{fr:"soixante-dix",he:"שבעים"},{fr:"quatre-vingts",he:"שמונים"},
+{fr:"quatre-vingt-dix",he:"תשעים"},{fr:"cent",he:"מאה"},{fr:"deux cents",he:"מאתיים"},
+{fr:"cinq cents",he:"חמש מאות"},{fr:"mille",he:"אלף"},{fr:"dix mille",he:"עשרת אלפים"},
+{fr:"un million",he:"מיליון"},{fr:"un milliard",he:"מיליארד"},
+{fr:"premier",he:"ראשון"},{fr:"deuxième",he:"שני"},{fr:"troisième",he:"שלישי"},
+{fr:"quatrième",he:"רביעי"},{fr:"cinquième",he:"חמישי"},{fr:"sixième",he:"שישי"},
+{fr:"septième",he:"שביעי"},{fr:"huitième",he:"שמיני"},{fr:"neuvième",he:"תשיעי"},
+{fr:"dixième",he:"עשירי"},{fr:"dernier",he:"אחרון"},{fr:"demi",he:"חצי"},{fr:"quart",he:"רבע"},
+{fr:"une fois",he:"פעם אחת"},{fr:"deux fois",he:"פעמיים"},{fr:"plusieurs fois",he:"כמה פעמים"},
+// TIME EXPRESSIONS
+{fr:"maintenant",he:"עכשיו"},{fr:"tout de suite",he:"מיד"},{fr:"bientôt",he:"בקרוב"},
+{fr:"déjà",he:"כבר"},{fr:"encore",he:"עוד/שוב"},{fr:"toujours",he:"תמיד"},
+{fr:"jamais",he:"אף פעם"},{fr:"parfois",he:"לפעמים"},{fr:"souvent",he:"לעתים קרובות"},
+{fr:"rarement",he:"לעתים רחוקות"},{fr:"tôt",he:"מוקדם"},{fr:"tard",he:"מאוחר"},
+{fr:"en avance",he:"מוקדם מהמתוכנן"},{fr:"en retard",he:"מאוחר מהמתוכנן"},
+{fr:"à temps",he:"בזמן"},{fr:"pendant",he:"במהלך"},{fr:"depuis",he:"מאז"},
+{fr:"il y a",he:"לפני (זמן)"},{fr:"dans",he:"בעוד"},{fr:"avant",he:"לפני"},
+{fr:"après",he:"אחרי"},{fr:"entre",he:"בין"},{fr:"jusqu'à",he:"עד"},
+// DAYS
+{fr:"lundi",he:"יום שני"},{fr:"mardi",he:"יום שלישי"},{fr:"mercredi",he:"יום רביעי"},
+{fr:"jeudi",he:"יום חמישי"},{fr:"vendredi",he:"יום שישי"},{fr:"samedi",he:"שבת"},
+{fr:"dimanche",he:"יום ראשון"},{fr:"aujourd'hui",he:"היום"},{fr:"demain",he:"מחר"},
+{fr:"hier",he:"אתמול"},{fr:"après-demain",he:"מחרתיים"},{fr:"avant-hier",he:"שלשום"},
+{fr:"semaine",he:"שבוע"},{fr:"week-end",he:"סוף שבוע"},{fr:"jour férié",he:"חג/יום חופש"},
+{fr:"vacances",he:"חופשה"},{fr:"congé",he:"יום חופש"},
+// MONTHS
+{fr:"janvier",he:"ינואר"},{fr:"février",he:"פברואר"},{fr:"mars",he:"מרץ"},
+{fr:"avril",he:"אפריל"},{fr:"mai",he:"מאי"},{fr:"juin",he:"יוני"},
+{fr:"juillet",he:"יולי"},{fr:"août",he:"אוגוסט"},{fr:"septembre",he:"ספטמבר"},
+{fr:"octobre",he:"אוקטובר"},{fr:"novembre",he:"נובמבר"},{fr:"décembre",he:"דצמבר"},
+{fr:"mois",he:"חודש"},{fr:"année",he:"שנה"},{fr:"saison",he:"עונה"},
+{fr:"siècle",he:"מאה שנים"},{fr:"décennie",he:"עשור"},{fr:"millénaire",he:"אלף שנים"},
+{fr:"printemps",he:"אביב"},{fr:"été",he:"קיץ"},{fr:"automne",he:"סתיו"},{fr:"hiver",he:"חורף"},
+// COLORS
+{fr:"rouge",he:"אדום"},{fr:"bleu",he:"כחול"},{fr:"vert",he:"ירוק"},{fr:"jaune",he:"צהוב"},
+{fr:"orange",he:"כתום"},{fr:"violet",he:"סגול"},{fr:"rose",he:"ורוד"},{fr:"marron",he:"חום"},
+{fr:"beige",he:"בז'"},{fr:"gris",he:"אפור"},{fr:"blanc",he:"לבן"},{fr:"noir",he:"שחור"},
+{fr:"turquoise",he:"טורקיז"},{fr:"doré",he:"זהוב"},{fr:"argenté",he:"כסוף"},
+{fr:"bordeaux",he:"בורדו"},{fr:"marine",he:"כחול כהה"},{fr:"kaki",he:"חאקי"},
+{fr:"clair",he:"בהיר"},{fr:"foncé",he:"כהה"},{fr:"multicolore",he:"צבעוני"},
+{fr:"transparent",he:"שקוף"},{fr:"opaque",he:"אטום"},{fr:"brillant",he:"מבריק"},
+{fr:"mat",he:"מט"},{fr:"pastel",he:"פסטל"},{fr:"vif",he:"עז (צבע)"},
+{fr:"bleu ciel",he:"כחול שמיים"},{fr:"bleu marine",he:"כחול כהה"},{fr:"vert foncé",he:"ירוק כהה"},
+{fr:"vert clair",he:"ירוק בהיר"},{fr:"rouge foncé",he:"אדום כהה"},{fr:"jaune citron",he:"צהוב לימון"},
+// FAMILY & PEOPLE
+{fr:"père",he:"אבא"},{fr:"mère",he:"אמא"},{fr:"frère",he:"אח"},{fr:"sœur",he:"אחות"},
+{fr:"fils",he:"בן"},{fr:"fille",he:"בת"},{fr:"grand-père",he:"סבא"},{fr:"grand-mère",he:"סבתא"},
+{fr:"petit-fils",he:"נכד"},{fr:"petite-fille",he:"נכדה"},{fr:"arrière-grand-père",he:"סב-זקן"},
+{fr:"oncle",he:"דוד"},{fr:"tante",he:"דודה"},{fr:"cousin",he:"בן דוד"},{fr:"cousine",he:"בת דוד"},
+{fr:"neveu",he:"אחיין"},{fr:"nièce",he:"אחיינית"},{fr:"beau-père",he:"חמי / אבא חורג"},
+{fr:"belle-mère",he:"חמותי / אמא חורגת"},{fr:"beau-frère",he:"גיס"},{fr:"belle-sœur",he:"גיסה"},
+{fr:"mari",he:"בעל"},{fr:"femme",he:"אישה"},{fr:"époux",he:"בן זוג"},{fr:"épouse",he:"בת זוג"},
+{fr:"fiancé",he:"ארוס"},{fr:"fiancée",he:"ארוסה"},{fr:"petit ami",he:"חבר (זוגי)"},
+{fr:"petite amie",he:"חברה (זוגית)"},{fr:"célibataire",he:"רווק/רווקה"},
+{fr:"divorcé",he:"גרוש"},{fr:"veuf",he:"אלמן"},{fr:"veuve",he:"אלמנה"},
+{fr:"enfant",he:"ילד"},{fr:"bébé",he:"תינוק"},{fr:"nourrisson",he:"יילוד"},
+{fr:"adolescent",he:"מתבגר"},{fr:"adulte",he:"מבוגר"},{fr:"personne âgée",he:"קשיש"},
+{fr:"ami",he:"חבר"},{fr:"amie",he:"חברה"},{fr:"meilleur ami",he:"חבר טוב ביותר"},
+{fr:"voisin",he:"שכן"},{fr:"collègue",he:"עמית לעבודה"},{fr:"patron",he:"מנהל/בוס"},
+{fr:"employé",he:"עובד"},{fr:"client",he:"לקוח"},{fr:"inconnu",he:"זר"},
+{fr:"homme",he:"גבר"},{fr:"femme",he:"אישה"},{fr:"garçon",he:"ילד (זכר)"},
+{fr:"fille",he:"ילדה"},{fr:"monsieur",he:"אדון"},{fr:"madame",he:"גברת"},
+{fr:"mademoiselle",he:"גבירתי (רווקה)"},{fr:"personne",he:"אדם"},
+// BODY
+{fr:"tête",he:"ראש"},{fr:"visage",he:"פנים"},{fr:"front",he:"מצח"},{fr:"joue",he:"לחי"},
+{fr:"menton",he:"סנטר"},{fr:"yeux",he:"עיניים"},{fr:"œil",he:"עין"},{fr:"sourcil",he:"גבה"},
+{fr:"cil",he:"ריס"},{fr:"oreille",he:"אוזן"},{fr:"nez",he:"אף"},{fr:"bouche",he:"פה"},
+{fr:"langue",he:"לשון"},{fr:"dent",he:"שן"},{fr:"lèvre",he:"שפה"},{fr:"gorge",he:"גרון"},
+{fr:"cou",he:"צוואר"},{fr:"nuque",he:"עורף"},{fr:"épaule",he:"כתף"},{fr:"bras",he:"זרוע"},
+{fr:"coude",he:"מרפק"},{fr:"poignet",he:"פרק כף היד"},{fr:"main",he:"יד"},
+{fr:"doigt",he:"אצבע"},{fr:"pouce",he:"אגודל"},{fr:"ongle",he:"ציפורן"},
+{fr:"poitrine",he:"חזה"},{fr:"sein",he:"שד"},{fr:"dos",he:"גב"},{fr:"épaules",he:"כתפיים"},
+{fr:"ventre",he:"בטן"},{fr:"nombril",he:"טיבור"},{fr:"hanche",he:"מותן"},
+{fr:"fesse",he:"ישבן"},{fr:"cuisse",he:"ירך"},{fr:"jambe",he:"רגל"},{fr:"genou",he:"ברך"},
+{fr:"mollet",he:"שוק"},{fr:"cheville",he:"קרסול"},{fr:"pied",he:"כף רגל"},
+{fr:"orteil",he:"אצבע רגל"},{fr:"talon",he:"עקב"},
+{fr:"cœur",he:"לב"},{fr:"poumon",he:"ריאה"},{fr:"foie",he:"כבד"},{fr:"rein",he:"כליה"},
+{fr:"estomac",he:"קיבה"},{fr:"intestin",he:"מעיים"},{fr:"cerveau",he:"מוח"},
+{fr:"os",he:"עצם"},{fr:"muscle",he:"שריר"},{fr:"nerf",he:"עצב"},{fr:"veine",he:"ורידה"},
+{fr:"artère",he:"עורק"},{fr:"cheveux",he:"שיער"},{fr:"poil",he:"שיער (גוף)"},
+{fr:"peau",he:"עור"},{fr:"sang",he:"דם"},{fr:"souffle",he:"נשימה"},
+// HEALTH & MEDICINE
+{fr:"santé",he:"בריאות"},{fr:"maladie",he:"מחלה"},{fr:"douleur",he:"כאב"},
+{fr:"fièvre",he:"חום (מחלה)"},{fr:"rhume",he:"הצטננות"},{fr:"grippe",he:"שפעת"},
+{fr:"toux",he:"שיעול"},{fr:"mal de tête",he:"כאב ראש"},{fr:"mal de gorge",he:"כאב גרון"},
+{fr:"mal au ventre",he:"כאב בטן"},{fr:"mal au dos",he:"כאב גב"},
+{fr:"blessure",he:"פציעה"},{fr:"brûlure",he:"כוויה"},{fr:"fracture",he:"שבר (עצם)"},
+{fr:"allergie",he:"אלרגיה"},{fr:"infection",he:"זיהום"},{fr:"inflammation",he:"דלקת"},
+{fr:"opération",he:"ניתוח"},{fr:"traitement",he:"טיפול"},{fr:"médicament",he:"תרופה"},
+{fr:"comprimé",he:"טבלייה"},{fr:"sirop",he:"סירופ"},{fr:"piqûre",he:"זריקה"},
+{fr:"pansement",he:"פלסטר"},{fr:"ordonnance",he:"מרשם"},{fr:"examen",he:"בדיקה"},
+{fr:"radiographie",he:"צילום רנטגן"},{fr:"analyse de sang",he:"בדיקת דם"},
+{fr:"rendez-vous",he:"תור/פגישה"},{fr:"urgences",he:"חדר מיון"},{fr:"ambulance",he:"אמבולנס"},
+{fr:"médecin",he:"רופא"},{fr:"chirurgien",he:"מנתח"},{fr:"infirmier",he:"אח רפואי"},
+{fr:"dentiste",he:"רופא שיניים"},{fr:"pharmacien",he:"רוקח"},{fr:"psychologue",he:"פסיכולוג"},
+{fr:"vaccin",he:"חיסון"},{fr:"tension artérielle",he:"לחץ דם"},{fr:"diabète",he:"סוכרת"},
+{fr:"cancer",he:"סרטן"},{fr:"asthme",he:"אסתמה"},{fr:"obésité",he:"השמנה"},
+{fr:"grossesse",he:"הריון"},{fr:"accouchement",he:"לידה"},{fr:"allaitement",he:"הנקה"},
+// FEELINGS & EMOTIONS
+{fr:"amour",he:"אהבה"},{fr:"haine",he:"שנאה"},{fr:"peur",he:"פחד"},{fr:"joie",he:"שמחה"},
+{fr:"tristesse",he:"עצב"},{fr:"colère",he:"כעס"},{fr:"surprise",he:"הפתעה"},
+{fr:"dégoût",he:"גועל"},{fr:"honte",he:"בושה"},{fr:"fierté",he:"גאווה"},
+{fr:"jalousie",he:"קנאה"},{fr:"envie",he:"תשוקה/קנאה"},{fr:"espoir",he:"תקווה"},
+{fr:"désespoir",he:"ייאוש"},{fr:"anxiété",he:"חרדה"},{fr:"stress",he:"לחץ"},
+{fr:"calme",he:"שלווה"},{fr:"bonheur",he:"אושר"},{fr:"malheur",he:"אומללות"},
+{fr:"solitude",he:"בדידות"},{fr:"nostalgie",he:"נוסטלגיה"},{fr:"regret",he:"חרטה"},
+{fr:"culpabilité",he:"אשמה"},{fr:"confiance",he:"ביטחון/אמון"},{fr:"méfiance",he:"חשדנות"},
+{fr:"curiosité",he:"סקרנות"},{fr:"ennui",he:"שעמום"},{fr:"enthousiasme",he:"התלהבות"},
+{fr:"passion",he:"תשוקה"},{fr:"tendresse",he:"רוך"},{fr:"compassion",he:"חמלה"},
+{fr:"empathie",he:"אמפתיה"},{fr:"indifférence",he:"אדישות"},{fr:"irritation",he:"עצבנות"},
+{fr:"frustration",he:"תסכול"},{fr:"satisfaction",he:"סיפוק"},{fr:"admiration",he:"הערצה"},
+{fr:"mépris",he:"בוז"},{fr:"respect",he:"כבוד"},{fr:"gratitude",he:"הכרת תודה"},
+// WEATHER
+{fr:"météo",he:"מזג אוויר"},{fr:"soleil",he:"שמש"},{fr:"pluie",he:"גשם"},{fr:"neige",he:"שלג"},
+{fr:"grêle",he:"ברד"},{fr:"givre",he:"כפור"},{fr:"glace",he:"קרח"},{fr:"verglas",he:"קרח על הכביש"},
+{fr:"vent",he:"רוח"},{fr:"rafale",he:"שרבית"},{fr:"nuage",he:"ענן"},{fr:"orage",he:"סופת רעמים"},
+{fr:"tonnerre",he:"רעם"},{fr:"éclair",he:"ברק"},{fr:"brouillard",he:"ערפל"},
+{fr:"arc-en-ciel",he:"קשת בענן"},{fr:"chaleur",he:"חום"},{fr:"canicule",he:"גל חום"},
+{fr:"froid",he:"קור"},{fr:"gel",he:"קפיאון"},{fr:"température",he:"טמפרטורה"},
+{fr:"degré",he:"מעלה"},{fr:"prévisions",he:"תחזית"},{fr:"parapluie",he:"מטרייה"},
+{fr:"il fait chaud",he:"חם בחוץ"},{fr:"il fait froid",he:"קר בחוץ"},{fr:"il pleut",he:"יורד גשם"},
+{fr:"il neige",he:"יורד שלג"},{fr:"il y a du vent",he:"יש רוח"},{fr:"il fait beau",he:"מזג האוויר יפה"},
+{fr:"il fait mauvais",he:"מזג האוויר רע"},{fr:"ensoleillé",he:"שמשי"},{fr:"nuageux",he:"מעונן"},
+{fr:"pluvieux",he:"גשום"},{fr:"venteux",he:"סוער"},{fr:"humide",he:"לח"},{fr:"sec",he:"יבש"},
+{fr:"tempête",he:"סערה"},{fr:"cyclone",he:"ציקלון"},{fr:"inondation",he:"שיטפון"},
+{fr:"sécheresse",he:"בצורת"},{fr:"tremblements de terre",he:"רעידת אדמה"},
+// KITCHEN & COOKING TOOLS
+{fr:"cuisine",he:"מטבח"},{fr:"couteau",he:"סכין"},{fr:"fourchette",he:"מזלג"},{fr:"cuillère",he:"כף"},
+{fr:"cuillère à soupe",he:"כף גדולה"},{fr:"cuillère à café",he:"כפית"},
+{fr:"assiette",he:"צלחת"},{fr:"assiette creuse",he:"צלחת עמוקה"},{fr:"bol",he:"קערה"},
+{fr:"verre",he:"כוס"},{fr:"tasse",he:"ספל"},{fr:"carafe",he:"קנקן"},{fr:"bouteille",he:"בקבוק"},
+{fr:"casserole",he:"סיר"},{fr:"marmite",he:"סיר גדול"},{fr:"poêle",he:"מחבת"},
+{fr:"wok",he:"ווק"},{fr:"cocotte",he:"סיר ברזל"},{fr:"four",he:"תנור"},
+{fr:"micro-ondes",he:"מיקרוגל"},{fr:"réfrigérateur",he:"מקרר"},{fr:"congélateur",he:"מקפיא"},
+{fr:"lave-vaisselle",he:"מדיח כלים"},{fr:"cuisinière",he:"כיריים"},{fr:"hotte",he:"מנדף"},
+{fr:"évier",he:"כיור"},{fr:"planche à découper",he:"קרש חיתוך"},{fr:"passoire",he:"מסננת"},
+{fr:"râpe",he:"פומפייה"},{fr:"spatule",he:"מרית"},{fr:"fouet",he:"מטרפה"},
+{fr:"rouleau à pâtisserie",he:"מערוך"},{fr:"moule",he:"תבנית אפייה"},
+{fr:"mixeur",he:"בלנדר"},{fr:"robot culinaire",he:"מעבד מזון"},{fr:"grille-pain",he:"טוסטר"},
+{fr:"bouilloire",he:"קומקום"},{fr:"cafetière",he:"מכונת קפה"},{fr:"ouvre-boîte",he:"פותחן קופסאות"},
+{fr:"tire-bouchon",he:"פותחן יין"},{fr:"pince",he:"מלקחיים"},{fr:"tablier",he:"סינר"},
+// SPICES & BASICS
+{fr:"recette",he:"מתכון"},{fr:"ingrédient",he:"מרכיב"},{fr:"épice",he:"תבלין"},
+{fr:"sel",he:"מלח"},{fr:"poivre",he:"פלפל"},{fr:"sucre",he:"סוכר"},{fr:"sucre glace",he:"אבקת סוכר"},
+{fr:"farine",he:"קמח"},{fr:"levure",he:"שמרים/אבקת אפייה"},{fr:"amidon",he:"עמילן"},
+{fr:"huile",he:"שמן"},{fr:"huile d'olive",he:"שמן זית"},{fr:"vinaigre",he:"חומץ"},
+{fr:"beurre",he:"חמאה"},{fr:"crème fraîche",he:"שמנת"},{fr:"lait",he:"חלב"},
+{fr:"lait entier",he:"חלב מלא"},{fr:"lait écrémé",he:"חלב דל שומן"},
+{fr:"œuf",he:"ביצה"},{fr:"jaune d'œuf",he:"חלמון"},{fr:"blanc d'œuf",he:"חלבון"},
+{fr:"miel",he:"דבש"},{fr:"confiture",he:"ריבה"},{fr:"chocolat",he:"שוקולד"},
+{fr:"vanille",he:"וניל"},{fr:"cannelle",he:"קינמון"},{fr:"cumin",he:"כמון"},
+{fr:"curry",he:"קארי"},{fr:"thym",he:"טימין"},{fr:"romarin",he:"רוזמרין"},
+{fr:"basilic",he:"בזיליקום"},{fr:"persil",he:"פטרוזיליה"},{fr:"coriandre",he:"כוסברה"},
+{fr:"menthe",he:"נענע"},{fr:"laurier",he:"דפנה"},{fr:"paprika",he:"פפריקה"},
+{fr:"safran",he:"זעפרן"},{fr:"noix de muscade",he:"אגוז מוסקט"},
+// FOOD ITEMS - VEGETABLES
+{fr:"légume",he:"ירק"},{fr:"tomate",he:"עגבנייה"},{fr:"pomme de terre",he:"תפוח אדמה"},
+{fr:"oignon",he:"בצל"},{fr:"ail",he:"שום"},{fr:"carotte",he:"גזר"},{fr:"poivron",he:"פלפל (ירק)"},
+{fr:"concombre",he:"מלפפון"},{fr:"courgette",he:"קישוא"},{fr:"aubergine",he:"חצילים"},
+{fr:"brocoli",he:"ברוקולי"},{fr:"chou-fleur",he:"כרובית"},{fr:"chou",he:"כרוב"},
+{fr:"épinard",he:"תרד"},{fr:"poireau",he:"כרישה"},{fr:"céleri",he:"סלרי"},
+{fr:"artichaut",he:"ארטישוק"},{fr:"asperge",he:"אספרגוס"},{fr:"champignon",he:"פטרייה"},
+{fr:"lentille",he:"עדשה"},{fr:"pois chiche",he:"חומוס"},{fr:"haricot",he:"שעועית"},
+{fr:"petits pois",he:"אפונה"},{fr:"maïs",he:"תירס"},{fr:"radis",he:"צנון"},
+{fr:"betterave",he:"סלק"},{fr:"patate douce",he:"בטטה"},{fr:"avocat",he:"אבוקדו"},
+{fr:"citrouille",he:"דלעת"},{fr:"navet",he:"לפת"},{fr:"fenouil",he:"שומר"},
+// FOOD ITEMS - FRUITS
+{fr:"fruit",he:"פרי"},{fr:"pomme",he:"תפוח"},{fr:"poire",he:"אגס"},{fr:"banane",he:"בננה"},
+{fr:"orange",he:"תפוז"},{fr:"citron",he:"לימון"},{fr:"citron vert",he:"ליים"},
+{fr:"pamplemousse",he:"אשכולית"},{fr:"mandarine",he:"מנדרינה"},{fr:"kiwi",he:"קיווי"},
+{fr:"fraise",he:"תות שדה"},{fr:"framboise",he:"פטל"},{fr:"cerise",he:"דובדבן"},
+{fr:"raisin",he:"ענב"},{fr:"melon",he:"מלון"},{fr:"pastèque",he:"אבטיח"},
+{fr:"ananas",he:"אננס"},{fr:"mangue",he:"מנגו"},{fr:"papaye",he:"פפאיה"},
+{fr:"pêche",he:"אפרסק"},{fr:"abricot",he:"משמש"},{fr:"prune",he:"שזיף"},
+{fr:"figue",he:"תאנה"},{fr:"datte",he:"תמר"},{fr:"noix",he:"אגוז"},
+{fr:"noisette",he:"אגוז לוז"},{fr:"amande",he:"שקד"},{fr:"cacahuète",he:"בוטן"},
+{fr:"noix de cajou",he:"קשיו"},{fr:"pistache",he:"פיסטוק"},
+// FOOD ITEMS - MEAT & FISH
+{fr:"viande",he:"בשר"},{fr:"bœuf",he:"בקר"},{fr:"veau",he:"עגל"},{fr:"porc",he:"חזיר"},
+{fr:"agneau",he:"כבש"},{fr:"poulet",he:"עוף"},{fr:"dinde",he:"הודו"},{fr:"canard",he:"ברווז"},
+{fr:"lapin",he:"ארנב (אוכל)"},{fr:"jambon",he:"ג'מבון"},{fr:"saucisse",he:"נקנייה"},
+{fr:"saucisson",he:"סלמי"},{fr:"steak",he:"סטייק"},{fr:"côtelette",he:"צלע"},
+{fr:"rôti",he:"צלוי"},{fr:"escalope",he:"סקלופינה"},{fr:"poisson",he:"דג"},
+{fr:"saumon",he:"סלמון"},{fr:"thon",he:"טונה"},{fr:"sardine",he:"סרדינה"},
+{fr:"cabillaud",he:"בקלה"},{fr:"truite",he:"פורל"},{fr:"sole",he:"סול"},
+{fr:"crevette",he:"שרימפס"},{fr:"homard",he:"לובסטר"},{fr:"crabe",he:"סרטן ים"},
+{fr:"moule",he:"מולים"},{fr:"huître",he:"צדפה"},{fr:"calmar",he:"קלמרי"},
+// FOOD ITEMS - DAIRY & BREAD
+{fr:"fromage",he:"גבינה"},{fr:"fromage blanc",he:"גבינת קוטג'"},{fr:"yaourt",he:"יוגורט"},
+{fr:"crème",he:"שמנת"},{fr:"beurre",he:"חמאה"},{fr:"pain",he:"לחם"},
+{fr:"baguette",he:"באגט"},{fr:"croissant",he:"קרואסון"},{fr:"brioche",he:"בריוש"},
+{fr:"pain de mie",he:"לחם אמריקאי"},{fr:"gâteau",he:"עוגה"},{fr:"tarte",he:"פשטידה"},
+{fr:"biscuit",he:"ביסקוויט"},{fr:"bonbon",he:"ממתק"},{fr:"glace",he:"גלידה"},
+{fr:"sorbet",he:"שרבט"},{fr:"mousse",he:"מוס"},{fr:"crêpe",he:"קרפ"},
+// COOKING METHODS
+{fr:"cuire",he:"לבשל"},{fr:"faire bouillir",he:"להרתיח"},{fr:"frire",he:"לטגן"},
+{fr:"griller",he:"לצלות על אש"},{fr:"rôtir",he:"לצלות בתנור"},{fr:"mijoter",he:"לבשל על אש קטנה"},
+{fr:"cuire à la vapeur",he:"לאדות"},{fr:"couper",he:"לחתוך"},{fr:"hacher",he:"לקצוץ"},
+{fr:"éplucher",he:"לקלף"},{fr:"mélanger",he:"לערבב"},{fr:"battre",he:"להקציף"},
+{fr:"pétrir",he:"ללוש"},{fr:"faire mariner",he:"להשרות"},{fr:"assaisonner",he:"לתבל"},
+{fr:"servir",he:"להגיש"},{fr:"goûter",he:"לטעום"},{fr:"réchauffer",he:"לחמם"},
+{fr:"refroidir",he:"לקרר"},{fr:"congeler",he:"להקפיא"},{fr:"décongeler",he:"להפשיר"},
+// RESTAURANT & DRINKS
+{fr:"restaurant",he:"מסעדה"},{fr:"bistrot",he:"ביסטרו"},{fr:"brasserie",he:"ברסרי"},
+{fr:"bistrot",he:"ביסטרו קטן"},{fr:"fast-food",he:"מזון מהיר"},{fr:"pizzeria",he:"פיצרייה"},
+{fr:"menu",he:"תפריט"},{fr:"carte",he:"תפריט à la carte"},{fr:"plat du jour",he:"מנת היום"},
+{fr:"formule",he:"ארוחה מוגדרת"},{fr:"addition",he:"חשבון"},{fr:"note",he:"חשבון (מסעדה)"},
+{fr:"réservation",he:"הזמנה מקום"},{fr:"table",he:"שולחן"},{fr:"serveur",he:"מלצר"},
+{fr:"serveuse",he:"מלצרית"},{fr:"chef",he:"שף"},{fr:"cuisinier",he:"טבח"},
+{fr:"entrée",he:"מנה ראשונה"},{fr:"plat principal",he:"מנה עיקרית"},{fr:"dessert",he:"קינוח"},
+{fr:"hors-d'œuvre",he:"מנת פתיחה"},{fr:"amuse-bouche",he:"ביס לפתיחה"},
+{fr:"apéritif",he:"אפריטיף"},{fr:"digestif",he:"משקה לאחר אוכל"},
+{fr:"vin rouge",he:"יין אדום"},{fr:"vin blanc",he:"יין לבן"},{fr:"vin rosé",he:"יין רוזה"},
+{fr:"champagne",he:"שמפניה"},{fr:"cidre",he:"סיידר"},{fr:"bière",he:"בירה"},
+{fr:"bière pression",he:"בירה מהברז"},{fr:"eau plate",he:"מים רגילים"},
+{fr:"eau gazeuse",he:"מים מוגזים"},{fr:"jus d'orange",he:"מיץ תפוזים"},
+{fr:"jus de pomme",he:"מיץ תפוח"},{fr:"limonade",he:"לימונדה"},
+{fr:"café",he:"קפה"},{fr:"café crème",he:"קפה עם חלב"},{fr:"café au lait",he:"קפה עם הרבה חלב"},
+{fr:"café noir",he:"קפה שחור"},{fr:"expresso",he:"אספרסו"},{fr:"cappuccino",he:"קפוצ'ינו"},
+{fr:"thé",he:"תה"},{fr:"tisane",he:"תה צמחים"},{fr:"chocolat chaud",he:"שוקו חם"},
+{fr:"smoothie",he:"שייק"},{fr:"cocktail",he:"קוקטייל"},
+{fr:"commande",he:"הזמנה"},{fr:"je voudrais",he:"הייתי רוצה"},{fr:"pour moi",he:"בשבילי"},
+{fr:"l'addition s'il vous plaît",he:"החשבון בבקשה"},{fr:"c'est pour moi",he:"זה עלי"},
+{fr:"on partage",he:"נחלק"},{fr:"c'est délicieux",he:"זה טעים"},{fr:"c'est bon",he:"זה טוב"},
+{fr:"sans gluten",he:"ללא גלוטן"},{fr:"végétarien",he:"צמחוני"},{fr:"vegan",he:"טבעוני"},
+{fr:"sans lactose",he:"ללא לקטוז"},{fr:"halal",he:"חלאל"},{fr:"casher",he:"כשר"},
+{fr:"allergique à",he:"אלרגי ל"},{fr:"pourboire",he:"טיפ"},{fr:"service compris",he:"שירות כלול"},
+// HOTEL & TOURISM
+{fr:"hôtel",he:"מלון"},{fr:"auberge",he:"אכסנייה"},{fr:"auberge de jeunesse",he:"אכסניית נוער"},
+{fr:"chambre",he:"חדר"},{fr:"suite",he:"סוויטה"},{fr:"réception",he:"קבלה"},
+{fr:"clé",he:"מפתח"},{fr:"clé magnétique",he:"כרטיס מגנטי"},{fr:"ascenseur",he:"מעלית"},
+{fr:"escalier",he:"מדרגות"},{fr:"étage",he:"קומה"},{fr:"rez-de-chaussée",he:"קומת קרקע"},
+{fr:"chambre simple",he:"חדר יחיד"},{fr:"chambre double",he:"חדר זוגי"},
+{fr:"chambre twin",he:"חדר עם שתי מיטות"},{fr:"lit double",he:"מיטה זוגית"},
+{fr:"petit-déjeuner",he:"ארוחת בוקר"},{fr:"demi-pension",he:"חצי פנסיון"},
+{fr:"pension complète",he:"פנסיון מלא"},{fr:"tout inclus",he:"הכל כלול"},
+{fr:"check-in",he:"צ'ק-אין"},{fr:"check-out",he:"צ'ק-אאוט"},{fr:"réservation",he:"הזמנה"},
+{fr:"annulation",he:"ביטול"},{fr:"confirmation",he:"אישור"},
+{fr:"passeport",he:"דרכון"},{fr:"carte d'identité",he:"תעודת זהות"},{fr:"visa",he:"ויזה"},
+{fr:"touriste",he:"תייר"},{fr:"voyage",he:"נסיעה/מסע"},{fr:"vacances",he:"חופשה"},
+{fr:"musée",he:"מוזיאון"},{fr:"galerie",he:"גלרייה"},{fr:"monument",he:"אנדרטה"},
+{fr:"cathédrale",he:"קתדרלה"},{fr:"église",he:"כנסייה"},{fr:"synagogue",he:"בית כנסת"},
+{fr:"mosquée",he:"מסגד"},{fr:"château",he:"טירה"},{fr:"palais",he:"ארמון"},
+{fr:"tour",he:"מגדל"},{fr:"pont",he:"גשר"},{fr:"fontaine",he:"מזרקה"},
+{fr:"parc national",he:"פארק לאומי"},{fr:"plage",he:"חוף ים"},{fr:"montagne",he:"הר"},
+{fr:"forêt",he:"יער"},{fr:"lac",he:"אגם"},{fr:"rivière",he:"נהר"},
+{fr:"carte",he:"מפה"},{fr:"plan de ville",he:"מפת עיר"},{fr:"GPS",he:"ניווט GPS"},
+{fr:"excursion",he:"טיול"},{fr:"circuit",he:"מסלול"},{fr:"croisière",he:"שייט"},
+{fr:"guide touristique",he:"מדריך תיירים"},{fr:"office de tourisme",he:"לשכת תיירות"},
+{fr:"souvenirs",he:"מזכרות"},{fr:"carte postale",he:"גלויה"},
+{fr:"billet",he:"כרטיס כניסה"},{fr:"billet aller",he:"כרטיס הלוך"},
+{fr:"billet aller-retour",he:"כרטיס הלוך וחזור"},{fr:"valise",he:"מזוודה"},
+{fr:"sac à dos",he:"תרמיל"},{fr:"sac de voyage",he:"תיק נסיעות"},{fr:"douane",he:"מכס"},
+{fr:"immigration",he:"הגירה"},{fr:"déclaration",he:"הצהרה"},
+// SHOPPING & FASHION
+{fr:"magasin",he:"חנות"},{fr:"boutique",he:"בוטיק"},{fr:"supermarché",he:"סופרמרקט"},
+{fr:"hypermarché",he:"היפרמרקט"},{fr:"centre commercial",he:"קניון"},{fr:"marché",he:"שוק"},
+{fr:"épicerie",he:"מכולת"},{fr:"boulangerie",he:"מאפייה"},{fr:"boucherie",he:"קצבייה"},
+{fr:"poissonnerie",he:"חנות דגים"},{fr:"fromagerie",he:"חנות גבינות"},
+{fr:"librairie",he:"חנות ספרים"},{fr:"papeterie",he:"חנות ציוד משרדי"},
+{fr:"pharmacie",he:"בית מרקחת"},{fr:"bijouterie",he:"חנות תכשיטים"},
+{fr:"vêtements",he:"בגדים"},{fr:"taille",he:"מידה"},{fr:"pointure",he:"מספר נעל"},
+{fr:"prix",he:"מחיר"},{fr:"prix réduit",he:"מחיר מוזל"},{fr:"soldes",he:"מבצע/סייל"},
+{fr:"promotion",he:"מבצע"},{fr:"réduction",he:"הנחה"},{fr:"offre spéciale",he:"מבצע מיוחד"},
+{fr:"caisse",he:"קופה"},{fr:"carte bancaire",he:"כרטיס אשראי/חיוב"},
+{fr:"espèces",he:"מזומן"},{fr:"chèque",he:"המחאה"},{fr:"reçu",he:"קבלה"},
+{fr:"facture",he:"חשבונית"},{fr:"remboursement",he:"החזר כסף"},{fr:"échange",he:"החלפה"},
+{fr:"robe",he:"שמלה"},{fr:"jupe",he:"חצאית"},{fr:"pantalon",he:"מכנסיים"},
+{fr:"jean",he:"ג'ינס"},{fr:"short",he:"שורטס"},{fr:"legging",he:"לגינס"},
+{fr:"chemise",he:"חולצה (כפתורים)"},{fr:"t-shirt",he:"טישרט"},{fr:"polo",he:"פולו"},
+{fr:"pull",he:"סוודר"},{fr:"gilet",he:"אפודה"},{fr:"veste",he:"ז'קט"},
+{fr:"blazer",he:"בלייזר"},{fr:"manteau",he:"מעיל"},{fr:"imperméable",he:"מעיל גשם"},
+{fr:"anorak",he:"מעיל רוח"},{fr:"pyjama",he:"פיג'מה"},{fr:"maillot de bain",he:"בגד ים"},
+{fr:"chaussures",he:"נעליים"},{fr:"basket",he:"נעלי ספורט"},{fr:"talon",he:"נעל עקב"},
+{fr:"botte",he:"מגף"},{fr:"sandale",he:"סנדל"},{fr:"pantoufle",he:"כפכף/נעל בית"},
+{fr:"chaussettes",he:"גרביים"},{fr:"collants",he:"גרביון"},{fr:"sous-vêtements",he:"תחתונים"},
+{fr:"soutien-gorge",he:"חזייה"},{fr:"slip",he:"תחתון"},{fr:"caleçon",he:"בוקסר"},
+{fr:"sac",he:"תיק"},{fr:"sac à main",he:"תיק יד"},{fr:"sac à dos",he:"תרמיל"},
+{fr:"portefeuille",he:"ארנק"},{fr:"ceinture",he:"חגורה"},{fr:"chapeau",he:"כובע"},
+{fr:"casquette",he:"כובע מצחייה"},{fr:"bonnet",he:"כומתה"},{fr:"écharpe",he:"צעיף"},
+{fr:"gants",he:"כפפות"},{fr:"lunettes",he:"משקפיים"},{fr:"lunettes de soleil",he:"משקפי שמש"},
+{fr:"montre",he:"שעון יד"},{fr:"bijoux",he:"תכשיטים"},{fr:"bague",he:"טבעת"},
+{fr:"collier",he:"שרשרת"},{fr:"bracelet",he:"צמיד"},{fr:"boucles d'oreilles",he:"עגילים"},
+{fr:"trop grand",he:"גדול מדי"},{fr:"trop petit",he:"קטן מדי"},{fr:"à la mode",he:"אופנתי"},
+{fr:"démodé",he:"לא אופנתי"},{fr:"élégant",he:"אלגנטי"},{fr:"casual",he:"קז'ואל"},
+{fr:"en coton",he:"מכותנה"},{fr:"en laine",he:"מצמר"},{fr:"en soie",he:"ממשי"},
+{fr:"en cuir",he:"מעור"},{fr:"synthétique",he:"סינטטי"},
+// HOME & DECOR
+{fr:"maison",he:"בית"},{fr:"appartement",he:"דירה"},{fr:"studio",he:"סטודיו"},
+{fr:"villa",he:"וילה"},{fr:"immeuble",he:"בניין"},{fr:"quartier",he:"שכונה"},
+{fr:"salon",he:"סלון"},{fr:"chambre à coucher",he:"חדר שינה"},
+{fr:"salle à manger",he:"פינת אוכל"},{fr:"cuisine",he:"מטבח"},
+{fr:"salle de bain",he:"חדר אמבטיה"},{fr:"douche",he:"מקלחת"},{fr:"baignoire",he:"אמבטיה"},
+{fr:"toilettes",he:"שירותים"},{fr:"WC",he:"שירותים"},{fr:"couloir",he:"מסדרון"},
+{fr:"entrée",he:"כניסה"},{fr:"escalier",he:"מדרגות"},{fr:"balcon",he:"מרפסת"},
+{fr:"jardin",he:"גן"},{fr:"terrasse",he:"טרסה"},{fr:"garage",he:"מוסך"},
+{fr:"cave",he:"מרתף"},{fr:"grenier",he:"גג/עליית גג"},{fr:"sous-sol",he:"מרתף"},
+{fr:"canapé",he:"ספה"},{fr:"fauteuil",he:"כורסה"},{fr:"chaise",he:"כיסא"},
+{fr:"tabouret",he:"שרפרף"},{fr:"table basse",he:"שולחן קפה"},{fr:"lit",he:"מיטה"},
+{fr:"lit double",he:"מיטה זוגית"},{fr:"lit simple",he:"מיטה יחיד"},{fr:"berceau",he:"עריסה"},
+{fr:"canapé-lit",he:"ספה נפתחת"},{fr:"armoire",he:"ארון"},{fr:"placard",he:"ארון קיר"},
+{fr:"commode",he:"שידה"},{fr:"tiroir",he:"מגירה"},{fr:"bureau",he:"שולחן כתיבה"},
+{fr:"étagère à livres",he:"ארון ספרים"},{fr:"étagère",he:"מדף"},{fr:"meuble TV",he:"מזנון"},
+{fr:"lampe",he:"מנורה"},{fr:"lustre",he:"נברשת"},{fr:"rideau",he:"וילון"},
+{fr:"volet",he:"תריס"},{fr:"store",he:"ווילון רולו"},{fr:"tableau",he:"תמונה/לוח"},
+{fr:"tapis",he:"שטיח"},{fr:"parquet",he:"פרקט"},{fr:"carrelage",he:"אריח"},
+{fr:"miroir",he:"מראה"},{fr:"horloge",he:"שעון קיר"},{fr:"coussin",he:"כרית"},
+{fr:"couverture",he:"שמיכה"},{fr:"drap",he:"סדין"},{fr:"oreiller",he:"כרית שינה"},
+{fr:"couette",he:"שמיכת מילוי"},{fr:"porte",he:"דלת"},{fr:"fenêtre",he:"חלון"},
+{fr:"mur",he:"קיר"},{fr:"plafond",he:"תקרה"},{fr:"sol",he:"רצפה"},
+{fr:"chauffage",he:"חימום"},{fr:"radiateur",he:"רדיאטור"},{fr:"climatisation",he:"מיזוג אוויר"},
+{fr:"ventilateur",he:"מאוורר"},{fr:"cheminée",he:"אח"},{fr:"interrupteur",he:"מתג אור"},
+{fr:"prise",he:"שקע חשמל"},{fr:"ampoule",he:"נורה"},{fr:"loyer",he:"שכר דירה"},
+{fr:"charges",he:"הוצאות בנייה"},{fr:"propriétaire",he:"בעל הדירה"},{fr:"locataire",he:"שוכר"},
+// GARDEN & PLANTS
+{fr:"jardin",he:"גן"},{fr:"pelouse",he:"דשא"},{fr:"fleur",he:"פרח"},{fr:"rose",he:"ורד"},
+{fr:"tulipe",he:"צבעוני"},{fr:"jasmin",he:"יסמין"},{fr:"lavande",he:"לבנדר"},
+{fr:"arbre",he:"עץ"},{fr:"arbuste",he:"שיח"},{fr:"buisson",he:"סבך"},
+{fr:"herbe",he:"עשב"},{fr:"feuille",he:"עלה"},{fr:"branche",he:"ענף"},{fr:"racine",he:"שורש"},
+{fr:"graine",he:"זרע"},{fr:"pot de fleurs",he:"עציץ"},{fr:"arrosoir",he:"קנקן השקיה"},
+{fr:"tondeuse",he:"מכסחת דשא"},{fr:"râteau",he:"גרדן"},{fr:"pelle",he:"את"},
+{fr:"terreau",he:"אדמת גן"},{fr:"engrais",he:"דשן"},{fr:"compost",he:"קומפוסט"},
+// PROFESSIONS
+{fr:"kinésithérapeute",he:"פיזיותרפיסט"},
+{fr:"psychiatre",he:"פסיכיאטר"},{fr:"radiologue",he:"רדיולוג"},
+{fr:"opticien",he:"אופטיקאי"},{fr:"avocat",he:"עורך דין"},{fr:"notaire",he:"נוטריון"},
+{fr:"juge",he:"שופט"},{fr:"procureur",he:"תובע"},{fr:"policier",he:"שוטר"},
+{fr:"pompier",he:"כבאי"},{fr:"militaire",he:"חייל"},{fr:"gendarme",he:"ז'נדרם"},
+{fr:"ingénieur",he:"מהנדס"},{fr:"architecte",he:"אדריכל"},{fr:"programmeur",he:"מתכנת"},
+{fr:"développeur",he:"מפתח"},{fr:"informaticien",he:"איש IT"},{fr:"technicien",he:"טכנאי"},
+{fr:"professeur",he:"מורה/פרופסור"},{fr:"instituteur",he:"מורה בבית ספר"},{fr:"formateur",he:"מדריך"},
+{fr:"étudiant",he:"סטודנט"},{fr:"chercheur",he:"חוקר"},{fr:"scientifique",he:"מדען"},
+{fr:"directeur",he:"מנהל"},{fr:"PDG",he:"מנכ'ל"},{fr:"responsable",he:"אחראי"},
+{fr:"secrétaire",he:"מזכיר/ה"},{fr:"comptable",he:"רואה חשבון"},{fr:"économiste",he:"כלכלן"},
+{fr:"consultant",he:"יועץ"},{fr:"commercial",he:"איש מכירות"},{fr:"agent immobilier",he:"מתווך נדל'ן"},
+{fr:"journaliste",he:"עיתונאי"},{fr:"acteur",he:"שחקן"},{fr:"actrice",he:"שחקנית"},
+{fr:"musicien",he:"מוזיקאי"},{fr:"chanteur",he:"זמר"},{fr:"danseur",he:"רקדן"},
+{fr:"artiste",he:"אמן"},{fr:"peintre",he:"צייר"},{fr:"sculpteur",he:"פסל"},
+{fr:"photographe",he:"צלם"},{fr:"designer",he:"מעצב"},{fr:"graphiste",he:"גרפיקאי"},
+{fr:"cuisinier",he:"טבח"},{fr:"chef cuisinier",he:"שף"},{fr:"boulanger",he:"אופה"},
+{fr:"pâtissier",he:"קונדיטור"},{fr:"boucher",he:"קצב"},{fr:"poissonnier",he:"דייג/מוכר דגים"},
+{fr:"fleuriste",he:"פרחן"},{fr:"jardinier",he:"גנן"},{fr:"coiffeur",he:"ספר"},
+{fr:"esthéticienne",he:"אסתטיקאית"},{fr:"vétérinaire",he:"וטרינר"},
+{fr:"pilote",he:"טייס"},{fr:"hôtesse de l'air",he:"דיילת"},{fr:"marin",he:"מלח"},
+{fr:"chauffeur",he:"נהג"},{fr:"taxi",he:"נהג מונית"},{fr:"livreur",he:"שליח"},
+{fr:"mécanicien",he:"מכונאי"},{fr:"électricien",he:"חשמלאי"},{fr:"plombier",he:"שרברב"},
+{fr:"maçon",he:"בנאי"},{fr:"charpentier",he:"נגר"},{fr:"peintre en bâtiment",he:"צבעי"},
+{fr:"serrurier",he:"מנעולן"},{fr:"agriculteur",he:"חקלאי"},{fr:"fermier",he:"חוואי"},
+{fr:"pêcheur",he:"דייג"},{fr:"mineur",he:"כורה מחצבים"},{fr:"ouvrier",he:"פועל"},
+// TRANSPORT
+{fr:"voiture",he:"מכונית"},{fr:"camion",he:"משאית"},{fr:"camionnette",he:"ואן"},
+{fr:"train",he:"רכבת"},{fr:"TGV",he:"רכבת מהירה"},{fr:"tramway",he:"חשמלית"},
+{fr:"bus",he:"אוטובוס"},{fr:"car",he:"אוטוקר"},{fr:"avion",he:"מטוס"},
+{fr:"hélicoptère",he:"מסוק"},{fr:"métro",he:"מטרו"},{fr:"RER",he:"רכבת פרברים"},
+{fr:"taxi",he:"מונית"},{fr:"VTC",he:"מונית אפליקציה"},{fr:"covoiturage",he:"שיתוף נסיעה"},
+{fr:"vélo",he:"אופניים"},{fr:"vélo électrique",he:"אופניים חשמליים"},
+{fr:"trottinette",he:"קורקינט"},{fr:"moto",he:"אופנוע"},{fr:"scooter",he:"קטנוע"},
+{fr:"bateau",he:"ספינה"},{fr:"ferry",he:"מעבורת"},{fr:"sous-marin",he:"צוללת"},
+{fr:"gare",he:"תחנת רכבת"},{fr:"aéroport",he:"שדה תעופה"},{fr:"port",he:"נמל"},
+{fr:"arrêt de bus",he:"תחנת אוטובוס"},{fr:"station de métro",he:"תחנת מטרו"},
+{fr:"ticket",he:"כרטיס נסיעה"},{fr:"billet",he:"כרטיס (נסיעה ארוכה)"},{fr:"pass",he:"כרטיס חופשי"},
+{fr:"horaire",he:"לוח זמנים"},{fr:"retard",he:"עיכוב"},{fr:"annulation",he:"ביטול"},
+{fr:"correspondance",he:"חיבור/החלפה"},{fr:"quai",he:"רציף"},{fr:"voie",he:"מסלול/שביל"},
+{fr:"porte",he:"שער (שדה תעופה)"},{fr:"embarquement",he:"עלייה למטוס"},
+{fr:"atterrissage",he:"נחיתה"},{fr:"décollage",he:"המראה"},{fr:"escale",he:"עצירת ביניים"},
+{fr:"bagage",he:"מטען"},{fr:"bagage à main",he:"מטען יד"},{fr:"enregistrement",he:"צ'ק-אין שדה תעופה"},
+{fr:"carte d'embarquement",he:"כרטיס עלייה למטוס"},
+{fr:"essence",he:"דלק"},{fr:"diesel",he:"דיזל"},{fr:"électrique",he:"חשמלי"},
+{fr:"station-service",he:"תחנת דלק"},{fr:"parking",he:"חניה"},{fr:"péage",he:"אגרת כביש"},
+{fr:"sens interdit",he:"כניסה אסורה"},{fr:"feux",he:"פנסי רמזור"},{fr:"carrefour",he:"צומת"},
+{fr:"rond-point",he:"כיכר תנועה"},{fr:"autoroute",he:"כביש מהיר"},{fr:"route nationale",he:"כביש ראשי"},
+{fr:"permis de conduire",he:"רישיון נהיגה"},{fr:"assurance",he:"ביטוח"},{fr:"amende",he:"קנס"},
+// PUBLIC PLACES & INSTITUTIONS
+{fr:"mairie",he:"עיריה"},{fr:"préfecture",he:"פרפקטורה"},{fr:"ambassade",he:"שגרירות"},
+{fr:"consulat",he:"קונסוליה"},{fr:"commissariat",he:"תחנת משטרה"},{fr:"caserne",he:"כלא/מחנה"},
+{fr:"tribunal",he:"בית משפט"},{fr:"prison",he:"בית סוהר"},
+{fr:"hôpital",he:"בית חולים"},{fr:"clinique",he:"מרפאה"},{fr:"salle d'attente",he:"חדר המתנה"},
+{fr:"école",he:"בית ספר"},{fr:"école maternelle",he:"גן ילדים"},{fr:"collège",he:"חטיבת ביניים"},
+{fr:"lycée",he:"תיכון"},{fr:"université",he:"אוניברסיטה"},{fr:"grande école",he:"מכון מחקר"},
+{fr:"bibliothèque",he:"ספריה"},{fr:"médiathèque",he:"מדיאתקה"},{fr:"cinéma",he:"קולנוע"},
+{fr:"théâtre",he:"תיאטרון"},{fr:"opéra",he:"אופרה"},{fr:"salle de concert",he:"אולם קונצרטים"},
+{fr:"stade",he:"אצטדיון"},{fr:"gymnase",he:"אולם ספורט"},{fr:"piscine",he:"בריכה"},
+{fr:"salle de sport",he:"חדר כושר"},{fr:"terrain de sport",he:"מגרש ספורט"},
+{fr:"parc",he:"פארק"},{fr:"jardin public",he:"גן ציבורי"},{fr:"zoo",he:"גן חיות"},
+{fr:"poste",he:"דואר"},{fr:"banque",he:"בנק"},{fr:"distributeur",he:"כספומט"},
+{fr:"pharmacie",he:"בית מרקחת"},{fr:"boulangerie",he:"מאפייה"},
+{fr:"épicerie",he:"מכולת"},{fr:"librairie",he:"חנות ספרים"},{fr:"musée",he:"מוזיאון"},
+{fr:"galerie d'art",he:"גלרייה לאמנות"},{fr:"cimetière",he:"בית קברות"},
+// EDUCATION
+{fr:"école",he:"בית ספר"},{fr:"classe",he:"כיתה"},{fr:"cours",he:"שיעור"},
+{fr:"leçon",he:"שיעור/לקחי"},{fr:"devoir",he:"שיעורי בית"},{fr:"examen",he:"מבחן"},
+{fr:"note",he:"ציון"},{fr:"bulletin",he:"תעודה"},{fr:"diplôme",he:"תעודה/דיפלומה"},
+{fr:"baccalauréat",he:"בגרות"},{fr:"licence",he:"תואר ראשון"},{fr:"master",he:"תואר שני"},
+{fr:"doctorat",he:"דוקטורט"},{fr:"matière",he:"מקצוע"},{fr:"programme",he:"תוכנית לימודים"},
+{fr:"manuel",he:"ספר לימוד"},{fr:"cahier",he:"מחברת"},{fr:"stylo",he:"עט"},
+{fr:"crayon",he:"עיפרון"},{fr:"règle",he:"סרגל"},{fr:"gomme",he:"מחק"},
+{fr:"cartable",he:"תיק בית ספר"},{fr:"tableau",he:"לוח"},{fr:"craie",he:"גיר"},
+{fr:"calculatrice",he:"מחשבון"},{fr:"dictionnaire",he:"מילון"},
+{fr:"mathématiques",he:"מתמטיקה"},{fr:"physique",he:"פיזיקה"},{fr:"chimie",he:"כימיה"},
+{fr:"biologie",he:"ביולוגיה"},{fr:"histoire",he:"היסטוריה"},{fr:"géographie",he:"גיאוגרפיה"},
+{fr:"philosophie",he:"פילוסופיה"},{fr:"littérature",he:"ספרות"},{fr:"langues",he:"שפות"},
+{fr:"cours de musique",he:"שיעור מוסיקה"},{fr:"art plastique",he:"אמנות"},{fr:"éducation physique",he:"חינוך גופני"},
+{fr:"informatique",he:"מדעי המחשב"},{fr:"cours d'économie",he:"שיעור כלכלה"},
+{fr:"récréation",he:"הפסקה"},{fr:"cantine",he:"חדר אוכל"},{fr:"internат",he:"פנימייה"},
+// SPORTS & LEISURE
+{fr:"sport",he:"ספורט"},{fr:"football",he:"כדורגל"},{fr:"basketball",he:"כדורסל"},
+{fr:"tennis",he:"טניס"},{fr:"natation",he:"שחייה"},{fr:"cyclisme",he:"רכיבה על אופניים"},
+{fr:"course",he:"ריצה"},{fr:"ski",he:"סקי"},{fr:"surf",he:"גלישה"},{fr:"escalade",he:"טיפוס הרים"},
+{fr:"golf",he:"גולף"},{fr:"rugby",he:"רוגבי"},{fr:"volleyball",he:"כדורעף"},
+{fr:"handball",he:"כדוריד"},{fr:"boxe",he:"אגרוף"},{fr:"judo",he:"ג'ודו"},
+{fr:"karaté",he:"קראטה"},{fr:"yoga",he:"יוגה"},{fr:"gym",he:"גימנסטיקה"},
+{fr:"musculation",he:"אימון כוח"},{fr:"fitness",he:"פיטנס"},{fr:"randonnée",he:"טיול ברגל"},
+{fr:"camping",he:"קמפינג"},{fr:"pêche",he:"דייג"},{fr:"chasse",he:"ציד"},
+{fr:"équitation",he:"רכיבה על סוס"},{fr:"danse",he:"ריקוד"},{fr:"hip-hop",he:"היפ הופ"},
+{fr:"ballet",he:"בלט"},{fr:"jeux vidéo",he:"משחקי וידאו"},{fr:"jeu de société",he:"משחק לוח"},
+{fr:"échecs",he:"שחמט"},{fr:"cartes",he:"קלפים"},{fr:"puzzle",he:"פאזל"},
+{fr:"peinture",he:"ציור"},{fr:"dessin",he:"רישום"},{fr:"sculpture",he:"פיסול"},
+{fr:"photographie",he:"צילום"},{fr:"jardinage",he:"גינון"},{fr:"art culinaire",he:"בישול (תחביב)"},
+{fr:"lecture",he:"קריאה"},{fr:"voyager",he:"לטייל/לנסוע"},
+// MUSIC & ARTS
+{fr:"musique",he:"מוסיקה"},{fr:"chanson",he:"שיר"},{fr:"album",he:"אלבום"},
+{fr:"concert",he:"קונצרט"},{fr:"orchestre",he:"תזמורת"},{fr:"chorale",he:"מקהלה"},
+{fr:"guitare",he:"גיטרה"},{fr:"piano",he:"פסנתר"},{fr:"violon",he:"כינור"},
+{fr:"batterie",he:"תופים"},{fr:"basse",he:"בס"},{fr:"flûte",he:"חליל"},
+{fr:"trompette",he:"חצוצרה"},{fr:"saxophone",he:"סקסופון"},{fr:"accordéon",he:"אקורדיון"},
+{fr:"micro",he:"מיקרופון"},{fr:"enceinte",he:"רמקול"},{fr:"casque",he:"אוזניות"},
+{fr:"note de musique",he:"תו מוזיקלי"},{fr:"rythme",he:"קצב"},{fr:"mélodie",he:"מנגינה"},
+{fr:"harmonie",he:"הרמוניה"},{fr:"jazz",he:"ג'אז"},{fr:"classique",he:"קלאסי"},
+{fr:"rock",he:"רוק"},{fr:"pop",he:"פופ"},{fr:"rap",he:"ראפ"},{fr:"reggae",he:"רגאיי"},
+{fr:"électronique",he:"אלקטרוני"},{fr:"opéra",he:"אופרה"},
+{fr:"film",he:"סרט"},{fr:"documentaire",he:"סרט דוקומנטרי"},{fr:"comédie",he:"קומדייה"},
+{fr:"drame",he:"דרמה"},{fr:"thriller",he:"מתח"},{fr:"roman",he:"רומן"},
+{fr:"poésie",he:"שירה"},{fr:"théâtre",he:"תיאטרון"},
+// TECHNOLOGY & MEDIA
+{fr:"téléphone",he:"טלפון"},{fr:"smartphone",he:"סמארטפון"},{fr:"portable",he:"נייד"},
+{fr:"ordinateur",he:"מחשב"},{fr:"ordinateur portable",he:"מחשב נייד"},{fr:"tablette",he:"טאבלט"},
+{fr:"écran",he:"מסך"},{fr:"clavier",he:"מקלדת"},{fr:"souris",he:"עכבר"},
+{fr:"imprimante",he:"מדפסת"},{fr:"scanner",he:"סורק"},{fr:"internet",he:"אינטרנט"},
+{fr:"wifi",he:"ווייפיי"},{fr:"réseau",he:"רשת"},{fr:"site web",he:"אתר"},
+{fr:"application",he:"אפליקציה"},{fr:"logiciel",he:"תוכנה"},{fr:"fichier",he:"קובץ"},
+{fr:"dossier",he:"תיקייה"},{fr:"document",he:"מסמך"},{fr:"sauvegarde",he:"גיבוי"},
+{fr:"téléchargement",he:"הורדה"},{fr:"mise à jour",he:"עדכון"},{fr:"mot de passe",he:"סיסמה"},
+{fr:"identifiant",he:"שם משתמש"},{fr:"email",he:"אימייל"},{fr:"message",he:"הודעה"},
+{fr:"photo",he:"תמונה"},{fr:"vidéo",he:"וידאו"},{fr:"musique",he:"מוסיקה (קובץ)"},
+{fr:"réseaux sociaux",he:"רשתות חברתיות"},{fr:"profil",he:"פרופיל"},{fr:"abonnement",he:"מנוי"},
+{fr:"notification",he:"התראה"},{fr:"intelligence artificielle",he:"בינה מלאכותית"},
+{fr:"robot",he:"רובוט"},{fr:"drone",he:"רחפן"},{fr:"télévision",he:"טלוויזיה"},
+{fr:"télécommande",he:"שלט"},{fr:"radio",he:"רדיו"},{fr:"journal",he:"עיתון"},
+{fr:"magazine",he:"מגזין"},{fr:"livre numérique",he:"ספר אלקטרוני"},
+// BUSINESS & FINANCE
+{fr:"entreprise",he:"חברה"},{fr:"société",he:"חברה (עסקית)"},{fr:"start-up",he:"סטארטאפ"},
+{fr:"bureau",he:"משרד"},{fr:"réunion",he:"ישיבה"},{fr:"présentation",he:"מצגת"},
+{fr:"contrat",he:"חוזה"},{fr:"facture",he:"חשבונית"},{fr:"devis",he:"הצעת מחיר"},
+{fr:"budget",he:"תקציב"},{fr:"bénéfice",he:"רווח"},{fr:"perte",he:"הפסד"},
+{fr:"investissement",he:"השקעה"},{fr:"action",he:"מניה"},{fr:"bourse",he:"בורסה"},
+{fr:"banque",he:"בנק"},{fr:"compte bancaire",he:"חשבון בנק"},{fr:"virement",he:"העברה בנקאית"},
+{fr:"salaire",he:"משכורת"},{fr:"prime",he:"בונוס"},{fr:"retraite",he:"פנסיה"},
+{fr:"impôt",he:"מס"},{fr:"TVA",he:"מע'מ"},{fr:"assurance",he:"ביטוח"},
+{fr:"prêt",he:"הלוואה"},{fr:"crédit",he:"אשראי"},{fr:"dette",he:"חוב"},
+{fr:"économie",he:"כלכלה"},{fr:"marché financier",he:"שוק ההון"},{fr:"commerce",he:"מסחר"},
+{fr:"importation",he:"יבוא"},{fr:"exportation",he:"יצוא"},{fr:"publicité",he:"פרסום"},
+{fr:"marketing",he:"שיווק"},{fr:"vente",he:"מכירה"},{fr:"achat",he:"קנייה"},
+{fr:"client",he:"לקוח"},{fr:"fournisseur",he:"ספק"},{fr:"concurrence",he:"תחרות"},
+// LAW & GOVERNMENT
+{fr:"loi",he:"חוק"},{fr:"règlement",he:"תקנה"},{fr:"droit",he:"זכות/משפט"},
+{fr:"constitution",he:"חוקה"},{fr:"gouvernement",he:"ממשלה"},{fr:"état",he:"מדינה"},
+{fr:"président",he:"נשיא"},{fr:"premier ministre",he:"ראש ממשלה"},{fr:"ministre",he:"שר"},
+{fr:"parlement",he:"פרלמנט"},{fr:"sénat",he:"סנאט"},{fr:"député",he:"חבר פרלמנט"},
+{fr:"élection",he:"בחירות"},{fr:"vote",he:"הצבעה"},{fr:"parti politique",he:"מפלגה"},
+{fr:"démocratie",he:"דמוקרטיה"},{fr:"liberté",he:"חירות"},{fr:"égalité",he:"שוויון"},
+{fr:"justice",he:"צדק/משפטים"},{fr:"police",he:"משטרה"},{fr:"armée",he:"צבא"},
+{fr:"crime",he:"פשע"},{fr:"vol",he:"גנבה"},{fr:"meurtre",he:"רצח"},
+{fr:"tribunal",he:"בית משפט"},{fr:"avocat",he:"עורך דין"},{fr:"accusé",he:"נאשם"},
+{fr:"témoin",he:"עד"},{fr:"verdict",he:"פסק דין"},{fr:"condamnation",he:"הרשעה"},
+{fr:"acquittement",he:"זיכוי"},{fr:"prison",he:"כלא"},{fr:"amende",he:"קנס"},
+// ANIMALS
+{fr:"animal",he:"בעל חיים"},{fr:"chat",he:"חתול"},{fr:"chien",he:"כלב"},
+{fr:"cheval",he:"סוס"},{fr:"vache",he:"פרה"},{fr:"mouton",he:"כבש"},{fr:"cochon",he:"חזיר"},
+{fr:"chèvre",he:"עז"},{fr:"âne",he:"חמור"},{fr:"lapin",he:"ארנב"},{fr:"souris",he:"עכבר"},
+{fr:"rat",he:"חולדה"},{fr:"hamster",he:"אוגר"},{fr:"cochon d'Inde",he:"שרקן"},
+{fr:"oiseau",he:"ציפור"},{fr:"perroquet",he:"תוכי"},{fr:"aigle",he:"נשר"},
+{fr:"corbeau",he:"עורב"},{fr:"hibou",he:"ינשוף"},{fr:"pingouin",he:"פינגווין"},
+{fr:"poisson",he:"דג"},{fr:"requin",he:"כריש"},{fr:"dauphin",he:"דולפין"},
+{fr:"baleine",he:"לוויתן"},{fr:"tortue",he:"צב"},{fr:"crocodile",he:"תנין"},
+{fr:"serpent",he:"נחש"},{fr:"grenouille",he:"צפרדע"},{fr:"araignée",he:"עכביש"},
+{fr:"insecte",he:"חרק"},{fr:"abeille",he:"דבורה"},{fr:"papillon",he:"פרפר"},
+{fr:"mouche",he:"זבוב"},{fr:"moustique",he:"יתוש"},{fr:"fourmi",he:"נמלה"},
+{fr:"lion",he:"אריה"},{fr:"tigre",he:"נמר"},{fr:"éléphant",he:"פיל"},
+{fr:"girafe",he:"ג'ירפה"},{fr:"zèbre",he:"זברה"},{fr:"hippopotame",he:"היפופוטם"},
+{fr:"rhinocéros",he:"קרנף"},{fr:"gorille",he:"גורילה"},{fr:"singe",he:"קוף"},
+{fr:"ours",he:"דוב"},{fr:"loup",he:"זאב"},{fr:"renard",he:"שועל"},
+{fr:"cerf",he:"צבי"},{fr:"écureuil",he:"סנאי"},{fr:"hérisson",he:"קיפוד"},
+// NATURE & GEOGRAPHY
+{fr:"nature",he:"טבע"},{fr:"mer",he:"ים"},{fr:"océan",he:"אוקיינוס"},
+{fr:"fleuve",he:"נהר גדול"},{fr:"étang",he:"בריכה טבעית"},
+{fr:"colline",he:"גבעה"},{fr:"vallée",he:"עמק"},
+{fr:"désert",he:"מדבר"},{fr:"prairie",he:"ערבה/מישור"},
+{fr:"île",he:"אי"},{fr:"presqu'île",he:"חצי אי"},{fr:"côte",he:"חוף"},
+{fr:"falaise",he:"צוק"},{fr:"grotte",he:"מערה"},{fr:"volcan",he:"הר געש"},
+{fr:"glacier",he:"קרחון"},{fr:"cascade",he:"מפל מים"},{fr:"plaine",he:"מישור"},
+{fr:"ciel",he:"שמיים"},{fr:"lune",he:"ירח"},{fr:"soleil",he:"שמש"},{fr:"étoile",he:"כוכב"},
+{fr:"planète",he:"כוכב לכת"},{fr:"Terre",he:"כדור הארץ"},{fr:"galaxie",he:"גלקסיה"},
+{fr:"univers",he:"יקום"},{fr:"nuage",he:"ענן"},{fr:"arc-en-ciel",he:"קשת בענן"},
+{fr:"pays",he:"מדינה"},{fr:"ville",he:"עיר"},{fr:"capitale",he:"עיר בירה"},
+{fr:"continent",he:"יבשת"},{fr:"France",he:"צרפת"},{fr:"Paris",he:"פריז"},
+{fr:"Europe",he:"אירופה"},{fr:"Afrique",he:"אפריקה"},{fr:"Asie",he:"אסיה"},
+{fr:"Amérique",he:"אמריקה"},{fr:"Australie",he:"אוסטרליה"},{fr:"frontière",he:"גבול"},
+// COMMON VERBS - COMPREHENSIVE
+{fr:"être",he:"להיות"},{fr:"avoir",he:"יש/לקבל"},{fr:"faire",he:"לעשות"},
+{fr:"aller",he:"ללכת"},{fr:"venir",he:"לבוא"},{fr:"voir",he:"לראות"},
+{fr:"pouvoir",he:"יכול"},{fr:"vouloir",he:"לרצות"},{fr:"devoir",he:"חייב"},
+{fr:"savoir",he:"לדעת"},{fr:"dire",he:"לומר"},{fr:"croire",he:"להאמין"},
+{fr:"penser",he:"לחשוב"},{fr:"prendre",he:"לקחת"},{fr:"mettre",he:"לשים"},
+{fr:"donner",he:"לתת"},{fr:"recevoir",he:"לקבל"},{fr:"trouver",he:"למצוא"},
+{fr:"chercher",he:"לחפש"},{fr:"attendre",he:"לחכות"},{fr:"commencer",he:"להתחיל"},
+{fr:"finir",he:"לסיים"},{fr:"continuer",he:"להמשיך"},{fr:"arrêter",he:"לעצור"},
+{fr:"partir",he:"לצאת/לעזוב"},{fr:"rentrer",he:"לחזור הביתה"},{fr:"arriver",he:"להגיע"},
+{fr:"rester",he:"להישאר"},{fr:"entrer",he:"להיכנס"},{fr:"sortir",he:"לצאת"},
+{fr:"monter",he:"לעלות"},{fr:"descendre",he:"לרדת"},{fr:"ouvrir",he:"לפתוח"},
+{fr:"fermer",he:"לסגור"},{fr:"acheter",he:"לקנות"},{fr:"vendre",he:"למכור"},
+{fr:"payer",he:"לשלם"},{fr:"manger",he:"לאכול"},{fr:"boire",he:"לשתות"},
+{fr:"dormir",he:"לישון"},{fr:"courir",he:"לרוץ"},{fr:"marcher",he:"ללכת (ברגל)"},
+{fr:"parler",he:"לדבר"},{fr:"écouter",he:"להאזין"},{fr:"lire",he:"לקרוא"},
+{fr:"écrire",he:"לכתוב"},{fr:"apprendre",he:"ללמוד"},{fr:"travailler",he:"לעבוד"},
+{fr:"jouer",he:"לשחק"},{fr:"aimer",he:"לאהוב"},{fr:"regarder",he:"להסתכל"},
+{fr:"appeler",he:"להתקשר"},{fr:"envoyer",he:"לשלוח"},{fr:"répondre",he:"לענות"},
+{fr:"comprendre",he:"להבין"},{fr:"connaître",he:"להכיר"},{fr:"sentir",he:"להרגיש/לריח"},
+{fr:"entendre",he:"לשמוע"},{fr:"chanter",he:"לשיר"},{fr:"danser",he:"לרקוד"},
+{fr:"cuisiner",he:"לבשל"},{fr:"voyager",he:"לנסוע"},{fr:"conduire",he:"לנהוג"},
+{fr:"nager",he:"לשחות"},{fr:"couper",he:"לחתוך"},{fr:"choisir",he:"לבחור"},
+{fr:"décider",he:"להחליט"},{fr:"essayer",he:"לנסות"},{fr:"utiliser",he:"להשתמש"},
+{fr:"montrer",he:"להראות"},{fr:"expliquer",he:"להסביר"},{fr:"demander",he:"לבקש/לשאול"},
+{fr:"aider",he:"לעזור"},{fr:"tomber",he:"ליפול"},{fr:"porter",he:"לשאת/ללבוש"},
+{fr:"tenir",he:"להחזיק"},{fr:"habiter",he:"לגור"},{fr:"s'appeler",he:"להיקרא"},
+{fr:"se lever",he:"לקום"},{fr:"se coucher",he:"ללכת לישון"},{fr:"se réveiller",he:"להתעורר"},
+{fr:"se laver",he:"להתרחץ"},{fr:"s'habiller",he:"להתלבש"},{fr:"se dépêcher",he:"למהר"},
+{fr:"se reposer",he:"לנוח"},{fr:"s'asseoir",he:"לשבת"},{fr:"se lever",he:"לקום"},
+{fr:"réussir",he:"להצליח"},{fr:"échouer",he:"להיכשל"},{fr:"perdre",he:"להפסיד/לאבד"},
+{fr:"gagner",he:"לנצח/להרוויח"},{fr:"rencontrer",he:"לפגוש"},{fr:"inviter",he:"להזמין"},
+{fr:"remercier",he:"להודות"},{fr:"féliciter",he:"לברך"},{fr:"excuser",he:"לסלוח"},
+{fr:"promettre",he:"להבטיח"},{fr:"mentir",he:"לשקר"},{fr:"crier",he:"לצעוק"},
+{fr:"rire",he:"לצחוק"},{fr:"pleurer",he:"לבכות"},{fr:"sourire",he:"לחייך"},
+{fr:"rêver",he:"לחלום"},{fr:"souffrir",he:"לסבול"},{fr:"guérir",he:"להחלים"},
+{fr:"naître",he:"להיוולד"},{fr:"mourir",he:"למות"},{fr:"vivre",he:"לחיות"},
+{fr:"grandir",he:"לגדול"},{fr:"vieillir",he:"להזדקן"},{fr:"changer",he:"לשנות"},
+{fr:"revenir",he:"לחזור"},{fr:"retourner",he:"לחזור/לפנות"},{fr:"traverser",he:"לחצות"},
+{fr:"tourner",he:"לפנות"},{fr:"passer",he:"לעבור"},{fr:"accélérer",he:"להאיץ"},
+{fr:"ralentir",he:"להאט"},{fr:"freiner",he:"לבלום"},{fr:"garer",he:"לחנות"},
+{fr:"allumer",he:"להדליק"},{fr:"éteindre",he:"לכבות"},{fr:"brancher",he:"לחבר לחשמל"},
+{fr:"débrancher",he:"לנתק מחשמל"},{fr:"charger",he:"לטעון"},{fr:"télécharger",he:"להוריד"},
+{fr:"installer",he:"להתקין"},{fr:"configurer",he:"להגדיר"},{fr:"réparer",he:"לתקן"},
+{fr:"nettoyer",he:"לנקות"},{fr:"laver",he:"לכבס"},{fr:"ranger",he:"לסדר"},
+{fr:"trier",he:"למיין"},{fr:"remplir",he:"למלא"},{fr:"vider",he:"לרוקן"},
+{fr:"peser",he:"לשקול"},{fr:"mesurer",he:"למדוד"},{fr:"calculer",he:"לחשב"},
+{fr:"compter",he:"לספור"},{fr:"ajouter",he:"להוסיף"},{fr:"soustraire",he:"לחסר"},
+{fr:"multiplier",he:"לכפול"},{fr:"diviser",he:"לחלק"},{fr:"comparer",he:"להשוות"},
+{fr:"accepter",he:"לקבל/להסכים"},{fr:"refuser",he:"לסרב"},{fr:"proposer",he:"להציע"},
+{fr:"suggérer",he:"להציע/לרמז"},{fr:"conseiller",he:"להמליץ"},{fr:"informer",he:"להודיע"},
+{fr:"confirmer",he:"לאשר"},{fr:"corriger",he:"לתקן"},{fr:"améliorer",he:"לשפר"},
+{fr:"développer",he:"לפתח"},{fr:"créer",he:"ליצור"},{fr:"inventer",he:"להמציא"},
+{fr:"découvrir",he:"לגלות"},{fr:"explorer",he:"לחקור"},{fr:"analyser",he:"לנתח"},
+{fr:"observer",he:"לצפות"},{fr:"planifier",he:"לתכנן"},{fr:"organiser",he:"לארגן"},
+{fr:"préparer",he:"להכין"},{fr:"lancer",he:"להשיק/לזרוק"},{fr:"terminer",he:"לסיים"},
+{fr:"accomplir",he:"להשלים"},{fr:"atteindre",he:"להגיע אל/לממש"},{fr:"dépasser",he:"לעקוף"},
+{fr:"abandonner",he:"לוותר"},{fr:"recommencer",he:"להתחיל מחדש"},{fr:"persévérer",he:"להתמיד"},
+{fr:"célébrer",he:"לחגוג"},{fr:"partager",he:"לחלוק/לשתף"},{fr:"offrir",he:"לתת מתנה"},
+{fr:"construire",he:"לבנות"},{fr:"démolir",he:"להרוס"},{fr:"rénover",he:"לשפץ"},
+{fr:"décorer",he:"לקשט"},{fr:"peindre",he:"לצבוע"},{fr:"dessiner",he:"לצייר"},
+{fr:"photographier",he:"לצלם"},{fr:"filmer",he:"לצלם (וידאו)"},
+{fr:"publier",he:"לפרסם"},{fr:"diffuser",he:"לשדר"},{fr:"communiquer",he:"לתקשר"},
+{fr:"débattre",he:"לוויכוח"},{fr:"convaincre",he:"לשכנע"},{fr:"persuader",he:"לשכנע"},
+{fr:"tromper",he:"להטעות"},{fr:"avouer",he:"להתוודות"},{fr:"témoigner",he:"להעיד"},
+{fr:"accuser",he:"להאשים"},{fr:"défendre",he:"להגן"},{fr:"voter",he:"להצביע"},
+{fr:"gouverner",he:"לשלוט"},{fr:"diriger",he:"להנהיג"},{fr:"gérer",he:"לנהל"},
+{fr:"superviser",he:"לפקח"},{fr:"contrôler",he:"לשלוט/לבדוק"},{fr:"résumer",he:"לסכם"},
+{fr:"traduire",he:"לתרגם"},{fr:"interpreter",he:"לפרש"},{fr:"citer",he:"לצטט"},
+{fr:"emprunter",he:"ללוות"},{fr:"prêter",he:"להשאיל"},{fr:"louer",he:"לשכור"},
+{fr:"négocier",he:"לנהל משא ומתן"},{fr:"commander",he:"להזמין/לפקד"},
+{fr:"livrer",he:"לשלוח/למסור"},{fr:"expédier",he:"לשגר"},{fr:"recevoir",he:"לקבל"},
+// ADJECTIVES - COMPREHENSIVE
+{fr:"grand",he:"גדול"},{fr:"petit",he:"קטן"},{fr:"moyen",he:"בינוני"},
+{fr:"énorme",he:"ענק"},{fr:"minuscule",he:"זעיר"},{fr:"immense",he:"עצום"},
+{fr:"beau",he:"יפה"},{fr:"belle",he:"יפה (נקבה)"},{fr:"joli",he:"חמוד/יפה"},
+{fr:"laid",he:"מכוער"},{fr:"élégant",he:"אלגנטי"},{fr:"moche",he:"מגעיל/מכוער"},
+{fr:"nouveau",he:"חדש"},{fr:"vieux",he:"ישן/זקן"},{fr:"jeune",he:"צעיר"},
+{fr:"ancien",he:"ישן/עתיק"},{fr:"moderne",he:"מודרני"},{fr:"traditionnel",he:"מסורתי"},
+{fr:"bon",he:"טוב"},{fr:"mauvais",he:"רע"},{fr:"excellent",he:"מצוין"},
+{fr:"terrible",he:"נורא"},{fr:"parfait",he:"מושלם"},{fr:"acceptable",he:"מקובל"},
+{fr:"chaud",he:"חם"},{fr:"froid",he:"קר"},{fr:"tiède",he:"פושר"},{fr:"brûlant",he:"לוהט"},
+{fr:"glacé",he:"קפוא"},{fr:"rapide",he:"מהיר"},{fr:"lent",he:"איטי"},
+{fr:"fort",he:"חזק"},{fr:"faible",he:"חלש"},{fr:"puissant",he:"רב עוצמה"},
+{fr:"facile",he:"קל"},{fr:"difficile",he:"קשה"},{fr:"simple",he:"פשוט"},
+{fr:"compliqué",he:"מסובך"},{fr:"complexe",he:"מורכב"},
+{fr:"long",he:"ארוך"},{fr:"court",he:"קצר"},{fr:"large",he:"רחב"},{fr:"étroit",he:"צר"},
+{fr:"lourd",he:"כבד"},{fr:"léger",he:"קל (משקל)"},{fr:"épais",he:"עבה"},{fr:"fin",he:"דק"},
+{fr:"haut",he:"גבוה"},{fr:"bas",he:"נמוך"},{fr:"profond",he:"עמוק"},{fr:"superficiel",he:"שטחי"},
+{fr:"propre",he:"נקי"},{fr:"sale",he:"מלוכלך"},{fr:"plein",he:"מלא"},{fr:"vide",he:"ריק"},
+{fr:"ouvert",he:"פתוח"},{fr:"fermé",he:"סגור"},{fr:"libre",he:"חופשי/פנוי"},
+{fr:"occupé",he:"עסוק"},{fr:"cher",he:"יקר"},{fr:"pas cher",he:"זול"},{fr:"gratuit",he:"חינמי"},
+{fr:"important",he:"חשוב"},{fr:"urgent",he:"דחוף"},{fr:"nécessaire",he:"הכרחי"},
+{fr:"inutile",he:"חסר תועלת"},{fr:"utile",he:"שימושי"},{fr:"indispensable",he:"בלתי נפרד"},
+{fr:"intéressant",he:"מעניין"},{fr:"ennuyeux",he:"משעמם"},{fr:"amusant",he:"מצחיק/מהנה"},
+{fr:"magnifique",he:"נהדר"},{fr:"délicieux",he:"טעים"},{fr:"horrible",he:"נורא"},
+{fr:"agréable",he:"נעים"},{fr:"désagréable",he:"לא נעים"},{fr:"sympa",he:"נחמד"},
+{fr:"gentil",he:"אדיב/טוב לב"},{fr:"méchant",he:"אכזרי/רע"},{fr:"cruel",he:"אכזרי"},
+{fr:"calme",he:"רגוע"},{fr:"bruyant",he:"רועש"},{fr:"silencieux",he:"שקט"},
+{fr:"heureux",he:"שמח"},{fr:"triste",he:"עצוב"},{fr:"content",he:"מרוצה"},
+{fr:"mécontent",he:"לא מרוצה"},{fr:"inquiet",he:"מודאג"},{fr:"tranquille",he:"רגוע"},
+{fr:"fatigué",he:"עייף"},{fr:"reposé",he:"נח"},{fr:"malade",he:"חולה"},{fr:"en bonne santé",he:"בריא"},
+{fr:"en forme",he:"בכושר"},{fr:"blessé",he:"פצוע"},{fr:"guéri",he:"מחולים"},
+{fr:"vrai",he:"אמיתי/נכון"},{fr:"faux",he:"שקרי/לא נכון"},{fr:"réel",he:"אמיתי"},
+{fr:"imaginaire",he:"דמיוני"},{fr:"possible",he:"אפשרי"},{fr:"impossible",he:"בלתי אפשרי"},
+{fr:"probable",he:"סביר"},{fr:"certain",he:"בטוח"},{fr:"incertain",he:"לא בטוח"},
+{fr:"sûr",he:"בטוח"},{fr:"dangereux",he:"מסוכן"},{fr:"risqué",he:"מסוכן/מסוכן"},
+{fr:"intelligent",he:"חכם"},{fr:"bête",he:"טיפש"},{fr:"stupide",he:"טיפש"},
+{fr:"sage",he:"חכם/נבון"},{fr:"fou",he:"משוגע"},{fr:"bizarre",he:"מוזר"},
+{fr:"normal",he:"נורמלי"},{fr:"étrange",he:"מוזר/זר"},{fr:"original",he:"מקורי"},
+{fr:"courageux",he:"אמיץ"},{fr:"peureux",he:"פחדן"},{fr:"timide",he:"ביישן"},
+{fr:"généreux",he:"נדיב"},{fr:"avare",he:"קמצן"},{fr:"honnête",he:"ישר/כנה"},
+{fr:"malhonnête",he:"לא ישר"},{fr:"fidèle",he:"נאמן"},{fr:"traître",he:"בוגד"},
+{fr:"patient",he:"סבלני"},{fr:"impatient",he:"לא סבלני"},{fr:"optimiste",he:"אופטימי"},
+{fr:"pessimiste",he:"פסימי"},{fr:"réaliste",he:"ריאלי"},{fr:"romantique",he:"רומנטי"},
+{fr:"pratique",he:"מעשי"},{fr:"théorique",he:"תיאורטי"},{fr:"actif",he:"פעיל"},
+{fr:"passif",he:"פסיבי"},{fr:"indépendant",he:"עצמאי"},{fr:"dépendant",he:"תלותי"},
+{fr:"créatif",he:"יצירתי"},{fr:"innovant",he:"חדשני"},{fr:"conservateur",he:"שמרני"},
+{fr:"libéral",he:"ליברלי"},{fr:"ouvert d'esprit",he:"פתוח דעת"},{fr:"fermé d'esprit",he:"סגור"},
+{fr:"différent",he:"שונה"},{fr:"similaire",he:"דומה"},{fr:"identique",he:"זהה"},
+{fr:"commun",he:"משותף/נפוץ"},{fr:"rare",he:"נדיר"},{fr:"unique",he:"ייחודי"},
+{fr:"célèbre",he:"מפורסם"},{fr:"inconnu",he:"לא ידוע"},{fr:"populaire",he:"פופולרי"},
+{fr:"public",he:"ציבורי"},{fr:"privé",he:"פרטי"},{fr:"officiel",he:"רשמי"},
+{fr:"informel",he:"לא רשמי"},{fr:"légal",he:"חוקי"},{fr:"illégal",he:"לא חוקי"},
+{fr:"économique",he:"כלכלי"},{fr:"social",he:"חברתי"},{fr:"culturel",he:"תרבותי"},
+{fr:"politique",he:"פוליטי"},{fr:"historique",he:"היסטורי"},{fr:"scientifique",he:"מדעי"},
+{fr:"médical",he:"רפואי"},{fr:"naturel",he:"טבעי"},{fr:"artificiel",he:"מלאכותי"},
+{fr:"local",he:"מקומי"},{fr:"national",he:"לאומי"},{fr:"international",he:"בינלאומי"},
+// ADVERBS & EXPRESSIONS
+{fr:"très",he:"מאוד"},{fr:"beaucoup",he:"הרבה"},{fr:"peu",he:"מעט"},
+{fr:"assez",he:"מספיק"},{fr:"trop",he:"יותר מדי"},{fr:"autant",he:"כל כך הרבה"},
+{fr:"plus",he:"יותר"},{fr:"moins",he:"פחות"},{fr:"aussi",he:"גם/כמו כן"},
+{fr:"vraiment",he:"באמת"},{fr:"surtout",he:"בעיקר"},{fr:"seulement",he:"רק"},
+{fr:"exactement",he:"בדיוק"},{fr:"presque",he:"כמעט"},{fr:"environ",he:"בערך"},
+{fr:"ensemble",he:"ביחד"},{fr:"séparément",he:"בנפרד"},{fr:"soudain",he:"פתאום"},
+{fr:"lentement",he:"לאט"},{fr:"rapidement",he:"מהר"},{fr:"doucement",he:"בעדינות"},
+{fr:"fort",he:"בחוזקה/בקול רם"},{fr:"bas",he:"בשקט"},{fr:"bien",he:"טוב"},
+{fr:"mal",he:"רע"},{fr:"mieux",he:"טוב יותר"},{fr:"pire",he:"גרוע יותר"},
+// CONJUNCTIONS & PREPOSITIONS
+{fr:"et",he:"ו"},{fr:"ou",he:"או"},{fr:"mais",he:"אבל"},{fr:"donc",he:"לכן"},
+{fr:"car",he:"כי/משום"},{fr:"parce que",he:"כי/מפני ש"},{fr:"quand",he:"כשה"},{fr:"si",he:"אם"},
+{fr:"que",he:"ש"},{fr:"qui",he:"שה/מי"},{fr:"où",he:"איפה"},{fr:"comment",he:"איך"},
+{fr:"pourquoi",he:"למה"},{fr:"combien",he:"כמה"},{fr:"avec",he:"עם"},
+{fr:"sans",he:"בלי"},{fr:"pour",he:"בשביל"},{fr:"contre",he:"נגד"},
+{fr:"sur",he:"על"},{fr:"sous",he:"מתחת ל"},{fr:"dans",he:"בתוך"},
+{fr:"hors de",he:"מחוץ ל"},{fr:"entre",he:"בין"},{fr:"parmi",he:"בין (קבוצה)"},
+{fr:"grâce à",he:"הודות ל"},{fr:"à cause de",he:"בגלל"},{fr:"malgré",he:"למרות"},
+{fr:"selon",he:"לפי"},{fr:"afin de",he:"כדי ל"},{fr:"pendant que",he:"בזמן ש"},
+{fr:"dès que",he:"ברגע ש"},{fr:"bien que",he:"אם כי"},{fr:"alors que",he:"בעוד ש"},
+// DAILY LIFE
+{fr:"argent",he:"כסף"},{fr:"travail",he:"עבודה"},{fr:"temps",he:"זמן"},
+{fr:"heure",he:"שעה"},{fr:"minute",he:"דקה"},{fr:"seconde",he:"שנייה"},
+{fr:"matin",he:"בוקר"},{fr:"soir",he:"ערב"},{fr:"nuit",he:"לילה"},
+{fr:"midi",he:"צהריים"},{fr:"minuit",he:"חצות"},{fr:"aube",he:"שחרית/עלות השחר"},
+{fr:"crépuscule",he:"בין ערביים"},{fr:"lever du soleil",he:"זריחה"},
+{fr:"coucher du soleil",he:"שקיעה"},{fr:"vie",he:"חיים"},{fr:"mort",he:"מוות"},
+{fr:"naissance",he:"לידה"},{fr:"mariage",he:"חתונה"},{fr:"divorce",he:"גירושין"},
+{fr:"anniversaire",he:"יום הולדת"},{fr:"fête",he:"חגיגה/מסיבה"},{fr:"cadeau",he:"מתנה"},
+{fr:"chance",he:"מזל"},{fr:"destin",he:"גורל"},{fr:"rêve",he:"חלום"},
+{fr:"réalité",he:"מציאות"},{fr:"vérité",he:"אמת"},{fr:"mensonge",he:"שקר"},
+{fr:"secret",he:"סוד"},{fr:"mystère",he:"מסתורין"},{fr:"surprise",he:"הפתעה"},
+{fr:"problème",he:"בעיה"},{fr:"solution",he:"פתרון"},{fr:"question",he:"שאלה"},
+{fr:"réponse",he:"תשובה"},{fr:"idée",he:"רעיון"},{fr:"plan",he:"תוכנית"},
+{fr:"projet",he:"פרויקט"},{fr:"but",he:"מטרה"},{fr:"objectif",he:"יעד"},
+{fr:"résultat",he:"תוצאה"},{fr:"succès",he:"הצלחה"},{fr:"échec",he:"כישלון"},
+{fr:"expérience",he:"ניסיון"},{fr:"souvenir",he:"זיכרון/מזכרת"},
+{fr:"rue",he:"רחוב"},{fr:"avenue",he:"שדרה"},{fr:"boulevard",he:"בולוואר"},
+{fr:"place",he:"כיכר"},{fr:"quartier",he:"שכונה"},{fr:"banlieue",he:"פרוור"},
+{fr:"monde",he:"עולם"},{fr:"société",he:"חברה"},{fr:"culture",he:"תרבות"},
+{fr:"tradition",he:"מסורת"},{fr:"religion",he:"דת"},{fr:"foi",he:"אמונה"},
+{fr:"science",he:"מדע"},{fr:"technologie",he:"טכנולוגיה"},
+{fr:"art",he:"אמנות"},{fr:"environnement",he:"סביבה"},{fr:"écologie",he:"אקולוגיה"},
+{fr:"pollution",he:"זיהום"},{fr:"recyclage",he:"מיחזור"},{fr:"énergie",he:"אנרגיה"},
+{fr:"électricité",he:"חשמל"},{fr:"eau",he:"מים"},{fr:"air",he:"אוויר"},{fr:"feu",he:"אש"},
+{fr:"lumière",he:"אור"},{fr:"obscurité",he:"חושך"},{fr:"bruit",he:"רעש"},{fr:"silence",he:"שקט"},
+{fr:"odeur",he:"ריח"},{fr:"parfum",he:"בושם/ריח נעים"},{fr:"saveur",he:"טעם"},
+{fr:"douceur",he:"מתיקות/עדינות"},{fr:"amertume",he:"מרירות"},
+{fr:"livre",he:"ספר"},{fr:"journal",he:"עיתון/יומן"},{fr:"magazine",he:"מגזין"},
+{fr:"série",he:"סדרה"},{fr:"émission",he:"תוכנית"}
 ];
 
-// ===================== STATE =====================
-const STORAGE_KEY='french_app_v2';
+// ════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════
+const STORAGE_KEY='french_app_v3';
+const HS_KEY='french_match_hs';
+
+function defaultState(){
+  return{folders:[
+    {id:'f1',name:'מילים בסיסיות',subfolders:[],lists:[
+      {id:'l1',name:'ברכות',words:[{fr:'bonjour',he:'שלום'},{fr:'merci',he:'תודה'},{fr:'au revoir',he:'להתראות'},{fr:"s'il vous plaît",he:'בבקשה'}]},
+      {id:'l2',name:'צבעים',words:[{fr:'rouge',he:'אדום'},{fr:'bleu',he:'כחול'},{fr:'vert',he:'ירוק'},{fr:'jaune',he:'צהוב'},{fr:'noir',he:'שחור'}]}
+    ]},
+    {id:'f2',name:'בית וסביבה',subfolders:[],lists:[
+      {id:'l3',name:'רהיטים',words:[{fr:'table',he:'שולחן'},{fr:'chaise',he:'כיסא'},{fr:'fenêtre',he:'חלון'},{fr:'porte',he:'דלת'}]}
+    ]}
+  ],recentPaths:[]};
+}
 
 function loadState(){
   try{
-    const saved=localStorage.getItem(STORAGE_KEY);
-    if(saved) return JSON.parse(saved);
+    const s=localStorage.getItem(STORAGE_KEY);
+    if(s){
+      const d=JSON.parse(s);
+      // migrate from old key
+      if(!d.folders&&localStorage.getItem('french_app_v2')){
+        const old=JSON.parse(localStorage.getItem('french_app_v2'));
+        if(old.folders)return{...defaultState(),...old};
+      }
+      if(d.folders)return d;
+    }
   }catch(e){}
-  return {
-    folders:[
-      {id:'f1',name:'מילים בסיסיות',subfolders:[],lists:[
-        {id:'l1',name:'ברכות',words:[{fr:'bonjour',he:'שלום'},{fr:'merci',he:'תודה'},{fr:'au revoir',he:'להתראות'},{fr:'s\'il vous plaît',he:'בבקשה'}]},
-        {id:'l2',name:'צבעים',words:[{fr:'rouge',he:'אדום'},{fr:'bleu',he:'כחול'},{fr:'vert',he:'ירוק'},{fr:'jaune',he:'צהוב'},{fr:'noir',he:'שחור'}]}
-      ]},
-      {id:'f2',name:'בית וסביבה',subfolders:[],lists:[
-        {id:'l3',name:'רהיטים',words:[{fr:'table',he:'שולחן'},{fr:'chaise',he:'כיסא'},{fr:'fenêtre',he:'חלון'},{fr:'porte',he:'דלת'}]}
-      ]}
-    ],
-    recentPaths:[],
-  };
+  return defaultState();
 }
 
 let appState=loadState();
-let navHistory=[];
+function saveState(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));}catch(e){}}
+
+// ════════════════════════════════════════
+//  NAV STATE
+// ════════════════════════════════════════
 let currentScreen='home';
 let currentFolderId=null;
 let currentListId=null;
+let navHistory=[];
 let activeModal=null;
-let editingId=null;
-
-// Game states
-let fcState={initialized:false};
-let mgState={initialized:false};
-let activeMatchWords=[];
+let matchTimer=null;
 let activeFcWords=[];
+let activeMatchWords=[];
+let activeQuizWords=[];
+let fcState={};
+let mgState={};
+let qzState={};
 
-function saveState(){
-  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));}catch(e){}
-}
+// ════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function speak(text){if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='fr-FR';u.rate=0.85;speechSynthesis.speak(u);}
+function fmtTime(s){const m=Math.floor(s/60),sec=s%60;return `${m}:${String(sec).padStart(2,'0')}`;}
+function addRecent(entry){appState.recentPaths=appState.recentPaths.filter(r=>r.id!==entry.id);appState.recentPaths.unshift(entry);if(appState.recentPaths.length>5)appState.recentPaths.pop();saveState();}
 
-// ===================== HELPERS =====================
-function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+// ════════════════════════════════════════
+//  TREE HELPERS
+// ════════════════════════════════════════
+function findFolder(id,folders){for(const f of folders){if(f.id===id)return f;const r=findFolder(id,f.subfolders||[]);if(r)return r;}return null;}
+function findList(id,folders){for(const f of folders){for(const l of f.lists)if(l.id===id)return l;const r=findList(id,f.subfolders||[]);if(r)return r;}return null;}
+function findFolderPath(id,folders,path=[]){for(const f of folders){if(f.id===id)return[...path,f];const r=findFolderPath(id,f.subfolders||[],path.concat(f));if(r)return r;}return null;}
+function getSiblingFolders(id){if(appState.folders.some(f=>f.id===id))return appState.folders;return findSiblingArr(id,appState.folders);}
+function findSiblingArr(id,folders){for(const f of folders){if((f.subfolders||[]).some(sf=>sf.id===id))return f.subfolders;const r=findSiblingArr(id,f.subfolders||[]);if(r)return r;}return null;}
+function deleteFolder(id,folders){return folders.filter(f=>{if(f.id===id)return false;f.subfolders=deleteFolder(id,f.subfolders||[]);return true;});}
+function deleteList(id,folders){for(const f of folders){f.lists=f.lists.filter(l=>l.id!==id);if(f.subfolders)deleteList(id,f.subfolders);}}
+function countWords(folder){let n=0;for(const l of folder.lists)n+=l.words.length;for(const sf of(folder.subfolders||[]))n+=countWords(sf);return n;}
+function getAllWords(folders){let w=[];for(const f of folders){for(const l of f.lists)w.push(...l.words);if(f.subfolders)w.push(...getAllWords(f.subfolders));}return w;}
+// Hard words appear twice in weighted pool → more likely to be selected
+function weightedWords(words){const p=[];for(const w of words){p.push(w);if(w.hard)p.push(w);}return p;}
 
-function getAllWords(folders){
-  let w=[];
-  for(const f of folders){
-    for(const l of f.lists) w.push(...l.words);
-    if(f.subfolders) w.push(...getAllWords(f.subfolders));
-  }
-  return w;
-}
-
-function countWords(folder){
-  let n=0;
-  for(const l of folder.lists) n+=l.words.length;
-  for(const sf of (folder.subfolders||[])) n+=countWords(sf);
-  return n;
-}
-
-function findFolder(id,folders){
-  for(const f of folders){
-    if(f.id===id) return f;
-    const found=findFolder(id,f.subfolders||[]);
-    if(found) return found;
-  }
-  return null;
-}
-
-function findList(id,folders){
-  for(const f of folders){
-    for(const l of f.lists) if(l.id===id) return l;
-    const found=findList(id,f.subfolders||[]);
-    if(found) return found;
-  }
-  return null;
-}
-
-function deleteFolder(id,folders){
-  return folders.filter(f=>{
-    if(f.id===id) return false;
-    f.subfolders=deleteFolder(id,f.subfolders||[]);
-    return true;
-  });
-}
-
-function deleteList(id,folders){
-  for(const f of folders){
-    f.lists=f.lists.filter(l=>l.id!==id);
-    if(f.subfolders) deleteList(id,f.subfolders);
-  }
-}
-
-function shuffle(arr){
-  const a=[...arr];
-  for(let i=a.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
-  return a;
-}
-
-function speak(text){
-  if(!window.speechSynthesis) return;
-  speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(text);
-  u.lang='fr-FR'; u.rate=0.9;
-  speechSynthesis.speak(u);
-}
-
-function addRecent(entry){
-  appState.recentPaths=appState.recentPaths.filter(r=>r.id!==entry.id);
-  appState.recentPaths.unshift(entry);
-  if(appState.recentPaths.length>5) appState.recentPaths.pop();
-  saveState();
-}
-
-// ===================== NAVIGATION =====================
+// ════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════
 function navigate(screen,data={}){
+  stopMatchTimer();
   navHistory.push({screen:currentScreen,folderId:currentFolderId,listId:currentListId});
   currentScreen=screen;
-  if(data.folderId!==undefined) currentFolderId=data.folderId;
-  if(data.listId!==undefined) currentListId=data.listId;
-  if(data.fcWords) activeFcWords=data.fcWords;
-  if(data.matchWords) activeMatchWords=data.matchWords;
+  if(data.folderId!==undefined)currentFolderId=data.folderId;
+  if(data.listId!==undefined)currentListId=data.listId;
+  if(data.fcWords)activeFcWords=data.fcWords;
+  if(data.matchWords)activeMatchWords=data.matchWords;
+  if(data.quizWords)activeQuizWords=data.quizWords;
   render();
 }
-
 function goBack(){
-  if(!navHistory.length) return;
+  if(!navHistory.length)return;
+  stopMatchTimer();
   const prev=navHistory.pop();
   currentScreen=prev.screen;
   currentFolderId=prev.folderId;
   currentListId=prev.listId;
   render();
 }
+function goHome(){
+  stopMatchTimer();
+  navHistory=[];
+  currentScreen='home';
+  currentFolderId=null;
+  currentListId=null;
+  render();
+}
 
-// ===================== RENDER =====================
+// ════════════════════════════════════════
+//  RENDER
+// ════════════════════════════════════════
 function render(){
   const app=document.getElementById('app');
   app.innerHTML='';
 
-  const isGame=['flashcards','matching'].includes(currentScreen);
+  const isGame=['flashcards','matching','quiz'].includes(currentScreen);
 
   // Header
   const hdr=document.createElement('div');
   hdr.className='header';
   hdr.id='main-hdr';
 
+  // Title
   let title='🇫🇷 לומד צרפתית';
-  if(currentScreen==='folder'&&currentFolderId) title=findFolder(currentFolderId,appState.folders)?.name||'תיקייה';
-  if(currentScreen==='list'&&currentListId) title=findList(currentListId,appState.folders)?.name||'רשימה';
-  if(currentScreen==='flashcards') title='🃏 כרטיסיות';
-  if(currentScreen==='matching') title='🎮 משחק התאמה';
+  if(currentScreen==='folder'&&currentFolderId)title=findFolder(currentFolderId,appState.folders)?.name||'תיקייה';
+  if(currentScreen==='list'&&currentListId)title=findList(currentListId,appState.folders)?.name||'רשימה';
+  if(currentScreen==='flashcards')title='🃏 כרטיסיות';
+  if(currentScreen==='matching')title='🧠 זיכרון';
+  if(currentScreen==='quiz')title='🎯 התאמה';
 
-  const leftActions=document.createElement('div');
-  leftActions.className='header-actions';
-  const rightActions=document.createElement('div');
-  rightActions.className='header-actions';
+  const rightActs=document.createElement('div');
+  rightActs.className='header-actions right';
+  const leftActs=document.createElement('div');
+  leftActs.className='header-actions left';
 
-  // Back button (right side in RTL)
+  // Back button
   if(navHistory.length>0){
-    const b=document.createElement('button');
-    b.className='btn-icon';b.innerHTML='‹';b.title='חזור';
-    b.style.fontSize='24px';
-    b.onclick=goBack;
-    rightActions.appendChild(b);
+    const b=mkIconBtn('‹','חזור',goBack);
+    b.style.fontSize='22px';
+    rightActs.appendChild(b);
   }
 
-  if(!isGame){
-    const af=document.createElement('button');
-    af.className='btn-icon';af.innerHTML='📁';af.title='הוסף תיקייה';
-    af.onclick=()=>showAddFolderModal();
-    const al=document.createElement('button');
-    al.className='btn-icon';al.innerHTML='📝';al.title='הוסף רשימה';
-    al.onclick=()=>showAddListModal();
-    leftActions.appendChild(af);
-    leftActions.appendChild(al);
+  // Home button (when not on home and not already showing just back)
+  if(currentScreen!=='home'&&navHistory.length>1){
+    const h=mkIconBtn('🏠','בית',goHome);
+    rightActs.appendChild(h);
+  }
+
+  // Right-side action buttons
+  if(currentScreen==='home'){
+    const af=mkIconBtn('📁','הוסף תיקייה',()=>showAddFolderModal());
+    const al=mkIconBtn('📝','הוסף רשימה',()=>showAddListModal());
+    leftActs.appendChild(af);
+    leftActs.appendChild(al);
+  } else if(currentScreen==='folder'&&!isGame){
+    const folder=findFolder(currentFolderId,appState.folders);
+    if(folder){
+      const editBtn=mkIconBtn('✏️','ערוך שם',()=>showEditNameModal('folder',folder));
+      const delBtn=mkIconBtn('🗑','מחק תיקייה',()=>showDeleteModal('folder',folder));
+      delBtn.classList.add('danger');
+      const addBtn=mkIconBtn('⋯','הוסף',()=>showFolderAddMenu());
+      leftActs.appendChild(addBtn);
+      leftActs.appendChild(editBtn);
+      leftActs.appendChild(delBtn);
+    }
+  } else if(currentScreen==='list'&&!isGame){
+    const list=findList(currentListId,appState.folders);
+    if(list){
+      const editBtn=mkIconBtn('✏️','ערוך שם',()=>showEditNameModal('list',list));
+      const delBtn=mkIconBtn('🗑','מחק רשימה',()=>showDeleteModal('list',list));
+      delBtn.classList.add('danger');
+      leftActs.appendChild(editBtn);
+      leftActs.appendChild(delBtn);
+    }
   }
 
   const titleEl=document.createElement('div');
-  titleEl.className='header-title';titleEl.textContent=title;
+  titleEl.className='header-title';
+  titleEl.textContent=title;
 
-  hdr.appendChild(rightActions);
+  hdr.appendChild(rightActs);
   hdr.appendChild(titleEl);
-  hdr.appendChild(leftActions);
+  hdr.appendChild(leftActs);
   app.appendChild(hdr);
 
   window.onscroll=()=>hdr.classList.toggle('scrolled',window.scrollY>4);
 
-  const screen=document.createElement('div');
-  screen.className='screen';
+  // Breadcrumb
+  const hasBc=(currentScreen==='folder'||currentScreen==='list'||isGame);
+  if(hasBc){
+    app.appendChild(makeBreadcrumb());
+  }
 
-  if(currentScreen==='home') renderHome(screen);
-  else if(currentScreen==='folder') renderFolder(screen);
-  else if(currentScreen==='list') renderList(screen);
-  else if(currentScreen==='flashcards') renderFlashcards(screen);
-  else if(currentScreen==='matching') renderMatching(screen);
+  // Screen content
+  const screen=document.createElement('div');
+  screen.className='screen'+(hasBc?' has-bc':'')+(isGame?' game-screen':'');
+
+  if(currentScreen==='home')renderHome(screen);
+  else if(currentScreen==='folder')renderFolder(screen);
+  else if(currentScreen==='list')renderList(screen);
+  else if(currentScreen==='flashcards')renderFlashcards(screen);
+  else if(currentScreen==='matching')renderMatching(screen);
+  else if(currentScreen==='quiz')renderQuiz(screen);
 
   app.appendChild(screen);
-  if(activeModal) app.appendChild(activeModal);
+
+  // Sister folder navigation footer (folder screen only)
+  if(currentScreen==='folder'&&currentFolderId){
+    const siblings=getSiblingFolders(currentFolderId)||[];
+    if(siblings.length>1){
+      const idx=siblings.findIndex(f=>f.id===currentFolderId);
+      const prev=idx>0?siblings[idx-1]:null;
+      const next=idx<siblings.length-1?siblings[idx+1]:null;
+      const footer=document.createElement('div');
+      footer.className='folder-nav';
+      const prevBtn=document.createElement('button');
+      prevBtn.className='nav-arrow-btn';
+      prevBtn.textContent='›'; // RTL: right = previous
+      prevBtn.disabled=!next;
+      prevBtn.onclick=()=>{if(next){addRecent({id:next.id,name:next.name,type:'folder'});navHistory.pop();currentFolderId=next.id;render();}};
+      const nextBtn=document.createElement('button');
+      nextBtn.className='nav-arrow-btn';
+      nextBtn.textContent='‹'; // RTL: left = next
+      nextBtn.disabled=!prev;
+      nextBtn.onclick=()=>{if(prev){addRecent({id:prev.id,name:prev.name,type:'folder'});navHistory.pop();currentFolderId=prev.id;render();}};
+      const center=document.createElement('div');
+      center.className='folder-nav-center';
+      center.textContent=`${idx+1} / ${siblings.length}`;
+      footer.appendChild(prevBtn);
+      footer.appendChild(center);
+      footer.appendChild(nextBtn);
+      app.appendChild(footer);
+    }
+  }
+
+  if(activeModal)app.appendChild(activeModal);
 }
 
-// ===================== HOME =====================
+function mkIconBtn(icon,title,onclick){
+  const b=document.createElement('button');
+  b.className='btn-icon';
+  b.innerHTML=icon;
+  b.title=title;
+  b.onclick=onclick;
+  return b;
+}
+
+function makeBreadcrumb(){
+  const bc=document.createElement('div');
+  bc.className='breadcrumb';
+
+  const home=document.createElement('span');
+  home.className='bc-item';
+  home.textContent='בית';
+  home.onclick=goHome;
+  bc.appendChild(home);
+
+  if(currentFolderId){
+    const path=findFolderPath(currentFolderId,appState.folders)||[];
+    for(let i=0;i<path.length;i++){
+      const sep=document.createElement('span');
+      sep.className='bc-sep';
+      sep.textContent=' › ';
+      bc.appendChild(sep);
+      const item=document.createElement('span');
+      const isLast=i===path.length-1&&currentScreen==='folder';
+      item.className='bc-item'+(isLast?' current':'');
+      item.textContent=path[i].name;
+      if(!isLast){
+        const fid=path[i].id;
+        item.onclick=()=>{navigate('folder',{folderId:fid});};
+      }
+      bc.appendChild(item);
+    }
+  }
+
+  if(currentListId&&currentScreen==='list'){
+    const list=findList(currentListId,appState.folders);
+    if(list){
+      const sep=document.createElement('span');
+      sep.className='bc-sep';
+      sep.textContent=' › ';
+      bc.appendChild(sep);
+      const item=document.createElement('span');
+      item.className='bc-item current';
+      item.textContent=list.name;
+      bc.appendChild(item);
+    }
+  }
+
+  if(currentScreen==='flashcards'||currentScreen==='matching'||currentScreen==='quiz'){
+    const sep=document.createElement('span');
+    sep.className='bc-sep';
+    sep.textContent=' › ';
+    bc.appendChild(sep);
+    const item=document.createElement('span');
+    item.className='bc-item current';
+    item.textContent=currentScreen==='flashcards'?'כרטיסיות':currentScreen==='quiz'?'התאמה':'זיכרון';
+    bc.appendChild(item);
+  }
+
+  return bc;
+}
+
+// ════════════════════════════════════════
+//  HOME SCREEN
+// ════════════════════════════════════════
 function renderHome(screen){
   if(appState.recentPaths.length>0){
-    const sh=makeSection('אחרונים');
-    screen.appendChild(sh);
+    screen.appendChild(mkSectionHeader('אחרונים'));
     for(const r of appState.recentPaths.slice(0,3)){
       const c=makeCard(r.type==='folder'?'📁':'📝',r.name,'אחרון',()=>{
-        if(r.type==='folder') navigate('folder',{folderId:r.id});
+        if(r.type==='folder')navigate('folder',{folderId:r.id});
         else navigate('list',{listId:r.id});
       });
       screen.appendChild(c);
@@ -360,146 +1259,203 @@ function renderHome(screen){
 
   const sh=document.createElement('div');
   sh.className='section-header';
-  const st=document.createElement('span');st.className='section-title';st.textContent='תיקיות';
+  const st=document.createElement('span');
+  st.className='section-title';
+  st.textContent='תיקיות';
   const allBtn=document.createElement('button');
-  allBtn.className='link-btn';allBtn.textContent='🎮 כל המילים';
+  allBtn.className='link-btn';
+  allBtn.textContent='🧠 כל המילים';
   allBtn.onclick=()=>{
     const words=getAllWords(appState.folders);
     if(!words.length){alert('אין מילים עדיין');return;}
-    mgState.initialized=false;
-    navigate('matching',{matchWords:shuffle(words).slice(0,8)});
+    mgState={initialized:false};
+    navigate('matching',{matchWords:shuffle(weightedWords(words)).filter((w,i,a)=>a.findIndex(x=>x.fr===w.fr)===i).slice(0,8)});
   };
-  sh.appendChild(allBtn);sh.appendChild(st);
+  sh.appendChild(allBtn);
+  sh.appendChild(st);
   screen.appendChild(sh);
 
   if(!appState.folders.length){
     screen.appendChild(makeEmpty('📁','אין תיקיות עדיין\nלחץ 📁 בראש המסך'));
-  } else {
-    for(const f of appState.folders) renderFolderCard(screen,f,appState.folders);
+  }else{
+    for(const f of appState.folders)renderFolderCard(screen,f);
   }
 }
 
-// ===================== FOLDER SCREEN =====================
+// ════════════════════════════════════════
+//  FOLDER SCREEN
+// ════════════════════════════════════════
 function renderFolder(screen){
   const f=findFolder(currentFolderId,appState.folders);
-  if(!f){currentScreen='home';render();return;}
+  if(!f){goHome();return;}
+
+  addRecent({id:f.id,name:f.name,type:'folder'});
+
   if(!(f.subfolders||[]).length&&!f.lists.length){
-    screen.appendChild(makeEmpty('📂','תיקייה ריקה\nהוסף תת-תיקיות ורשימות'));
+    screen.appendChild(makeEmpty('📂','תיקייה ריקה\nלחץ ⋯ בראש המסך להוספה'));
   }
-  for(const sf of (f.subfolders||[])) renderFolderCard(screen,sf,f.subfolders);
-  for(const l of f.lists) renderListCard(screen,l,f);
+  for(const sf of(f.subfolders||[]))renderFolderCard(screen,sf);
+  for(const l of f.lists)renderListCard(screen,l);
 }
 
-// ===================== LIST SCREEN =====================
+// ════════════════════════════════════════
+//  LIST SCREEN
+// ════════════════════════════════════════
 function renderList(screen){
   const l=findList(currentListId,appState.folders);
-  if(!l){currentScreen='home';render();return;}
+  if(!l){goHome();return;}
 
-  const ab=document.createElement('div');ab.className='action-bar';
+  addRecent({id:l.id,name:l.name,type:'list'});
+
+  const ab=document.createElement('div');
+  ab.className='action-bar';
+  ab.style.gap='6px';
   const fcBtn=document.createElement('button');
-  fcBtn.className='btn btn-primary';fcBtn.textContent='🃏 כרטיסיות';
+  fcBtn.className='btn btn-primary';
+  fcBtn.style.fontSize='13px';
+  fcBtn.innerHTML='🃏 כרטיסיות';
   fcBtn.onclick=()=>{
     if(!l.words.length){alert('אין מילים ברשימה');return;}
-    fcState.initialized=false;
+    fcState={initialized:false};
     navigate('flashcards',{fcWords:[...l.words]});
   };
   const mgBtn=document.createElement('button');
-  mgBtn.className='btn btn-secondary';mgBtn.textContent='🎮 התאמה';
+  mgBtn.className='btn btn-secondary';
+  mgBtn.style.fontSize='13px';
+  mgBtn.innerHTML='🧠 זיכרון';
   mgBtn.onclick=()=>{
     if(!l.words.length){alert('אין מילים ברשימה');return;}
-    mgState.initialized=false;
+    mgState={initialized:false};
     navigate('matching',{matchWords:l.words});
   };
-  ab.appendChild(fcBtn);ab.appendChild(mgBtn);
+  const qzBtn=document.createElement('button');
+  qzBtn.className='btn btn-secondary';
+  qzBtn.style.cssText='font-size:13px;background:#F0F6FF;color:var(--blue);border:1.5px solid var(--blue)';
+  qzBtn.innerHTML='🎯 התאמה';
+  qzBtn.onclick=()=>{
+    if(!l.words.length){alert('אין מילים ברשימה');return;}
+    qzState={initialized:false};
+    navigate('quiz',{quizWords:l.words});
+  };
+  ab.appendChild(fcBtn);
+  ab.appendChild(mgBtn);
+  ab.appendChild(qzBtn);
   screen.appendChild(ab);
 
-  const sh=document.createElement('div');sh.className='section-header';
-  const st=document.createElement('span');st.className='section-title';
+  const sh=document.createElement('div');
+  sh.className='section-header';
+  const st=document.createElement('span');
+  st.className='section-title';
   st.textContent=`מילים (${l.words.length})`;
-  const addBtn=document.createElement('button');addBtn.className='link-btn';addBtn.textContent='+ הוסף מילה';
+  const addBtn=document.createElement('button');
+  addBtn.className='link-btn';
+  addBtn.textContent='+ הוסף מילה';
   addBtn.onclick=()=>showAddWordModal(l);
-  sh.appendChild(addBtn);sh.appendChild(st);
+  sh.appendChild(addBtn);
+  sh.appendChild(st);
   screen.appendChild(sh);
 
   if(!l.words.length){
     screen.appendChild(makeEmpty('💬','אין מילים עדיין'));
-  } else {
+  }else{
     for(let i=0;i<l.words.length;i++){
       const w=l.words[i];
-      const row=document.createElement('div');row.className='word-row';
-      const frSpan=document.createElement('span');frSpan.className='word-fr';frSpan.textContent=w.fr;
-      const heSpan=document.createElement('span');heSpan.className='word-he';heSpan.textContent=w.he;
-      const delBtn=document.createElement('button');delBtn.className='del-btn';delBtn.textContent='×';
-      delBtn.onclick=()=>{l.words.splice(i,1);saveState();render();};
+      const row=document.createElement('div');
+      row.className='word-row';
+      row.title='לחץ לעריכה';
+
+      const frSpan=document.createElement('span');
+      frSpan.className='word-fr';
+      frSpan.textContent=w.fr;
+
       const ttsBtn=document.createElement('button');
-      ttsBtn.style.cssText='background:none;border:none;font-size:18px;cursor:pointer;opacity:.6;padding:2px 4px';
+      ttsBtn.className='word-tts';
       ttsBtn.textContent='🔊';
-      ttsBtn.onclick=()=>speak(w.fr);
-      row.appendChild(frSpan);row.appendChild(ttsBtn);row.appendChild(heSpan);row.appendChild(delBtn);
+      ttsBtn.onclick=e=>{e.stopPropagation();speak(w.fr);};
+
+      const heSpan=document.createElement('span');
+      heSpan.className='word-he';
+      heSpan.textContent=w.he;
+
+      const starBtn=document.createElement('button');
+      starBtn.className='word-star'+(w.hard?' hard':'');
+      starBtn.textContent=w.hard?'★':'☆';
+      starBtn.title=w.hard?'מילה קשה — לחץ להסרה':'סמן כמילה קשה';
+      starBtn.onclick=e=>{e.stopPropagation();w.hard=!w.hard;saveState();render();};
+
+      const delBtn=document.createElement('button');
+      delBtn.style.cssText='background:none;border:none;color:#FF3B30;font-size:20px;cursor:pointer;padding:2px 6px;flex-shrink:0';
+      delBtn.textContent='×';
+      delBtn.onclick=e=>{e.stopPropagation();l.words.splice(i,1);saveState();render();};
+
+      row.appendChild(frSpan);
+      row.appendChild(ttsBtn);
+      row.appendChild(heSpan);
+      row.appendChild(starBtn);
+      row.appendChild(delBtn);
+      row.onclick=e=>{if(e.target===delBtn||e.target===ttsBtn||e.target===starBtn)return;showEditWordModal(l,i);};
       screen.appendChild(row);
     }
   }
 }
 
-// ===================== FLASHCARDS =====================
+// ════════════════════════════════════════
+//  FLASHCARDS SCREEN
+// ════════════════════════════════════════
 function renderFlashcards(screen){
   if(!activeFcWords.length){goBack();return;}
-
   if(!fcState.initialized){
-    fcState={
-      words:shuffle([...activeFcWords]),
-      flipped:false,
-      known:[],
-      initialized:true,
-    };
+    fcState={words:shuffle([...activeFcWords]),flipped:false,known:[],initialized:true};
   }
-
   const remaining=fcState.words;
   const total=fcState.known.length+remaining.length;
   const done=fcState.known.length;
 
   if(!remaining.length){
-    const fs=document.createElement('div');fs.className='finish-screen';
+    const fs=document.createElement('div');
+    fs.className='finish-screen';
     fs.innerHTML=`<div class="finish-icon">🎉</div><div class="finish-title">סיימת סבב!</div><div class="finish-sub">למדת ${fcState.known.length} מילים</div>`;
-    const fa=document.createElement('div');fa.className='finish-actions';
-    const again=document.createElement('button');again.className='btn btn-primary';again.textContent='🔄 תרגל שוב';
-    again.onclick=()=>{fcState.initialized=false;render();};
-    const rand=document.createElement('button');rand.className='btn btn-secondary';rand.textContent='🔀 רשימה אקראית';
+    const fa=document.createElement('div');
+    fa.className='finish-actions';
+    const again=document.createElement('button');
+    again.className='btn btn-primary';
+    again.textContent='🔄 תרגל שוב';
+    again.onclick=()=>{fcState={initialized:false};render();};
+    const rand=document.createElement('button');
+    rand.className='btn btn-secondary';
+    rand.textContent='🔀 מילים אקראיות';
     rand.onclick=()=>{
       const all=getAllWords(appState.folders);
-      if(!all.length) return;
+      if(!all.length)return;
       activeFcWords=shuffle(all).slice(0,12);
-      fcState.initialized=false;render();
+      fcState={initialized:false};
+      render();
     };
     fa.appendChild(again);fa.appendChild(rand);
-    fs.appendChild(fa);screen.appendChild(fs);
+    fs.appendChild(fa);
+    screen.appendChild(fs);
     return;
   }
 
-  // Progress bar
   const pb=document.createElement('div');pb.className='progress-bar';
   const pf=document.createElement('div');pf.className='progress-fill';
   pf.style.width=`${Math.round((done/total)*100)}%`;
   pb.appendChild(pf);screen.appendChild(pb);
 
-  const cr=document.createElement('div');
-  cr.className='counter-row';
+  const cr=document.createElement('div');cr.className='counter-row';
   cr.innerHTML=`<span class="counter-label">כרטיסייה</span><span class="counter-num">${done+1} / ${total}</span>`;
   screen.appendChild(cr);
 
   const w=remaining[0];
-
   const wrap=document.createElement('div');wrap.className='flashcard-wrap';
   const fc=document.createElement('div');fc.className='flashcard'+(fcState.flipped?' flipped':'');
 
-  // Front (French)
   const front=document.createElement('div');front.className='card-face front';
   const fw=document.createElement('div');fw.className='card-word fr';fw.textContent=w.fr;
   const ftts=document.createElement('div');ftts.className='card-tts';ftts.textContent='🔊';
   ftts.onclick=e=>{e.stopPropagation();speak(w.fr);};
   front.appendChild(fw);front.appendChild(ftts);
 
-  // Back (Hebrew)
   const back=document.createElement('div');back.className='card-face back';
   const bw=document.createElement('div');bw.className='card-word he';bw.textContent=w.he;
   const btts=document.createElement('div');btts.className='card-tts';btts.textContent='🔊';
@@ -521,115 +1477,409 @@ function renderFlashcards(screen){
   screen.appendChild(acts);
 }
 
-// ===================== MATCHING GAME =====================
+// ════════════════════════════════════════
+//  MATCHING GAME
+// ════════════════════════════════════════
+function stopMatchTimer(){
+  if(matchTimer){clearInterval(matchTimer);matchTimer=null;}
+}
+
+function startMatchTimer(){
+  stopMatchTimer();
+  matchTimer=setInterval(()=>{
+    if(!mgState.initialized)return;
+    if(mgState.countdown){
+      mgState.timeLeft=Math.max(0,mgState.timeLeft-1);
+      if(mgState.timeLeft===0){
+        stopMatchTimer();
+        mgState.timeUp=true;
+        render();
+        return;
+      }
+    } else {
+      mgState.elapsed=(mgState.elapsed||0)+1;
+    }
+    updateMatchTimerDisplay();
+  },1000);
+}
+
+function updateMatchTimerDisplay(){
+  const el=document.getElementById('match-timer');
+  if(!el||!mgState.initialized)return;
+  if(mgState.countdown){
+    el.textContent=fmtTime(mgState.timeLeft);
+    el.className='match-timer'+(mgState.timeLeft<=10?' urgent':'');
+    const pb=document.getElementById('match-prog-fill');
+    if(pb)pb.style.width=`${Math.round((mgState.timeLeft/mgState.countdownStart)*100)}%`;
+  } else {
+    el.textContent=fmtTime(mgState.elapsed||0);
+    el.className='match-timer';
+  }
+}
+
 function renderMatching(screen){
   const words=activeMatchWords;
   if(!words.length){goBack();return;}
 
   if(!mgState.initialized){
-    const pool=shuffle([...words]).slice(0,6);
+    const pool=shuffle(weightedWords([...words])).filter((w,i,a)=>a.findIndex(x=>x.fr===w.fr)===i).slice(0,6);
+    const countdown=mgState.pendingCountdown||false;
     mgState={
       frCards:shuffle(pool.map((w,i)=>({...w,id:'fr'+i,done:false}))),
       heCards:shuffle(pool.map((w,i)=>({...w,id:'he'+i,done:false}))),
-      selectedFr:null,selectedHe:null,
-      score:0,total:pool.length,
-      initialized:true,locked:false
+      selectedFr:null,selectedHe:null,score:0,total:pool.length,
+      initialized:true,locked:false,
+      countdown:countdown,
+      timeLeft:countdown?60:0,
+      countdownStart:60,
+      elapsed:0,
+      timeUp:false,
+      pendingCountdown:countdown
     };
+    startMatchTimer();
   }
 
+  const hs=parseInt(localStorage.getItem(HS_KEY)||'0',10)||0;
   const matched=mgState.frCards.filter(c=>c.done).length;
-  const pb=document.createElement('div');pb.className='progress-bar';
-  const pf=document.createElement('div');pf.className='progress-fill';
-  pf.style.width=`${Math.round((matched/mgState.total)*100)}%`;
-  pb.appendChild(pf);screen.appendChild(pb);
+
+  // Top section
+  const top=document.createElement('div');
+  top.className='match-top';
+
+  // Timer row
+  const timerRow=document.createElement('div');
+  timerRow.className='match-timer-row';
+
+  const timerEl=document.createElement('div');
+  timerEl.id='match-timer';
+  timerEl.className='match-timer'+(mgState.countdown&&mgState.timeLeft<=10?' urgent':'');
+  timerEl.textContent=fmtTime(mgState.countdown?mgState.timeLeft:(mgState.elapsed||0));
+
+  const modeBtn=document.createElement('button');
+  modeBtn.className='match-mode-btn'+(mgState.countdown?' active':'');
+  modeBtn.textContent=mgState.countdown?'⏱ ספירה לאחור':'⏱ אתגר זמן';
+  modeBtn.onclick=()=>{
+    mgState.pendingCountdown=!mgState.countdown;
+    mgState.initialized=false;
+    stopMatchTimer();
+    render();
+  };
+
+  timerRow.appendChild(timerEl);
+  timerRow.appendChild(modeBtn);
+  top.appendChild(timerRow);
+
+  // Countdown progress bar
+  if(mgState.countdown){
+    const pb=document.createElement('div');pb.className='progress-bar';
+    const pf=document.createElement('div');
+    pf.id='match-prog-fill';
+    pf.className='progress-fill'+(mgState.timeLeft<=10?' red':mgState.timeLeft<=30?' orange':'');
+    pf.style.width=`${Math.round((mgState.timeLeft/mgState.countdownStart)*100)}%`;
+    pb.appendChild(pf);
+    top.appendChild(pb);
+  }
+
+  // High score
+  if(hs>0){
+    const hsRow=document.createElement('div');
+    hsRow.className='match-hs';
+    hsRow.innerHTML=`🥇 שיא: ${fmtTime(hs)}`;
+    top.appendChild(hsRow);
+  }
 
   const cr=document.createElement('div');cr.className='counter-row';
   cr.innerHTML=`<span class="counter-label">התאמות</span><span class="counter-num">${matched} / ${mgState.total}</span>`;
-  screen.appendChild(cr);
+  top.appendChild(cr);
 
-  if(matched===mgState.total){
+  screen.appendChild(top);
+
+  // Time up screen
+  if(mgState.timeUp){
     const fs=document.createElement('div');fs.className='finish-screen';
-    fs.innerHTML=`<div class="finish-icon">🏆</div><div class="finish-title">כל הכבוד!</div><div class="finish-sub">התאמת את כל המילים!</div>`;
+    fs.innerHTML=`<div class="finish-icon">⏰</div><div class="finish-title">הזמן נגמר!</div><div class="finish-sub">התאמת ${matched} מתוך ${mgState.total} מילים</div>`;
+    const fa=document.createElement('div');fa.className='finish-actions';
+    const again=document.createElement('button');again.className='btn btn-orange';again.textContent='🔄 נסה שוב';
+    again.onclick=()=>{mgState={initialized:false,pendingCountdown:true};render();};
+    const normal=document.createElement('button');normal.className='btn btn-secondary';normal.textContent='🎮 מצב רגיל';
+    normal.onclick=()=>{mgState={initialized:false,pendingCountdown:false};render();};
+    fa.appendChild(again);fa.appendChild(normal);fs.appendChild(fa);
+    screen.appendChild(fs);
+    return;
+  }
+
+  // Finish screen
+  if(matched===mgState.total){
+    stopMatchTimer();
+    const elapsed=mgState.elapsed||0;
+    const isCountdown=mgState.countdown;
+    let newHs=false;
+    if(!isCountdown&&elapsed>0){
+      const prev=parseInt(localStorage.getItem(HS_KEY)||'0',10)||999999;
+      if(elapsed<prev||prev===0){
+        localStorage.setItem(HS_KEY,String(elapsed));
+        newHs=true;
+      }
+    }
+
+    const fs=document.createElement('div');fs.className='finish-screen';
+    fs.innerHTML=`<div class="finish-icon">🏆</div><div class="finish-title">כל הכבוד!</div>
+    <div class="finish-sub">${isCountdown?`סיימת עם ${fmtTime(mgState.timeLeft)} על השעון!`:`זמן: ${fmtTime(elapsed)}`}</div>
+    ${newHs?`<div class="finish-hs">🥇 שיא חדש!</div>`:(hs>0&&!isCountdown?`<div class="finish-hs">שיא: ${fmtTime(hs)}</div>`:'')}`;
+
     const fa=document.createElement('div');fa.className='finish-actions';
     const again=document.createElement('button');again.className='btn btn-primary';again.textContent='🔄 שחק שוב';
-    again.onclick=()=>{mgState.initialized=false;render();};
+    again.onclick=()=>{mgState={initialized:false,pendingCountdown:mgState.countdown};render();};
     const more=document.createElement('button');more.className='btn btn-secondary';more.textContent='🔀 מילים חדשות';
     more.onclick=()=>{
       const all=getAllWords(appState.folders);
       activeMatchWords=shuffle(all).slice(0,8);
-      mgState.initialized=false;render();
+      mgState={initialized:false,pendingCountdown:mgState.countdown};
+      render();
     };
-    fa.appendChild(again);fa.appendChild(more);
-    fs.appendChild(fa);screen.appendChild(fs);
+    fa.appendChild(again);fa.appendChild(more);fs.appendChild(fa);
+    screen.appendChild(fs);
     return;
   }
 
-  const grid=document.createElement('div');grid.className='match-grid';
+  // Game grid
+  const grid=document.createElement('div');
+  grid.className='match-grid';
   const frCol=document.createElement('div');frCol.className='match-col';
   const heCol=document.createElement('div');heCol.className='match-col';
 
   for(const c of mgState.frCards){
-    const el=document.createElement('div');el.className='match-card';
-    el.style.direction='ltr';el.textContent=c.fr;
-    if(c.done) el.classList.add('matched');
-    else if(mgState.selectedFr===c.id) el.classList.add('selected');
+    const el=document.createElement('div');
+    el.className='match-card fr-card';
+    el.textContent=c.fr;
+    if(c.done)el.classList.add('matched');
+    else if(mgState.selectedFr===c.id)el.classList.add('selected');
     el.onclick=()=>{
-      if(c.done||mgState.locked) return;
+      if(c.done||mgState.locked)return;
       speak(c.fr);
       mgState.selectedFr=c.id;
       tryMatch();
-      render();
+      updateMatchCards();
     };
     frCol.appendChild(el);
   }
-
   for(const c of mgState.heCards){
-    const el=document.createElement('div');el.className='match-card';
+    const el=document.createElement('div');
+    el.className='match-card';
     el.textContent=c.he;
-    if(c.done) el.classList.add('matched');
-    else if(mgState.selectedHe===c.id) el.classList.add('selected');
+    if(c.done)el.classList.add('matched');
+    else if(mgState.selectedHe===c.id)el.classList.add('selected');
     el.onclick=()=>{
-      if(c.done||mgState.locked) return;
+      if(c.done||mgState.locked)return;
       mgState.selectedHe=c.id;
       tryMatch();
-      render();
+      updateMatchCards();
     };
     heCol.appendChild(el);
   }
 
-  grid.appendChild(frCol);grid.appendChild(heCol);
+  grid.appendChild(frCol);
+  grid.appendChild(heCol);
   screen.appendChild(grid);
 }
 
+function updateMatchCards(){
+  // Lightweight re-render of just the card states without full render()
+  const frCards=document.querySelectorAll('.match-col:first-child .match-card');
+  const heCards=document.querySelectorAll('.match-col:last-child .match-card');
+  mgState.frCards.forEach((c,i)=>{
+    const el=frCards[i];
+    if(!el)return;
+    el.className='match-card fr-card';
+    if(c.done)el.classList.add('matched');
+    else if(mgState.selectedFr===c.id)el.classList.add('selected');
+  });
+  mgState.heCards.forEach((c,i)=>{
+    const el=heCards[i];
+    if(!el)return;
+    el.className='match-card';
+    if(c.done)el.classList.add('matched');
+    else if(mgState.selectedHe===c.id)el.classList.add('selected');
+  });
+}
+
 function tryMatch(){
-  if(!mgState.selectedFr||!mgState.selectedHe) return;
+  if(!mgState.selectedFr||!mgState.selectedHe)return;
   const fr=mgState.frCards.find(c=>c.id===mgState.selectedFr);
   const he=mgState.heCards.find(c=>c.id===mgState.selectedHe);
-  if(!fr||!he) return;
-
+  if(!fr||!he)return;
   mgState.locked=true;
 
   if(fr.fr===he.fr){
+    // Correct
+    const frEls=document.querySelectorAll('.match-col:first-child .match-card');
+    const heEls=document.querySelectorAll('.match-col:last-child .match-card');
+    const fi=mgState.frCards.indexOf(fr);
+    const hi=mgState.heCards.indexOf(he);
+    if(frEls[fi])frEls[fi].classList.add('correct');
+    if(heEls[hi])heEls[hi].classList.add('correct');
+
     setTimeout(()=>{
       fr.done=true;he.done=true;
       mgState.score++;
       mgState.selectedFr=null;mgState.selectedHe=null;
       mgState.locked=false;
-      render();
+      // Check win
+      if(mgState.frCards.every(c=>c.done))render();
+      else updateMatchCards();
     },350);
   } else {
-    // Flash wrong color via re-render, then reset
+    // Wrong
+    const frEls=document.querySelectorAll('.match-col:first-child .match-card');
+    const heEls=document.querySelectorAll('.match-col:last-child .match-card');
+    const fi=mgState.frCards.indexOf(fr);
+    const hi=mgState.heCards.indexOf(he);
+    if(frEls[fi])frEls[fi].classList.add('wrong');
+    if(heEls[hi])heEls[hi].classList.add('wrong');
+
     setTimeout(()=>{
       mgState.selectedFr=null;mgState.selectedHe=null;
       mgState.locked=false;
-      render();
-    },700);
+      updateMatchCards();
+    },600);
   }
 }
 
-// ===================== CARD BUILDERS =====================
+// ════════════════════════════════════════
+//  QUIZ GAME (התאמה)
+// ════════════════════════════════════════
+function makeQuizOptions(word,direction){
+  const correctText=direction==='fr2he'?word.he:word.fr;
+  const pool=shuffle(DICT.filter(d=>{
+    const v=direction==='fr2he'?d.he:d.fr;
+    return v!==correctText&&v!==word.he&&v!==word.fr;
+  })).slice(0,4).map(d=>({text:direction==='fr2he'?d.he:d.fr,correct:false,frVal:d.fr}));
+  return shuffle([{text:correctText,correct:true,frVal:word.fr},...pool]);
+}
+
+function renderQuizFinish(screen,q){
+  const pct=Math.round((q.score/q.questions.length)*100);
+  const icon=pct>=80?'🏆':pct>=60?'👍':'💪';
+  const fs=document.createElement('div');fs.className='finish-screen';
+  fs.innerHTML=`<div class="finish-icon">${icon}</div>
+    <div class="finish-title">${q.score} / ${q.questions.length} נכון</div>
+    <div class="finish-sub">${pct}% הצלחה</div>`;
+  const fa=document.createElement('div');fa.className='finish-actions';
+  const again=document.createElement('button');again.className='btn btn-primary';again.textContent='🔄 שחק שוב';
+  again.onclick=()=>{qzState={pendingDirection:q.direction,initialized:false};render();};
+  const flip=document.createElement('button');flip.className='btn btn-secondary';
+  flip.textContent=q.direction==='fr2he'?'🔀 עברית ← צרפתית':'🔀 צרפתית ← עברית';
+  flip.onclick=()=>{qzState={pendingDirection:q.direction==='fr2he'?'he2fr':'fr2he',initialized:false};render();};
+  const back=document.createElement('button');back.className='btn btn-secondary';back.textContent='← חזור לרשימה';
+  back.onclick=goBack;
+  fa.appendChild(again);fa.appendChild(flip);fa.appendChild(back);
+  fs.appendChild(fa);screen.appendChild(fs);
+}
+
+function renderQuiz(screen){
+  if(!activeQuizWords.length){goBack();return;}
+
+  if(!qzState.initialized){
+    const dir=qzState.pendingDirection||'fr2he';
+    const seen=new Set();
+    const questions=[];
+    for(const w of shuffle(weightedWords([...activeQuizWords]))){
+      if(!seen.has(w.fr)){seen.add(w.fr);questions.push(w);if(questions.length>=10)break;}
+    }
+    qzState={direction:dir,questions,idx:0,score:0,selected:null,options:null,initialized:true,pendingDirection:dir};
+  }
+  const q=qzState;
+
+  // Finish
+  if(q.idx>=q.questions.length){renderQuizFinish(screen,q);return;}
+
+  const word=q.questions[q.idx];
+  if(!q.options)q.options=makeQuizOptions(word,q.direction);
+
+  // Direction toggle
+  const dirRow=document.createElement('div');dirRow.className='quiz-dir-toggle';
+  const btnFH=document.createElement('button');
+  btnFH.className='quiz-dir-btn'+(q.direction==='fr2he'?' active':'');
+  btnFH.textContent='🇫🇷 → 🇮🇱 צרפתית';
+  btnFH.onclick=()=>{qzState={pendingDirection:'fr2he',initialized:false};render();};
+  const btnHF=document.createElement('button');
+  btnHF.className='quiz-dir-btn'+(q.direction==='he2fr'?' active':'');
+  btnHF.textContent='🇮🇱 → 🇫🇷 עברית';
+  btnHF.onclick=()=>{qzState={pendingDirection:'he2fr',initialized:false};render();};
+  dirRow.appendChild(btnFH);dirRow.appendChild(btnHF);
+  screen.appendChild(dirRow);
+
+  // Progress
+  const pb=document.createElement('div');pb.className='progress-bar';
+  const pf=document.createElement('div');pf.className='progress-fill';
+  pf.style.width=`${Math.round((q.idx/q.questions.length)*100)}%`;
+  pb.appendChild(pf);screen.appendChild(pb);
+  const cr=document.createElement('div');cr.className='counter-row';
+  cr.innerHTML=`<span class="counter-label">שאלה</span><span class="counter-num">${q.idx+1} / ${q.questions.length}${word.hard?' ★':''}</span>`;
+  screen.appendChild(cr);
+
+  // Question card
+  const qCard=document.createElement('div');qCard.className='quiz-question';
+  const isFr=q.direction==='fr2he';
+  const qWord=document.createElement('div');
+  qWord.className='quiz-word'+(isFr?' fr':'');
+  qWord.textContent=isFr?word.fr:word.he;
+  qCard.appendChild(qWord);
+  if(isFr){
+    const ttsRow=document.createElement('div');ttsRow.className='quiz-tts-row';
+    const ttsBtn=document.createElement('button');ttsBtn.className='quiz-tts-btn';
+    ttsBtn.textContent='🔊 שמע';ttsBtn.onclick=()=>speak(word.fr);
+    ttsRow.appendChild(ttsBtn);qCard.appendChild(ttsRow);
+  }
+  screen.appendChild(qCard);
+
+  // Options
+  const opts=document.createElement('div');opts.className='quiz-options';
+  const answered=q.selected!==null;
+  const optIsFr=q.direction==='he2fr';
+
+  for(let i=0;i<q.options.length;i++){
+    const opt=q.options[i];
+    const btn=document.createElement('div');
+    btn.className='quiz-opt'+(optIsFr?' fr-opt':'');
+    if(answered){
+      if(opt.correct)btn.classList.add('reveal-ans');
+      else if(i===q.selected)btn.classList.add('wrong-ans');
+    }
+    const textEl=document.createElement('span');textEl.className='quiz-opt-text';textEl.textContent=opt.text;
+    btn.appendChild(textEl);
+    if(optIsFr){
+      const tts=document.createElement('button');tts.className='quiz-opt-tts';tts.textContent='🔊';
+      tts.onclick=e=>{e.stopPropagation();speak(opt.text);};
+      btn.appendChild(tts);
+    }
+    if(!answered){
+      btn.onclick=()=>{
+        q.selected=i;
+        if(opt.correct){q.score++;}
+        render();
+      };
+    }
+    opts.appendChild(btn);
+  }
+  screen.appendChild(opts);
+
+  // Next button after answering
+  if(answered){
+    const nextBtn=document.createElement('button');
+    nextBtn.className='btn btn-primary quiz-next-btn';
+    nextBtn.textContent=q.idx<q.questions.length-1?'הבא ›':'📊 תוצאות';
+    nextBtn.onclick=()=>{q.idx++;q.selected=null;q.options=null;render();};
+    screen.appendChild(nextBtn);
+  }
+}
+
+// ════════════════════════════════════════
+//  CARD COMPONENTS
+// ════════════════════════════════════════
 function makeCard(icon,name,sub,onclick){
-  const c=document.createElement('div');c.className='card';
+  const c=document.createElement('div');
+  c.className='card';
   const ic=document.createElement('span');ic.className='card-icon';ic.textContent=icon;
   const info=document.createElement('div');info.className='card-info';
   const nm=document.createElement('div');nm.className='card-name';nm.textContent=name;
@@ -646,99 +1896,47 @@ function makeCard(icon,name,sub,onclick){
   return c;
 }
 
-function makeSection(title){
-  const sh=document.createElement('div');sh.className='section-header';
-  const st=document.createElement('span');st.className='section-title';st.textContent=title;
-  sh.appendChild(st);return sh;
+function renderFolderCard(container,f){
+  const count=countWords(f);
+  const c=makeCard('📁',f.name,`${count} מילים`,()=>{
+    navigate('folder',{folderId:f.id});
+  });
+  container.appendChild(c);
+}
+
+function renderListCard(container,l){
+  const c=makeCard('📝',l.name,`${l.words.length} מילים`,()=>{
+    navigate('list',{listId:l.id});
+  });
+  container.appendChild(c);
+}
+
+function mkSectionHeader(title){
+  const sh=document.createElement('div');
+  sh.className='section-header';
+  const st=document.createElement('span');
+  st.className='section-title';
+  st.textContent=title;
+  sh.appendChild(st);
+  return sh;
 }
 
 function makeEmpty(icon,text){
-  const e=document.createElement('div');e.className='empty';
-  e.innerHTML=`<div class="empty-icon">${icon}</div><div>${text.replace('\n','<br>')}</div>`;
+  const e=document.createElement('div');
+  e.className='empty';
+  e.innerHTML=`<div class="empty-icon">${icon}</div><div>${text.replace(/\n/g,'<br>')}</div>`;
   return e;
 }
 
-function renderFolderCard(container,f,parentArr){
-  const count=countWords(f);
-  const c=document.createElement('div');c.className='card';
-
-  const ic=document.createElement('span');ic.className='card-icon';ic.textContent='📁';
-  const info=document.createElement('div');info.className='card-info';
-  const nm=document.createElement('div');nm.className='card-name';nm.textContent=f.name;
-  const sub=document.createElement('div');sub.className='card-sub';sub.textContent=`${count} מילים`;
-  info.appendChild(nm);info.appendChild(sub);
-  const ar=document.createElement('span');ar.className='card-arrow';ar.textContent='›';
-
-  nm.onclick=e=>{e.stopPropagation();startEdit(nm,f,parentArr);};
-
-  c.onclick=e=>{
-    if(e.target===nm||nm.contains(e.target)) return;
-    addRecent({id:f.id,name:f.name,type:'folder'});
-    navigate('folder',{folderId:f.id});
-  };
-
-  let pressTimer;
-  const startPress=()=>{pressTimer=setTimeout(()=>showDeleteModal('folder',f,parentArr),600);};
-  const endPress=()=>clearTimeout(pressTimer);
-  c.addEventListener('mousedown',startPress);c.addEventListener('touchstart',startPress,{passive:true});
-  c.addEventListener('mouseup',endPress);c.addEventListener('touchend',endPress);
-
-  c.appendChild(ic);c.appendChild(info);c.appendChild(ar);
-  container.appendChild(c);
-}
-
-function renderListCard(container,l,folder){
-  const c=document.createElement('div');c.className='card';
-  const ic=document.createElement('span');ic.className='card-icon';ic.textContent='📝';
-  const info=document.createElement('div');info.className='card-info';
-  const nm=document.createElement('div');nm.className='card-name';nm.textContent=l.name;
-  const sub=document.createElement('div');sub.className='card-sub';sub.textContent=`${l.words.length} מילים`;
-  info.appendChild(nm);info.appendChild(sub);
-  const ar=document.createElement('span');ar.className='card-arrow';ar.textContent='›';
-
-  nm.onclick=e=>{e.stopPropagation();startEdit(nm,l,folder.lists);};
-
-  c.onclick=e=>{
-    if(e.target===nm||nm.contains(e.target)) return;
-    addRecent({id:l.id,name:l.name,type:'list'});
-    navigate('list',{listId:l.id});
-  };
-
-  let pressTimer;
-  const startPress=()=>{pressTimer=setTimeout(()=>showDeleteModal('list',l,folder.lists),600);};
-  const endPress=()=>clearTimeout(pressTimer);
-  c.addEventListener('mousedown',startPress);c.addEventListener('touchstart',startPress,{passive:true});
-  c.addEventListener('mouseup',endPress);c.addEventListener('touchend',endPress);
-
-  c.appendChild(ic);c.appendChild(info);c.appendChild(ar);
-  container.appendChild(c);
-}
-
-// ===================== EDIT IN PLACE =====================
-function startEdit(el,item,arr){
-  if(editingId===item.id) return;
-  editingId=item.id;
-  const orig=item.name;
-  const inp=document.createElement('input');
-  inp.type='text';inp.className='edit-input';
-  inp.value=orig;inp.maxLength=25;
-  el.replaceWith(inp);
-  inp.focus();inp.select();
-  function done(){
-    editingId=null;
-    const n=inp.value.trim();
-    if(n&&n!==orig){item.name=n.slice(0,25);saveState();}
-    render();
-  }
-  inp.onblur=done;
-  inp.onkeydown=e=>{if(e.key==='Enter')inp.blur();if(e.key==='Escape'){item.name=orig;editingId=null;inp.blur();}};
-}
-
-// ===================== MODALS =====================
+// ════════════════════════════════════════
+//  MODALS
+// ════════════════════════════════════════
 function showModal(content){
-  const bg=document.createElement('div');bg.className='modal-bg';
-  bg.onclick=e=>{if(e.target===bg){closeModal();}};
-  const m=document.createElement('div');m.className='modal';
+  const bg=document.createElement('div');
+  bg.className='modal-bg';
+  bg.onclick=e=>{if(e.target===bg)closeModal();};
+  const m=document.createElement('div');
+  m.className='modal';
   m.appendChild(content);
   bg.appendChild(m);
   activeModal=bg;
@@ -748,77 +1946,214 @@ function showModal(content){
 
 function closeModal(){activeModal=null;render();}
 
+// ── Add Folder ──
 function showAddFolderModal(){
   const frag=document.createDocumentFragment();
-  const title=document.createElement('div');title.className='modal-title';title.textContent='תיקייה חדשה';
-  const inp=document.createElement('input');inp.type='text';inp.placeholder='שם התיקייה (עד 25 תווים)';inp.maxLength=25;inp.style.marginBottom='12px';
+  const title=mk('div','modal-title','תיקייה חדשה');
+  const inp=mkInput('text','שם התיקייה (עד 25 תווים)',25);
+  inp.style.marginBottom='12px';
   const acts=document.createElement('div');acts.className='modal-actions';
-  const cancel=document.createElement('button');cancel.className='btn btn-secondary';cancel.textContent='ביטול';
-  cancel.onclick=closeModal;
-  const add=document.createElement('button');add.className='btn btn-primary';add.textContent='הוסף';
-  add.onclick=()=>{
-    const n=inp.value.trim();if(!n) return;
+  const cancel=mkBtn('btn btn-secondary','ביטול',closeModal);
+  const add=mkBtn('btn btn-primary','הוסף',()=>{
+    const n=inp.value.trim();if(!n)return;
     const newF={id:uid(),name:n.slice(0,25),subfolders:[],lists:[]};
-    if(currentFolderId){
-      const pf=findFolder(currentFolderId,appState.folders);
-      if(pf) pf.subfolders.push(newF);
-    } else {
-      appState.folders.push(newF);
-    }
+    if(currentFolderId){const pf=findFolder(currentFolderId,appState.folders);if(pf)pf.subfolders.push(newF);}
+    else appState.folders.push(newF);
     saveState();closeModal();
-  };
+  });
   acts.appendChild(cancel);acts.appendChild(add);
   frag.appendChild(title);frag.appendChild(inp);frag.appendChild(acts);
   const m=showModal(frag);
   setTimeout(()=>m.querySelector('input')?.focus(),100);
 }
 
-function showAddListModal(){
-  let targetFolder=currentFolderId?findFolder(currentFolderId,appState.folders):null;
-  if(!targetFolder&&!appState.folders.length){alert('צור תיקייה תחילה');return;}
+// ── Add List ──
+function showAddListModal(targetFolderId){
+  let tf=targetFolderId?findFolder(targetFolderId,appState.folders):
+         currentFolderId?findFolder(currentFolderId,appState.folders):null;
+  if(!tf&&!appState.folders.length){alert('צור תיקייה תחילה');return;}
 
   const frag=document.createDocumentFragment();
-  const title=document.createElement('div');title.className='modal-title';title.textContent='רשימה חדשה';
+  frag.appendChild(mk('div','modal-title','רשימה חדשה'));
 
-  if(!targetFolder){
-    const sel=document.createElement('select');sel.className='select-field';
-    for(const f of appState.folders){
-      const o=document.createElement('option');o.value=f.id;o.textContent=f.name;sel.appendChild(o);
-    }
-    targetFolder=findFolder(appState.folders[0].id,appState.folders);
-    sel.onchange=()=>{targetFolder=findFolder(sel.value,appState.folders);};
-    frag.appendChild(title);frag.appendChild(sel);
-  } else {
-    frag.appendChild(title);
+  if(!tf){
+    const sel=document.createElement('select');
+    sel.className='select-field';
+    for(const f of appState.folders){const o=mk('option','','');o.value=f.id;o.textContent=f.name;sel.appendChild(o);}
+    tf=findFolder(appState.folders[0].id,appState.folders);
+    sel.onchange=()=>{tf=findFolder(sel.value,appState.folders);};
+    frag.appendChild(sel);
   }
 
-  const inp=document.createElement('input');inp.type='text';inp.placeholder='שם הרשימה (עד 25 תווים)';inp.maxLength=25;inp.style.marginBottom='12px';
+  const inp=mkInput('text','שם הרשימה (עד 25 תווים)',25);
+  inp.style.marginBottom='12px';
   const acts=document.createElement('div');acts.className='modal-actions';
-  const cancel=document.createElement('button');cancel.className='btn btn-secondary';cancel.textContent='ביטול';
-  cancel.onclick=closeModal;
-  const add=document.createElement('button');add.className='btn btn-primary';add.textContent='הוסף';
-  add.onclick=()=>{
-    const n=inp.value.trim();if(!n||!targetFolder) return;
-    targetFolder.lists.push({id:uid(),name:n.slice(0,25),words:[]});
+  const cancel=mkBtn('btn btn-secondary','ביטול',closeModal);
+  const add=mkBtn('btn btn-primary','הוסף',()=>{
+    const n=inp.value.trim();if(!n||!tf)return;
+    tf.lists.push({id:uid(),name:n.slice(0,25),words:[]});
     saveState();closeModal();
-  };
+  });
   acts.appendChild(cancel);acts.appendChild(add);
   frag.appendChild(inp);frag.appendChild(acts);
   const m=showModal(frag);
   setTimeout(()=>m.querySelector('input[type=text]')?.focus(),100);
 }
 
+// ── Add Word ──
 function showAddWordModal(list){
   const frag=document.createDocumentFragment();
-  const title=document.createElement('div');title.className='modal-title';title.textContent='הוסף מילה';
+  frag.appendChild(mk('div','modal-title','הוסף מילה'));
+  const {frWrap,heWrap,frInp,heInp}=makeWordInputs();
+  const acts=document.createElement('div');acts.className='modal-actions';
+  const cancel=mkBtn('btn btn-secondary','ביטול',closeModal);
+  const add=mkBtn('btn btn-primary','הוסף',()=>{
+    const fr=frInp.value.trim();const he=heInp.value.trim();
+    if(!fr||!he)return;
+    list.words.push({fr,he});saveState();closeModal();
+  });
+  acts.appendChild(cancel);acts.appendChild(add);
+  frag.appendChild(frWrap);frag.appendChild(heWrap);frag.appendChild(acts);
+  const m=showModal(frag);
+  setTimeout(()=>m.querySelector('input')?.focus(),100);
+}
 
-  const frWrap=document.createElement('div');frWrap.style.cssText='position:relative;margin-bottom:12px';
-  const frInp=document.createElement('input');frInp.type='text';frInp.placeholder='צרפתית';frInp.style.direction='ltr';
+// ── Edit Word ──
+function showEditWordModal(list,idx){
+  const w=list.words[idx];
+  const frag=document.createDocumentFragment();
+  frag.appendChild(mk('div','modal-title','ערוך מילה'));
+  const {frWrap,heWrap,frInp,heInp}=makeWordInputs(w.fr,w.he);
+  const acts=document.createElement('div');acts.className='modal-actions';
+  const cancel=mkBtn('btn btn-secondary','ביטול',closeModal);
+  const save=mkBtn('btn btn-primary','שמור',()=>{
+    const fr=frInp.value.trim();const he=heInp.value.trim();
+    if(!fr||!he)return;
+    list.words[idx]={fr,he,hard:list.words[idx].hard||false};saveState();closeModal();
+  });
+  acts.appendChild(cancel);acts.appendChild(save);
+  frag.appendChild(frWrap);frag.appendChild(heWrap);frag.appendChild(acts);
+  const m=showModal(frag);
+  setTimeout(()=>m.querySelector('input')?.focus(),100);
+}
+
+// ── Edit Name ──
+function showEditNameModal(type,item){
+  const label=type==='folder'?'שם התיקייה':'שם הרשימה';
+  const frag=document.createDocumentFragment();
+  frag.appendChild(mk('div','modal-title',`ערוך ${label}`));
+  const inp=mkInput('text',label,25);
+  inp.value=item.name;
+  inp.style.marginBottom='12px';
+  const acts=document.createElement('div');acts.className='modal-actions';
+  const cancel=mkBtn('btn btn-secondary','ביטול',closeModal);
+  const save=mkBtn('btn btn-primary','שמור',()=>{
+    const n=inp.value.trim();if(!n)return;
+    item.name=n.slice(0,25);saveState();closeModal();
+  });
+  acts.appendChild(cancel);acts.appendChild(save);
+  frag.appendChild(inp);frag.appendChild(acts);
+  const m=showModal(frag);
+  setTimeout(()=>{const i=m.querySelector('input');if(i){i.focus();i.select();}},100);
+}
+
+// ── Delete ──
+function showDeleteModal(type,item){
+  const label=type==='folder'?'תיקייה':'רשימה';
+  const frag=document.createDocumentFragment();
+  frag.appendChild(mk('div','modal-title',`מחיקת ${label}`));
+  const p=document.createElement('p');
+  p.style.cssText='text-align:center;color:#6C757D;margin-bottom:8px;line-height:1.6';
+  p.innerHTML=`האם למחוק את<br><strong>"${item.name}"</strong>?<br><small>פעולה זו אינה הפיכה</small>`;
+  const acts=document.createElement('div');acts.className='modal-actions';
+  const cancel=mkBtn('btn btn-secondary','ביטול',closeModal);
+  const del=mkBtn('btn btn-danger','מחק',()=>{
+    if(type==='folder'){
+      appState.folders=deleteFolder(item.id,appState.folders);
+      if(currentFolderId===item.id){currentFolderId=null;currentScreen='home';}
+    } else {
+      deleteList(item.id,appState.folders);
+      if(currentListId===item.id){currentListId=null;currentScreen='home';}
+    }
+    saveState();closeModal();
+  });
+  acts.appendChild(cancel);acts.appendChild(del);
+  frag.appendChild(p);frag.appendChild(acts);
+  showModal(frag);
+}
+
+// ── Folder Add Menu ──
+function showFolderAddMenu(){
+  const bg=document.createElement('div');
+  bg.className='modal-bg';
+  bg.style.alignItems='flex-end';
+  bg.onclick=e=>{if(e.target===bg)closeModal();};
+  const sheet=document.createElement('div');
+  sheet.className='menu-sheet';
+
+  const items=[
+    {icon:'📁',label:'הוסף תת-תיקייה',fn:()=>{closeModal();showAddFolderModal();}},
+    {icon:'📝',label:'הוסף רשימה',fn:()=>{closeModal();showAddListModal(currentFolderId);}},
+    {icon:'💬',label:'הוסף מילה לראשונה ברשימה',fn:()=>{
+      const f=findFolder(currentFolderId,appState.folders);
+      if(!f||!f.lists.length){alert('צור קודם רשימה בתיקייה זו');closeModal();return;}
+      // If one list, add directly; else let user pick
+      if(f.lists.length===1){closeModal();showAddWordModal(f.lists[0]);}
+      else{closeModal();showPickListModal(f);}
+    }}
+  ];
+
+  for(const item of items){
+    const row=document.createElement('div');
+    row.className='menu-item';
+    const ic=mk('span','menu-item-icon',item.icon);
+    const lbl=mk('span','','');
+    lbl.textContent=item.label;
+    row.appendChild(ic);row.appendChild(lbl);
+    row.onclick=item.fn;
+    sheet.appendChild(row);
+    sheet.appendChild(mk('div','menu-sep',''));
+  }
+
+  const cancelRow=document.createElement('div');
+  cancelRow.className='menu-cancel';
+  cancelRow.textContent='ביטול';
+  cancelRow.onclick=closeModal;
+  sheet.appendChild(cancelRow);
+
+  bg.appendChild(sheet);
+  activeModal=bg;
+  render();
+}
+
+function showPickListModal(folder){
+  const frag=document.createDocumentFragment();
+  frag.appendChild(mk('div','modal-title','בחר רשימה'));
+  for(const l of folder.lists){
+    const btn=document.createElement('button');
+    btn.className='btn btn-secondary';
+    btn.style.cssText='width:100%;margin-bottom:8px;text-align:right';
+    btn.textContent=l.name;
+    btn.onclick=()=>{closeModal();showAddWordModal(l);};
+    frag.appendChild(btn);
+  }
+  const cancel=mkBtn('btn btn-secondary','ביטול',closeModal);
+  cancel.style.cssText='width:100%;margin-top:4px';
+  frag.appendChild(cancel);
+  showModal(frag);
+}
+
+// ── Word Input Helper ──
+function makeWordInputs(initFr='',initHe=''){
+  const frWrap=document.createElement('div');frWrap.className='inp-wrap';
+  const frInp=mkInput('text','צרפתית',100);
+  frInp.style.direction='ltr';frInp.value=initFr;
   const frDd=document.createElement('div');frDd.className='dropdown';frDd.style.display='none';
   frWrap.appendChild(frInp);frWrap.appendChild(frDd);
 
-  const heWrap=document.createElement('div');heWrap.style.cssText='position:relative;margin-bottom:12px';
-  const heInp=document.createElement('input');heInp.type='text';heInp.placeholder='עברית';
+  const heWrap=document.createElement('div');heWrap.className='inp-wrap';
+  const heInp=mkInput('text','עברית',100);
+  heInp.value=initHe;
   const heDd=document.createElement('div');heDd.className='dropdown';heDd.style.display='none';
   heWrap.appendChild(heInp);heWrap.appendChild(heDd);
 
@@ -827,7 +2162,8 @@ function showAddWordModal(list){
     if(!matches.length){dd.style.display='none';return;}
     dd.style.display='block';
     for(const d of matches){
-      const item=document.createElement('div');item.className='dropdown-item';
+      const item=document.createElement('div');
+      item.className='dropdown-item';
       item.innerHTML=`<span class="dd-fr" style="direction:ltr">${d.fr}</span><span class="dd-he">${d.he}</span>`;
       item.onmousedown=e=>{e.preventDefault();pickFn(d);};
       item.ontouchstart=e=>{e.preventDefault();pickFn(d);};
@@ -837,8 +2173,8 @@ function showAddWordModal(list){
 
   frInp.oninput=()=>{
     frInp.classList.remove('from-dict');
-    const v=frInp.value;
-    buildDd(frDd,DICT.filter(d=>d.fr.toLowerCase().startsWith(v.toLowerCase())).slice(0,7),d=>{
+    const v=frInp.value.toLowerCase();
+    buildDd(frDd,DICT.filter(d=>d.fr.toLowerCase().startsWith(v)&&v.length>0).slice(0,7),d=>{
       frInp.value=d.fr;heInp.value=d.he;
       frInp.classList.add('from-dict');heInp.classList.add('from-dict');
       frDd.style.display='none';heDd.style.display='none';
@@ -849,7 +2185,7 @@ function showAddWordModal(list){
   heInp.oninput=()=>{
     heInp.classList.remove('from-dict');
     const v=heInp.value;
-    buildDd(heDd,DICT.filter(d=>d.he.startsWith(v)).slice(0,7),d=>{
+    buildDd(heDd,DICT.filter(d=>d.he.startsWith(v)&&v.length>0).slice(0,7),d=>{
       heInp.value=d.he;frInp.value=d.fr;
       frInp.classList.add('from-dict');heInp.classList.add('from-dict');
       frDd.style.display='none';heDd.style.display='none';
@@ -857,59 +2193,41 @@ function showAddWordModal(list){
   };
   heInp.onblur=()=>setTimeout(()=>heDd.style.display='none',200);
 
-  const acts=document.createElement('div');acts.className='modal-actions';
-  const cancel=document.createElement('button');cancel.className='btn btn-secondary';cancel.textContent='ביטול';
-  cancel.onclick=closeModal;
-  const add=document.createElement('button');add.className='btn btn-primary';add.textContent='הוסף';
-  add.onclick=()=>{
-    const fr=frInp.value.trim();const he=heInp.value.trim();
-    if(!fr||!he) return;
-    list.words.push({fr,he});
-    saveState();closeModal();
-  };
-  acts.appendChild(cancel);acts.appendChild(add);
-  frag.appendChild(title);frag.appendChild(frWrap);frag.appendChild(heWrap);frag.appendChild(acts);
-  const m=showModal(frag);
-  setTimeout(()=>m.querySelector('input')?.focus(),100);
+  return{frWrap,heWrap,frInp,heInp};
 }
 
-function showDeleteModal(type,item,arr){
-  const label=type==='folder'?'תיקייה':'רשימה';
-  const frag=document.createDocumentFragment();
-  const title=document.createElement('div');title.className='modal-title';title.textContent=`מחיקת ${label}`;
-  const p=document.createElement('p');
-  p.style.cssText='text-align:center;color:#6C757D;margin-bottom:8px;line-height:1.5';
-  p.innerHTML=`האם למחוק את<br><strong>"${item.name}"</strong>?<br><small>פעולה זו אינה הפיכה</small>`;
-  const acts=document.createElement('div');acts.className='modal-actions';
-  const cancel=document.createElement('button');cancel.className='btn btn-secondary';cancel.textContent='ביטול';
-  cancel.onclick=closeModal;
-  const del=document.createElement('button');del.className='btn btn-danger';del.textContent='מחק';
-  del.onclick=()=>{
-    if(type==='folder'){
-      appState.folders=deleteFolder(item.id,appState.folders);
-      if(currentFolderId===item.id){currentFolderId=null;currentScreen='home';}
-    } else {
-      deleteList(item.id,appState.folders);
-      if(currentListId===item.id){currentListId=null;currentScreen='home';}
-    }
-    saveState();closeModal();
-  };
-  acts.appendChild(cancel);acts.appendChild(del);
-  frag.appendChild(title);frag.appendChild(p);frag.appendChild(acts);
-  showModal(frag);
+// ════════════════════════════════════════
+//  DOM HELPERS
+// ════════════════════════════════════════
+function mk(tag,cls,text){
+  const el=document.createElement(tag);
+  if(cls)el.className=cls;
+  if(text)el.textContent=text;
+  return el;
+}
+function mkInput(type,placeholder,maxlength){
+  const el=document.createElement('input');
+  el.type=type;el.placeholder=placeholder;
+  if(maxlength)el.maxLength=maxlength;
+  return el;
+}
+function mkBtn(cls,text,onclick){
+  const b=document.createElement('button');
+  b.className=cls;b.textContent=text;b.onclick=onclick;
+  return b;
 }
 
-// ===================== OFFLINE DETECTION =====================
+// ════════════════════════════════════════
+//  OFFLINE & SERVICE WORKER
+// ════════════════════════════════════════
 window.addEventListener('online',()=>document.getElementById('offline-banner').classList.remove('show'));
 window.addEventListener('offline',()=>document.getElementById('offline-banner').classList.add('show'));
-if(!navigator.onLine) document.getElementById('offline-banner').classList.add('show');
+if(!navigator.onLine)document.getElementById('offline-banner').classList.add('show');
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 
-// ===================== SERVICE WORKER =====================
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
-
-// ===================== INIT =====================
+// ════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════
 render();
 </script>
 </body>
