@@ -187,9 +187,9 @@ input.from-dict{border-color:var(--blue);background:#F0F6FF}
 .recent-word-list{font-size:11px;color:var(--gray);flex-shrink:0}
 
 /* ── STAR / HARD WORD ── */
-.word-star{background:none;border:none;font-size:18px;cursor:pointer;padding:2px 4px;flex-shrink:0;opacity:.35;transition:opacity .15s,transform .15s}
-.word-star:active{transform:scale(1.3)}
-.word-star.hard{opacity:1;color:#FF9500}
+.word-star{width:26px;height:26px;border-radius:50%;border:1.5px solid #D1D1D6;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;padding:0;font-size:13px;color:#C7C7CC;line-height:1}
+.word-star:active{transform:scale(1.25)}
+.word-star.hard{border-color:var(--orange);background:var(--orange);color:#fff}
 
 /* ── QUIZ GAME ── */
 .quiz-dir-toggle{display:flex;gap:8px;margin-bottom:10px;flex-shrink:0}
@@ -212,6 +212,27 @@ input.from-dict{border-color:var(--blue);background:#F0F6FF}
 .quiz-opt-tts{background:none;border:none;font-size:16px;cursor:pointer;opacity:.45;flex-shrink:0;padding:2px 4px}
 .quiz-opt-tts:active{opacity:1}
 .quiz-next-btn{margin-top:8px;width:100%;flex-shrink:0}
+
+/* ── LIST FLIP CARDS ── */
+.view-toggle{display:flex;gap:6px;margin-bottom:12px}
+.view-toggle-btn{flex:1;padding:8px;border-radius:10px;border:1.5px solid #E5E5EA;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:var(--gray);transition:all .15s}
+.view-toggle-btn.active{border-color:var(--blue);color:var(--blue);background:#F0F6FF}
+.fc-dir-row{display:flex;gap:8px;margin-bottom:10px}
+.fc-dir-btn{flex:1;padding:7px;border-radius:8px;border:1.5px solid #E5E5EA;background:#fff;font-size:12px;font-weight:600;cursor:pointer;color:var(--gray);transition:all .15s}
+.fc-dir-btn.active{border-color:var(--orange);color:var(--orange);background:#FFF8F0}
+.list-flip-wrap{perspective:1200px;width:100%;margin-bottom:10px;cursor:pointer;-webkit-user-select:none;user-select:none;height:76px}
+.list-flip-card{width:100%;height:76px;position:relative;transform-style:preserve-3d;transition:transform .38s ease}
+.list-flip-card.flipped{transform:rotateY(180deg)}
+.list-card-face{position:absolute;inset:0;border-radius:14px;background:#fff;border:1px solid #E5E5EA;box-shadow:0 2px 8px rgba(0,0,0,.06);backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;align-items:center;padding:0 16px}
+.list-card-face.back{transform:rotateY(180deg)}
+.list-card-fr{font-size:17px;font-weight:700;direction:ltr;flex:1;text-align:left}
+.list-card-he{font-size:17px;font-weight:600;direction:rtl;flex:1;text-align:right;color:#2C2C2E}
+.list-card-tts{position:absolute;top:8px;right:10px;background:none;border:none;font-size:16px;cursor:pointer;opacity:.4;padding:4px;line-height:1;color:#000}
+.list-card-tts:active{opacity:1}
+
+/* ── SHAKE ANIMATION ── */
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.match-card.shake{animation:shake .22s ease;border-color:var(--red)!important;background:#FFF0ED!important;color:var(--red)!important}
 </style>
 </head>
 <body>
@@ -999,6 +1020,12 @@ let activeQuizWords=[];
 let fcState={};
 let mgState={};
 let qzState={};
+let listViewMode='list'; // 'list' | 'cards'
+let listFcDir='fr';     // 'fr' | 'he' — which side is front
+let listFcFlipped={};   // idx → boolean
+
+// Session-level word coverage — resets on reload, ensures variety
+const sessionCoverage={};
 
 // ════════════════════════════════════════
 //  HELPERS
@@ -1024,11 +1051,38 @@ function getAllWords(folders){let w=[];for(const f of folders){for(const l of f.
 // Hard words appear twice in weighted pool → more likely to be selected
 function weightedWords(words){const p=[];for(const w of words){p.push(w);if(w.hard)p.push(w);}return p;}
 
+// Smart word pool: prefer uncovered words, mix in some reviewed ones
+function getWordPool(words,key,count){
+  if(!sessionCoverage[key])sessionCoverage[key]=new Set();
+  const covered=sessionCoverage[key];
+  const unique=[...new Map(words.map(w=>[w.fr,w])).values()];
+  const uncovered=shuffle(unique.filter(w=>!covered.has(w.fr)));
+  const coveredArr=shuffle(unique.filter(w=>covered.has(w.fr)));
+  // If all covered, reset and start fresh
+  if(!uncovered.length){covered.clear();return shuffle(unique).slice(0,count);}
+  // Build pool: mostly uncovered, 1-2 covered for review
+  const pool=[];
+  let ui=0,ci=0;
+  while(pool.length<count){
+    if(ui<uncovered.length){
+      // boost hard words
+      if(uncovered[ui].hard&&pool.length<count)pool.push(uncovered[ui]);
+      pool.push(uncovered[ui++]);
+    } else if(ci<coveredArr.length){
+      pool.push(coveredArr[ci++]);
+    } else break;
+  }
+  const result=pool.slice(0,count);
+  for(const w of result)covered.add(w.fr);
+  return result;
+}
+
 // ════════════════════════════════════════
 //  NAVIGATION
 // ════════════════════════════════════════
 function navigate(screen,data={}){
   stopMatchTimer();
+  if(currentScreen==='list'&&screen!=='list'){listFcFlipped={};}
   navHistory.push({screen:currentScreen,folderId:currentFolderId,listId:currentListId});
   currentScreen=screen;
   if(data.folderId!==undefined)currentFolderId=data.folderId;
@@ -1116,9 +1170,11 @@ function render(){
   } else if(currentScreen==='list'&&!isGame){
     const list=findList(currentListId,appState.folders);
     if(list){
+      const expBtn=mkIconBtn('📤','ייצא רשימה',()=>exportList(list));
       const editBtn=mkIconBtn('✏️','ערוך שם',()=>showEditNameModal('list',list));
       const delBtn=mkIconBtn('🗑','מחק רשימה',()=>showDeleteModal('list',list));
       delBtn.classList.add('danger');
+      leftActs.appendChild(expBtn);
       leftActs.appendChild(editBtn);
       leftActs.appendChild(delBtn);
     }
@@ -1282,6 +1338,13 @@ function renderHome(screen){
   };
   screen.appendChild(addBtn);
 
+  // Import button
+  const impBtn=document.createElement('button');
+  impBtn.style.cssText='width:100%;padding:12px;border-radius:12px;border:1.5px solid #E5E5EA;background:#fff;color:#3C3C43;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px';
+  impBtn.innerHTML='📥 ייבא רשימת מילים';
+  impBtn.onclick=()=>triggerImport();
+  screen.appendChild(impBtn);
+
   // Recently added words
   const rw=appState.recentWords||[];
   if(rw.length>0){
@@ -1330,7 +1393,12 @@ function renderFolder(screen){
   addRecent({id:f.id,name:f.name,type:'folder'});
 
   if(!(f.subfolders||[]).length&&!f.lists.length){
-    screen.appendChild(makeEmpty('📂','תיקייה ריקה\nלחץ ⋯ בראש המסך להוספה'));
+    const firstBtn=document.createElement('button');
+    firstBtn.className='home-add-btn';
+    firstBtn.innerHTML='➕ הוסף מילה ראשונה';
+    firstBtn.onclick=()=>showQuickAddToFolder(f);
+    screen.appendChild(firstBtn);
+    screen.appendChild(makeEmpty('📂','התיקייה ריקה\nאפשר גם להוסיף תת-תיקייה או רשימה מהכפתורים למעלה'));
   }
   for(const sf of(f.subfolders||[]))renderFolderCard(screen,sf);
   for(const l of f.lists)renderListCard(screen,l);
@@ -1393,45 +1461,101 @@ function renderList(screen){
   sh.appendChild(st);
   screen.appendChild(sh);
 
+  // View toggle
+  const vt=document.createElement('div');
+  vt.className='view-toggle';
+  const btnList=document.createElement('button');btnList.className='view-toggle-btn'+(listViewMode==='list'?' active':'');btnList.textContent='☰ רשימה';
+  btnList.onclick=()=>{listViewMode='list';listFcFlipped={};render();};
+  const btnCards=document.createElement('button');btnCards.className='view-toggle-btn'+(listViewMode==='cards'?' active':'');btnCards.textContent='🃏 כרטיסיות';
+  btnCards.onclick=()=>{listViewMode='cards';listFcFlipped={};render();};
+  vt.appendChild(btnList);vt.appendChild(btnCards);
+  screen.appendChild(vt);
+
   if(!l.words.length){
     screen.appendChild(makeEmpty('💬','אין מילים עדיין'));
-  }else{
+  } else if(listViewMode==='cards'){
+    // Direction toggle
+    const dr=document.createElement('div');dr.className='fc-dir-row';
+    const bFR=document.createElement('button');bFR.className='fc-dir-btn'+(listFcDir==='fr'?' active':'');bFR.textContent='🇫🇷 צרפתית קדימה';
+    bFR.onclick=()=>{listFcDir='fr';listFcFlipped={};render();};
+    const bHE=document.createElement('button');bHE.className='fc-dir-btn'+(listFcDir==='he'?' active':'');bHE.textContent='🇮🇱 עברית קדימה';
+    bHE.onclick=()=>{listFcDir='he';listFcFlipped={};render();};
+    dr.appendChild(bFR);dr.appendChild(bHE);
+    screen.appendChild(dr);
+
+    for(let i=0;i<l.words.length;i++){
+      const w=l.words[i];
+      const isFlipped=!!listFcFlipped[i];
+      const wrap=document.createElement('div');wrap.className='list-flip-wrap';
+      const card=document.createElement('div');card.className='list-flip-card'+(isFlipped?' flipped':'');
+
+      // Front face
+      const front=document.createElement('div');front.className='list-card-face front';
+      const frontText=document.createElement('span');
+      frontText.className=listFcDir==='fr'?'list-card-fr':'list-card-he';
+      frontText.textContent=listFcDir==='fr'?w.fr:w.he;
+      front.appendChild(frontText);
+      if(listFcDir==='fr'){
+        const tts=document.createElement('button');tts.className='list-card-tts';tts.textContent='🔊';
+        tts.onclick=e=>{e.stopPropagation();speak(w.fr);};
+        front.appendChild(tts);
+      }
+
+      // Back face
+      const back=document.createElement('div');back.className='list-card-face back';
+      const backText=document.createElement('span');
+      backText.className=listFcDir==='fr'?'list-card-he':'list-card-fr';
+      backText.textContent=listFcDir==='fr'?w.he:w.fr;
+      back.appendChild(backText);
+      if(listFcDir==='he'){
+        const tts=document.createElement('button');tts.className='list-card-tts';tts.textContent='🔊';
+        tts.onclick=e=>{e.stopPropagation();speak(w.fr);};
+        back.appendChild(tts);
+      }
+
+      card.appendChild(front);card.appendChild(back);
+      wrap.appendChild(card);
+      wrap.onclick=()=>{listFcFlipped[i]=!isFlipped;render();};
+      screen.appendChild(wrap);
+    }
+  } else {
     for(let i=0;i<l.words.length;i++){
       const w=l.words[i];
       const row=document.createElement('div');
       row.className='word-row';
-      row.title='לחץ לעריכה';
 
       const frSpan=document.createElement('span');
       frSpan.className='word-fr';
       frSpan.textContent=w.fr;
+
+      const heSpan=document.createElement('span');
+      heSpan.className='word-he';
+      heSpan.textContent=w.he;
 
       const ttsBtn=document.createElement('button');
       ttsBtn.className='word-tts';
       ttsBtn.textContent='🔊';
       ttsBtn.onclick=e=>{e.stopPropagation();speak(w.fr);};
 
-      const heSpan=document.createElement('span');
-      heSpan.className='word-he';
-      heSpan.textContent=w.he;
-
       const starBtn=document.createElement('button');
       starBtn.className='word-star'+(w.hard?' hard':'');
-      starBtn.textContent=w.hard?'★':'☆';
-      starBtn.title=w.hard?'מילה קשה — לחץ להסרה':'סמן כמילה קשה';
+      starBtn.textContent='★';
+      starBtn.title=w.hard?'מסומן לתרגול — לחץ להסרה':'סמן לתרגול נוסף';
       starBtn.onclick=e=>{e.stopPropagation();w.hard=!w.hard;saveState();render();};
 
-      const delBtn=document.createElement('button');
-      delBtn.style.cssText='background:none;border:none;color:#FF3B30;font-size:20px;cursor:pointer;padding:2px 6px;flex-shrink:0';
-      delBtn.textContent='×';
-      delBtn.onclick=e=>{e.stopPropagation();l.words.splice(i,1);saveState();render();};
+      // Long press for delete menu
+      let lpt=null;
+      row.addEventListener('touchstart',()=>{lpt=setTimeout(()=>{lpt=null;showWordMenu(l,i);},500);},{passive:true});
+      row.addEventListener('touchend',()=>{if(lpt){clearTimeout(lpt);lpt=null;}});
+      row.addEventListener('touchmove',()=>{if(lpt){clearTimeout(lpt);lpt=null;}});
+      row.addEventListener('contextmenu',e=>{e.preventDefault();showWordMenu(l,i);});
 
+      // Order: French (right) | Hebrew | 🔊 | ⭕ (left)
       row.appendChild(frSpan);
-      row.appendChild(ttsBtn);
       row.appendChild(heSpan);
+      row.appendChild(ttsBtn);
       row.appendChild(starBtn);
-      row.appendChild(delBtn);
-      row.onclick=e=>{if(e.target===delBtn||e.target===ttsBtn||e.target===starBtn)return;showEditWordModal(l,i);};
+      row.onclick=e=>{if(e.target===ttsBtn||e.target===starBtn)return;showEditWordModal(l,i);};
       screen.appendChild(row);
     }
   }
@@ -1560,7 +1684,8 @@ function renderMatching(screen){
   if(!words.length){goBack();return;}
 
   if(!mgState.initialized){
-    const pool=shuffle(weightedWords([...words])).filter((w,i,a)=>a.findIndex(x=>x.fr===w.fr)===i).slice(0,6);
+    const key=currentListId||'global';
+    const pool=getWordPool(weightedWords([...words]),key,6);
     const countdown=mgState.pendingCountdown||false;
     mgState={
       frCards:shuffle(pool.map((w,i)=>({...w,id:'fr'+i,done:false}))),
@@ -1762,37 +1887,81 @@ function tryMatch(){
       mgState.score++;
       mgState.selectedFr=null;mgState.selectedHe=null;
       mgState.locked=false;
-      // Check win
       if(mgState.frCards.every(c=>c.done))render();
       else updateMatchCards();
-    },350);
+    },150);
   } else {
-    // Wrong
+    // Wrong — shake + vibrate
     const frEls=document.querySelectorAll('.match-col:first-child .match-card');
     const heEls=document.querySelectorAll('.match-col:last-child .match-card');
     const fi=mgState.frCards.indexOf(fr);
     const hi=mgState.heCards.indexOf(he);
-    if(frEls[fi])frEls[fi].classList.add('wrong');
-    if(heEls[hi])heEls[hi].classList.add('wrong');
+    if(frEls[fi]){frEls[fi].classList.add('wrong');frEls[fi].classList.add('shake');}
+    if(heEls[hi]){heEls[hi].classList.add('wrong');heEls[hi].classList.add('shake');}
+    if(navigator.vibrate)navigator.vibrate([60,30,60]);
 
     setTimeout(()=>{
       mgState.selectedFr=null;mgState.selectedHe=null;
       mgState.locked=false;
       updateMatchCards();
-    },600);
+    },200);
   }
 }
 
 // ════════════════════════════════════════
 //  QUIZ GAME (התאמה)
 // ════════════════════════════════════════
-function makeQuizOptions(word,direction){
+function makeQuizOptions(word,direction,wordPool){
   const correctText=direction==='fr2he'?word.he:word.fr;
-  const pool=shuffle(DICT.filter(d=>{
-    const v=direction==='fr2he'?d.he:d.fr;
-    return v!==correctText&&v!==word.he&&v!==word.fr;
-  })).slice(0,4).map(d=>({text:direction==='fr2he'?d.he:d.fr,correct:false,frVal:d.fr}));
-  return shuffle([{text:correctText,correct:true,frVal:word.fr},...pool]);
+  const seen=new Set([correctText,word.he,word.fr]);
+  let distractors=[];
+
+  if(direction==='he2fr'){
+    // Show Hebrew → pick French: find visually/phonetically similar French words
+    const target=word.fr;
+    const isVerb=target.endsWith('er')||target.endsWith('ir')||target.endsWith('re')||target.endsWith('oir');
+    // Priority 1: verbs from pool if target is verb
+    if(isVerb){
+      const verbPool=DICT.filter(d=>!seen.has(d.fr)&&(d.fr.endsWith('er')||d.fr.endsWith('ir')||d.fr.endsWith('re')||d.fr.endsWith('oir')));
+      distractors.push(...shuffle(verbPool).slice(0,6).map(d=>({text:d.fr,correct:false,frVal:d.fr})));
+    }
+    // Priority 2: same first 2 chars or similar length ±3
+    const similar=DICT.filter(d=>!seen.has(d.fr)&&(d.fr.slice(0,2)===target.slice(0,2)||Math.abs(d.fr.length-target.length)<=3));
+    distractors.push(...shuffle(similar).slice(0,6).map(d=>({text:d.fr,correct:false,frVal:d.fr})));
+  } else {
+    // Show French → pick Hebrew: find semantically related Hebrew words
+    const target=word.he;
+    const isVerb=target.startsWith('ל');
+    const isTemporal=['יום','שעה','זמן','כל','כבר','תמיד','פעם','מחר','אתמול','בקר','ערב','לילה','מיד','בקרוב'].some(k=>target.includes(k));
+    const isNumber=['אחד','שניים','שלושה','ארבעה','חמישה','שישה','שבעה','שמונה','תשעה','עשר','עשרים'].some(k=>target.includes(k));
+
+    let candidates=[];
+    if(isVerb){
+      candidates=DICT.filter(d=>!seen.has(d.he)&&d.he.startsWith('ל'));
+    } else if(isTemporal){
+      candidates=DICT.filter(d=>!seen.has(d.he)&&['יום','זמן','כל','כבר','תמיד','פעם','מחר','אתמול','בקר','ערב','לילה','מיד','בקרוב','פעמים'].some(k=>d.he.includes(k)));
+    } else if(isNumber){
+      candidates=DICT.filter(d=>!seen.has(d.he)&&['אחד','שניים','שלושה','ארבעה','חמישה','שישה','שבעה','שמונה','תשעה','עשר','עשרים','שלושים'].some(k=>d.he.includes(k)));
+    } else {
+      // Similar length ±4 chars
+      candidates=DICT.filter(d=>!seen.has(d.he)&&Math.abs(d.he.length-target.length)<=4);
+    }
+    distractors.push(...shuffle(candidates).slice(0,8).map(d=>({text:d.he,correct:false,frVal:d.fr})));
+  }
+
+  // Deduplicate
+  const uniqueDist=[],usedTexts=new Set([correctText]);
+  for(const d of distractors){if(!usedTexts.has(d.text)){usedTexts.add(d.text);uniqueDist.push(d);}}
+
+  // Fill remaining with random DICT entries
+  if(uniqueDist.length<4){
+    const extra=shuffle(DICT.filter(d=>!usedTexts.has(direction==='fr2he'?d.he:d.fr)&&d.fr!==word.fr))
+      .slice(0,4-uniqueDist.length)
+      .map(d=>({text:direction==='fr2he'?d.he:d.fr,correct:false,frVal:d.fr}));
+    uniqueDist.push(...extra);
+  }
+
+  return shuffle([{text:correctText,correct:true,frVal:word.fr},...uniqueDist.slice(0,4)]);
 }
 
 function renderQuizFinish(screen,q){
@@ -1819,12 +1988,9 @@ function renderQuiz(screen){
 
   if(!qzState.initialized){
     const dir=qzState.pendingDirection||'fr2he';
-    const seen=new Set();
-    const questions=[];
-    for(const w of shuffle(weightedWords([...activeQuizWords]))){
-      if(!seen.has(w.fr)){seen.add(w.fr);questions.push(w);if(questions.length>=10)break;}
-    }
-    qzState={direction:dir,questions,idx:0,score:0,options:null,locked:false,initialized:true,pendingDirection:dir};
+    const key='quiz_'+(currentListId||'global');
+    const pool=getWordPool(weightedWords([...activeQuizWords]),key,10);
+    qzState={direction:dir,questions:pool,idx:0,score:0,options:null,locked:false,initialized:true,pendingDirection:dir};
   }
   const q=qzState;
 
@@ -1832,7 +1998,7 @@ function renderQuiz(screen){
   if(q.idx>=q.questions.length){renderQuizFinish(screen,q);return;}
 
   const word=q.questions[q.idx];
-  if(!q.options)q.options=makeQuizOptions(word,q.direction);
+  if(!q.options)q.options=makeQuizOptions(word,q.direction,activeQuizWords);
 
   // Direction toggle
   const dirRow=document.createElement('div');dirRow.className='quiz-dir-toggle';
@@ -1864,10 +2030,10 @@ function renderQuiz(screen){
   qWord.textContent=isFr?word.fr:word.he;
   qCard.appendChild(qWord);
   if(isFr){
-    const ttsRow=document.createElement('div');ttsRow.className='quiz-tts-row';
-    const ttsBtn=document.createElement('button');ttsBtn.className='quiz-tts-btn';
-    ttsBtn.textContent='🔊 שמע';ttsBtn.onclick=()=>speak(word.fr);
-    ttsRow.appendChild(ttsBtn);qCard.appendChild(ttsRow);
+    const ttsBtn=document.createElement('button');
+    ttsBtn.style.cssText='background:none;border:none;font-size:22px;cursor:pointer;opacity:.5;margin-top:4px;padding:4px;display:block;margin-left:auto;margin-right:auto';
+    ttsBtn.textContent='🔊';ttsBtn.onclick=()=>speak(word.fr);
+    qCard.appendChild(ttsBtn);
   }
   screen.appendChild(qCard);
 
@@ -1879,6 +2045,7 @@ function renderQuiz(screen){
     const opt=q.options[i];
     const btn=document.createElement('div');
     btn.className='quiz-opt'+(optIsFr?' fr-opt':'');
+    if(opt.correct)btn.dataset.correct='1';
     const textEl=document.createElement('span');textEl.className='quiz-opt-text';textEl.textContent=opt.text;
     btn.appendChild(textEl);
     if(optIsFr){
@@ -1895,13 +2062,16 @@ function renderQuiz(screen){
         setTimeout(()=>{
           q.idx++;q.options=null;q.locked=false;
           render();
-        },1500);
+        },480);
       } else {
         btn.classList.add('wrong-ans');
+        // Reveal correct answer
+        const allBtns=document.querySelectorAll('.quiz-opt');
+        allBtns.forEach(b=>{if(b.dataset.correct==='1')b.classList.add('reveal-ans');});
         setTimeout(()=>{
           btn.classList.remove('wrong-ans');
           q.locked=false;
-        },1500);
+        },700);
       }
     };
     opts.appendChild(btn);
@@ -2182,6 +2352,31 @@ function showPickListModal(folder){
   cancel.style.cssText='width:100%;margin-top:4px';
   frag.appendChild(cancel);
   showModal(frag);
+}
+
+// ── Word Long-Press Menu ──
+function showWordMenu(list,idx){
+  const w=list.words[idx];
+  const bg=document.createElement('div');
+  bg.className='modal-bg';
+  bg.onclick=e=>{if(e.target===bg)closeModal();};
+  const sheet=document.createElement('div');sheet.className='menu-sheet';
+  const items=[
+    {icon:'✏️',label:'ערוך מילה',fn:()=>{closeModal();showEditWordModal(list,idx);}},
+    {icon:'🔊',label:'האזן למילה',fn:()=>{closeModal();speak(w.fr);}},
+    {icon:'🗑',label:'מחק מילה',danger:true,fn:()=>{list.words.splice(idx,1);saveState();closeModal();}}
+  ];
+  for(const item of items){
+    const row=document.createElement('div');row.className='menu-item';
+    if(item.danger)row.style.color='var(--red)';
+    row.appendChild(mk('span','menu-item-icon',item.icon));
+    const lbl=document.createElement('span');lbl.textContent=item.label;row.appendChild(lbl);
+    row.onclick=item.fn;
+    sheet.appendChild(row);sheet.appendChild(mk('div','menu-sep',''));
+  }
+  const cancel=document.createElement('div');cancel.className='menu-cancel';cancel.textContent='ביטול';cancel.onclick=closeModal;
+  sheet.appendChild(cancel);
+  bg.appendChild(sheet);activeModal=bg;render();
 }
 
 // ── Word Input Helper ──
