@@ -2354,6 +2354,296 @@ function showPickListModal(folder){
   showModal(frag);
 }
 
+// ════════════════════════════════════════
+//  ייצוא / ייבוא
+// ════════════════════════════════════════
+
+function exportList(list){
+  const data={
+    version:1,
+    exported:new Date().toISOString().slice(0,10),
+    listName:list.name,
+    words:list.words.map(w=>({fr:w.fr,he:w.he,hard:!!w.hard}))
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=list.name.replace(/\s+/g,'_')+'_french.json';
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+
+function triggerImport(){
+  const inp=document.createElement('input');
+  inp.type='file';inp.accept='.json,application/json,image/*';
+  inp.onchange=e=>{
+    const file=e.target.files[0];if(!file)return;
+    if(file.type.startsWith('image/')){processImageImport(file);return;}
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        const data=JSON.parse(ev.target.result);
+        const words=Array.isArray(data)?data:(data.words||[]);
+        if(!words.length)throw new Error('הקובץ ריק');
+        if(!words[0].fr||!words[0].he)throw new Error('פורמט לא מוכר');
+        const suggestedName=data.listName||'';
+        processImport(words,suggestedName);
+      }catch(err){alert('שגיאה בקריאת הקובץ: '+err.message);}
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+
+// ════════════════════════════════════════
+//  OCR — ייבוא מתמונה
+// ════════════════════════════════════════
+
+let _tesseractLoading=null;
+function loadTesseract(){
+  if(window.Tesseract)return Promise.resolve(window.Tesseract);
+  if(_tesseractLoading)return _tesseractLoading;
+  _tesseractLoading=new Promise((res,rej)=>{
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js';
+    s.onload=()=>res(window.Tesseract);s.onerror=rej;
+    document.head.appendChild(s);
+  });
+  return _tesseractLoading;
+}
+
+async function processImageImport(file){
+  // מודאל טעינה
+  const frag=document.createDocumentFragment();
+  frag.appendChild(mk('div','modal-title','מעבד תמונה...'));
+  const spin=mk('div','','⏳');spin.style.cssText='text-align:center;font-size:36px;margin:16px 0';
+  const status=mk('div','','טוען מנוע זיהוי טקסט...');
+  status.style.cssText='text-align:center;color:var(--gray);font-size:14px;margin-bottom:20px';
+  frag.appendChild(spin);frag.appendChild(status);
+  showModal(frag);
+  try{
+    const T=await loadTesseract();
+    status.textContent='מזהה טקסט בתמונה...';
+    const result=await T.recognize(file,'heb+fra',{
+      logger:m=>{if(m.status==='recognizing text')status.textContent=`מזהה... ${Math.round((m.progress||0)*100)}%`;}
+    });
+    const pairs=parseOcrText(result.data.text);
+    closeModal();
+    if(!pairs.length){alert('לא זוהו זוגות מילים בתמונה. ודא שהתמונה ברורה ומכילה עמודות צרפתית ועברית.');return;}
+    showOcrPreviewModal(pairs);
+  }catch(e){closeModal();alert('שגיאה בעיבוד התמונה: '+e.message);}
+}
+
+function parseOcrText(text){
+  const heRe=/[ְ-׿יִ-ﭏ]/;
+  const frRe=/[a-zA-ZÀ-ÿ]/;
+  const lines=text.split('\n').map(l=>l.trim()).filter(l=>l.length>2);
+  const pairs=[];
+  for(const line of lines){
+    if(!heRe.test(line)||!frRe.test(line))continue;
+    let fr='',he='';
+    // נסה פיצול לפי מפרידים נפוצים
+    const parts=line.split(/[\t\-–—|=:\/،,]+/);
+    for(const p of parts){
+      const t=p.trim();if(!t)continue;
+      if(heRe.test(t)&&!he)he=t;
+      else if(frRe.test(t)&&!fr)fr=t;
+    }
+    // fallback: חלץ כל חלק לפי סוג כתב
+    if(!fr||!he){
+      const hm=line.match(/[ְ-׿יִ-ﭏ\sא-ת]+/);
+      const fm=line.match(/[a-zA-ZÀ-ÿ'\s\-]+/);
+      if(hm)he=hm[0].trim();if(fm)fr=fm[0].trim();
+    }
+    fr=fr.replace(/^\d+[\.\)]\s*/,'').trim();
+    he=he.replace(/^\d+[\.\)]\s*/,'').trim();
+    if(fr.length>1&&he.length>1)pairs.push({fr,he,hard:false});
+  }
+  return pairs;
+}
+
+function showOcrPreviewModal(pairs){
+  const frag=document.createDocumentFragment();
+  const title=mk('div','modal-title',`זוהו ${pairs.length} מילים`);
+  frag.appendChild(title);
+  const sub=mk('div','','ערוך ומחק שגיאות לפני הייבוא:');
+  sub.style.cssText='font-size:13px;color:var(--gray);text-align:center;margin-bottom:12px';
+  frag.appendChild(sub);
+  const list=document.createElement('div');
+  list.style.cssText='max-height:270px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:14px';
+  const active=pairs.map((p,i)=>({...p,_del:false}));
+  active.forEach((p,i)=>{
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:6px;background:#F5F5F7;border-radius:10px;padding:8px 10px';
+    const heInp=document.createElement('input');heInp.value=p.he;
+    heInp.style.cssText='flex:1;border:none;background:transparent;font-size:14px;direction:rtl;min-width:0';
+    heInp.oninput=()=>{active[i].he=heInp.value.trim();};
+    const sep=mk('span','','·');sep.style.cssText='color:#ccc;flex-shrink:0';
+    const frInp=document.createElement('input');frInp.value=p.fr;
+    frInp.style.cssText='flex:1;border:none;background:transparent;font-size:14px;direction:ltr;min-width:0';
+    frInp.oninput=()=>{active[i].fr=frInp.value.trim();};
+    const del=document.createElement('button');del.textContent='✕';
+    del.style.cssText='border:none;background:none;color:var(--red);font-size:15px;cursor:pointer;padding:0 2px;flex-shrink:0';
+    del.onclick=()=>{active[i]._del=true;row.style.display='none';};
+    row.appendChild(heInp);row.appendChild(sep);row.appendChild(frInp);row.appendChild(del);
+    list.appendChild(row);
+  });
+  frag.appendChild(list);
+  const acts=document.createElement('div');acts.className='modal-actions';
+  acts.appendChild(mkBtn('btn btn-secondary','ביטול',closeModal));
+  acts.appendChild(mkBtn('btn btn-primary','ייבא',()=>{
+    const toImport=active.filter(p=>!p._del&&p.fr&&p.he);
+    if(!toImport.length){alert('לא נותרו מילים');return;}
+    closeModal();processImport(toImport,'');
+  }));
+  frag.appendChild(acts);
+  showModal(frag);
+}
+
+function processImport(words,suggestedName){
+  // אסוף את כל ה-fr הקיימים
+  const existingFr=new Set();
+  function collectFr(folders){
+    for(const f of folders){
+      for(const l of f.lists)for(const w of l.words)existingFr.add(w.fr.trim().toLowerCase());
+      if(f.subfolders)collectFr(f.subfolders);
+    }
+  }
+  collectFr(appState.folders);
+  const newWords=words.filter(w=>w.fr&&w.he&&!existingFr.has(w.fr.trim().toLowerCase()));
+  const skipped=words.length-newWords.length;
+  showImportSummaryModal(newWords,skipped,suggestedName);
+}
+
+function showImportSummaryModal(newWords,skipped,suggestedName){
+  // בנה רשימת תיקיות
+  const allFolders=[];
+  function collectFolders(folders,path=''){
+    for(const f of folders){
+      const fp=path?path+' / '+f.name:f.name;
+      allFolders.push({folder:f,label:fp});
+      if(f.subfolders)collectFolders(f.subfolders,fp);
+    }
+  }
+  collectFolders(appState.folders);
+
+  // בנה רשימת lists
+  const allLists=[];
+  function collectLists(folders,path=''){
+    for(const f of folders){
+      const fp=path?path+' / '+f.name:f.name;
+      for(const l of f.lists)allLists.push({list:l,label:fp+' / '+l.name});
+      if(f.subfolders)collectLists(f.subfolders,fp);
+    }
+  }
+  collectLists(appState.folders);
+
+  const frag=document.createDocumentFragment();
+  frag.appendChild(mk('div','modal-title','📥 ייבוא מילים'));
+
+  const summary=document.createElement('p');
+  summary.style.cssText='text-align:center;color:#3C3C43;margin-bottom:16px;line-height:1.8';
+  summary.innerHTML=newWords.length
+    ?`<strong>${newWords.length}</strong> מילים חדשות יתווספו<br><small style="color:var(--gray)">${skipped} מילים כבר קיימות — דולגו</small>`
+    :`<strong>כל המילים כבר קיימות באפליקציה (${skipped})</strong>`;
+  frag.appendChild(summary);
+
+  if(!newWords.length){
+    frag.appendChild(mkBtn('btn btn-secondary','סגור',closeModal));
+    showModal(frag);return;
+  }
+
+  // Toggle: רשימה חדשה / רשימה קיימת
+  const toggle=document.createElement('div');
+  toggle.style.cssText='display:flex;gap:8px;margin-bottom:12px';
+  const btnNew=document.createElement('button');btnNew.className='fc-dir-btn active';btnNew.textContent='+ רשימה חדשה';
+  const btnExist=document.createElement('button');btnExist.className='fc-dir-btn';btnExist.textContent='רשימה קיימת';
+  toggle.appendChild(btnNew);toggle.appendChild(btnExist);
+  frag.appendChild(toggle);
+
+  // סקשן רשימה חדשה
+  const newSection=document.createElement('div');
+  const nameLabel=mk('div','modal-label','שם הרשימה:');
+  const nameInp=mkInput('text','שם הרשימה החדשה',25);
+  nameInp.value=suggestedName||'רשימה מיובאת';
+  nameInp.style.marginBottom='10px';
+  const folderLabel=mk('div','modal-label','שייך לתיקייה:');
+  const folderSel=document.createElement('select');folderSel.className='select-field';
+  for(const {folder,label} of allFolders){
+    const o=document.createElement('option');o.value=folder.id;o.textContent=label;folderSel.appendChild(o);
+  }
+  if(!allFolders.length){const o=document.createElement('option');o.textContent='אין תיקיות';folderSel.appendChild(o);}
+  newSection.appendChild(nameLabel);newSection.appendChild(nameInp);
+  newSection.appendChild(folderLabel);newSection.appendChild(folderSel);
+  frag.appendChild(newSection);
+
+  // סקשן רשימה קיימת
+  const existSection=document.createElement('div');existSection.style.display='none';
+  const existLabel=mk('div','modal-label','בחר רשימה:');
+  const listSel=document.createElement('select');listSel.className='select-field';
+  for(const {list,label} of allLists){
+    const o=document.createElement('option');o.value=list.id;o.textContent=label;listSel.appendChild(o);
+  }
+  if(!allLists.length){const o=document.createElement('option');o.textContent='אין רשימות קיימות';listSel.appendChild(o);}
+  existSection.appendChild(existLabel);existSection.appendChild(listSel);
+  frag.appendChild(existSection);
+
+  let mode='new';
+  btnNew.onclick=()=>{mode='new';btnNew.className='fc-dir-btn active';btnExist.className='fc-dir-btn';newSection.style.display='';existSection.style.display='none';};
+  btnExist.onclick=()=>{mode='existing';btnExist.className='fc-dir-btn active';btnNew.className='fc-dir-btn';existSection.style.display='';newSection.style.display='none';};
+
+  const acts=document.createElement('div');acts.className='modal-actions';
+  const cancel=mkBtn('btn btn-secondary','ביטול',closeModal);
+  const addBtn=mkBtn('btn btn-primary',`הוסף ${newWords.length} מילים`,()=>{
+    if(mode==='new'){
+      const name=(nameInp.value.trim()||'רשימה מיובאת').slice(0,25);
+      const targetFolder=findFolder(folderSel.value,appState.folders)||appState.folders[0];
+      if(!targetFolder){alert('בחר תיקייה תחילה');return;}
+      const newList={id:uid(),name,words:newWords.map(w=>({fr:w.fr,he:w.he,hard:!!w.hard}))};
+      targetFolder.lists.push(newList);
+    } else {
+      const targetList=findList(listSel.value,appState.folders);
+      if(!targetList){alert('לא נמצאה רשימה');return;}
+      const existInList=new Set(targetList.words.map(w=>w.fr.trim().toLowerCase()));
+      const toAdd=newWords.filter(w=>!existInList.has(w.fr.trim().toLowerCase()));
+      targetList.words.push(...toAdd.map(w=>({fr:w.fr,he:w.he,hard:!!w.hard})));
+    }
+    saveState();closeModal();
+  });
+  acts.appendChild(cancel);acts.appendChild(addBtn);
+  frag.appendChild(acts);
+  const m=showModal(frag);
+  setTimeout(()=>m.querySelector('input[type=text]')?.focus(),100);
+}
+
+// ════════════════════════════════════════
+//  תיקייה ריקה — הוספה מהירה
+// ════════════════════════════════════════
+
+function showQuickAddToFolder(folder){
+  const frag=document.createDocumentFragment();
+  frag.appendChild(mk('div','modal-title','הוסף מילה ראשונה'));
+  frag.appendChild(mk('div','modal-label','שם הרשימה:'));
+  const listInp=mkInput('text','שם הרשימה (עד 25 תווים)',25);
+  listInp.value='רשימה 1';listInp.style.marginBottom='12px';
+  frag.appendChild(listInp);
+  frag.appendChild(mk('div','modal-label','מילה:'));
+  const {frWrap,heWrap,frInp,heInp}=makeWordInputs();
+  const acts=document.createElement('div');acts.className='modal-actions';
+  const cancel=mkBtn('btn btn-secondary','ביטול',closeModal);
+  const add=mkBtn('btn btn-primary','הוסף',()=>{
+    const fr=frInp.value.trim();const he=heInp.value.trim();
+    if(!fr||!he){alert('מלא צרפתית ועברית');return;}
+    const name=(listInp.value.trim()||'רשימה 1').slice(0,25);
+    folder.lists.push({id:uid(),name,words:[{fr,he}]});
+    saveState();closeModal();
+  });
+  acts.appendChild(cancel);acts.appendChild(add);
+  frag.appendChild(frWrap);frag.appendChild(heWrap);frag.appendChild(acts);
+  const m=showModal(frag);
+  setTimeout(()=>listInp.focus(),100);
+}
+
 // ── Word Long-Press Menu ──
 function showWordMenu(list,idx){
   const w=list.words[idx];
