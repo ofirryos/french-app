@@ -126,6 +126,29 @@ input.from-dict{border-color:var(--blue);background:#F0F6FF}
 .fc-btn:active{transform:scale(.97)}
 .fc-know{background:#EAFEE6;color:#1A8C00}
 .fc-forgot{background:#FFF0ED;color:#C0310A}
+/* ── SWIPE FLASHCARDS ── */
+.sfc-list{display:flex;flex-direction:column;gap:10px;padding:8px 0 80px;overflow-y:auto;flex:1}
+.sfc-wrap{position:relative;width:100%;height:72px;flex-shrink:0;overflow:hidden;border-radius:16px}
+.sfc-card{position:absolute;inset:0;border-radius:16px;background:#fff;border:1.5px solid #E5E5EA;box-shadow:0 2px 10px rgba(0,0,0,.07);display:flex;align-items:center;padding:0 14px;gap:10px;cursor:pointer;touch-action:pan-y;user-select:none;transition:transform .28s cubic-bezier(.4,0,.2,1),opacity .28s,border-color .15s,background .15s;will-change:transform}
+.sfc-card.swiping{transition:none}
+.sfc-card.swipe-right{transform:translateX(110%) rotate(8deg)!important;opacity:0}
+.sfc-card.swipe-left{transform:translateX(-110%) rotate(-8deg)!important;opacity:0}
+.sfc-card.hint-right{border-color:var(--green);background:#F4FDF2}
+.sfc-card.hint-left{border-color:var(--red);background:#FFF3F0}
+.sfc-main{flex:1;min-width:0}
+.sfc-word{font-size:17px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sfc-word.fr{direction:ltr;text-align:left}
+.sfc-word.he{direction:rtl;text-align:right}
+.sfc-trans{font-size:14px;color:var(--gray);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sfc-trans.fr{direction:ltr;text-align:left}
+.sfc-trans.he{direction:rtl;text-align:right}
+.sfc-tts{background:none;border:none;font-size:20px;cursor:pointer;flex-shrink:0;padding:4px;opacity:.55;transition:opacity .15s}
+.sfc-tts:active{opacity:1}
+.sfc-finish{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:16px;padding:20px}
+.sfc-finish-icon{font-size:52px;margin-bottom:4px}
+.sfc-finish-title{font-size:22px;font-weight:800;text-align:center}
+.sfc-finish-sub{font-size:15px;color:var(--gray);text-align:center;line-height:1.5}
+.sfc-finish-actions{display:flex;flex-direction:column;gap:10px;width:100%;margin-top:8px}
 .fc-flip{background:#F2F2F7;color:#3C3C43}
 
 /* ── MATCHING GAME ── */
@@ -974,6 +997,42 @@ const DICT=[
 const STORAGE_KEY='french_app_v3';
 const HS_KEY='french_match_hs';
 
+const GOULIAND_FOLDER={
+  id:'f-gouliand',name:'גוליאן',subfolders:[],lists:[{
+    id:'l-gouliand',name:'גוליאן',words:[
+      {fr:'boire',he:'לשתות'},
+      {fr:'voir',he:'לראות'},
+      {fr:'vouloir',he:'לרצות'},
+      {fr:'faire',he:'לעשות'},
+      {fr:'pouvoir',he:'יכול'},
+      {fr:'sortir',he:'לצאת'},
+      {fr:'se promener',he:'לטייל'},
+      {fr:'chercher',he:'לחפש'},
+      {fr:'acheter',he:'לקנות'},
+      {fr:'attendre',he:'לחכות'},
+      {fr:'prendre',he:'לקחת'},
+      {fr:'rester',he:'להישאר'},
+      {fr:'comprendre',he:'להבין'},
+      {fr:'croire',he:'להאמין'},
+      {fr:'donner',he:'לתת'},
+      {fr:'essayer',he:'לנסות'},
+      {fr:'trouver',he:'למצוא'},
+      {fr:'enfants / enfant',he:'ילדים / ילד'},
+      {fr:'ma mère',he:'אמא שלי'},
+      {fr:'argent',he:'כסף'},
+      {fr:'toujours',he:'תמיד'},
+      {fr:'chaque jour',he:'כל יום'},
+      {fr:"aujourd'hui",he:'היום'},
+      {fr:'toute la journée',he:'כל היום'},
+      {fr:'parfois',he:'לפעמים'},
+      {fr:'rarement',he:'לעיתים רחוקות'},
+      {fr:'souvent',he:'לעיתים קרובות'},
+      {fr:'jamais',he:'אף פעם'},
+      {fr:'hier',he:'אתמול'}
+    ]
+  }]
+};
+
 function defaultState(){
   return{folders:[
     {id:'f1',name:'מילים בסיסיות',subfolders:[],lists:[
@@ -982,7 +1041,8 @@ function defaultState(){
     ]},
     {id:'f2',name:'בית וסביבה',subfolders:[],lists:[
       {id:'l3',name:'רהיטים',words:[{fr:'table',he:'שולחן'},{fr:'chaise',he:'כיסא'},{fr:'fenêtre',he:'חלון'},{fr:'porte',he:'דלת'}]}
-    ]}
+    ]},
+    GOULIAND_FOLDER
   ],recentPaths:[],recentWords:[]};
 }
 
@@ -996,7 +1056,12 @@ function loadState(){
         const old=JSON.parse(localStorage.getItem('french_app_v2'));
         if(old.folders)return{...defaultState(),...old};
       }
-      if(d.folders){if(!d.recentWords)d.recentWords=[];return d;}
+      if(d.folders){
+        if(!d.recentWords)d.recentWords=[];
+        // הזרק תיקיית גוליאן אם עדיין לא קיימת
+        if(!d.folders.find(f=>f.id==='f-gouliand'))d.folders.unshift(GOULIAND_FOLDER);
+        return d;
+      }
     }
   }catch(e){}
   return defaultState();
@@ -1567,76 +1632,160 @@ function renderList(screen){
 function renderFlashcards(screen){
   if(!activeFcWords.length){goBack();return;}
   if(!fcState.initialized){
-    fcState={words:shuffle([...activeFcWords]),flipped:false,known:[],initialized:true};
-  }
-  const remaining=fcState.words;
-  const total=fcState.known.length+remaining.length;
-  const done=fcState.known.length;
-
-  if(!remaining.length){
-    const fs=document.createElement('div');
-    fs.className='finish-screen';
-    fs.innerHTML=`<div class="finish-icon">🎉</div><div class="finish-title">סיימת סבב!</div><div class="finish-sub">למדת ${fcState.known.length} מילים</div>`;
-    const fa=document.createElement('div');
-    fa.className='finish-actions';
-    const again=document.createElement('button');
-    again.className='btn btn-primary';
-    again.textContent='🔄 תרגל שוב';
-    again.onclick=()=>{fcState={initialized:false};render();};
-    const rand=document.createElement('button');
-    rand.className='btn btn-secondary';
-    rand.textContent='🔀 מילים אקראיות';
-    rand.onclick=()=>{
-      const all=getAllWords(appState.folders);
-      if(!all.length)return;
-      activeFcWords=shuffle(all).slice(0,12);
-      fcState={initialized:false};
-      render();
+    fcState={
+      words:shuffle([...activeFcWords]),
+      forgot:[],
+      known:[],
+      initialized:true,
+      dir:'fr' // which side shown first
     };
-    fa.appendChild(again);fa.appendChild(rand);
-    fs.appendChild(fa);
-    screen.appendChild(fs);
+  }
+
+  // ── סיום סבב ──
+  if(!fcState.words.length){
+    const fin=document.createElement('div');fin.className='sfc-finish';
+    const icon=mk('div','sfc-finish-icon',fcState.forgot.length?'🔁':'🎉');
+    const title=mk('div','sfc-finish-title',fcState.forgot.length?`${fcState.forgot.length} מילים לחזרה`:'מושלם! ידעת הכל');
+    const sub=mk('div','sfc-finish-sub',`ידעת: ${fcState.known.length} | שכחת: ${fcState.forgot.length}`);
+    fin.appendChild(icon);fin.appendChild(title);fin.appendChild(sub);
+    const btns=document.createElement('div');btns.className='sfc-finish-actions';
+    if(fcState.forgot.length){
+      const repeatForgot=document.createElement('button');
+      repeatForgot.className='btn btn-primary';
+      repeatForgot.textContent='🔁 חזור על מה ששכחתי';
+      repeatForgot.onclick=()=>{
+        // שמור hard flag על מה ששכחתי
+        const list=findList(currentListId,appState.folders);
+        if(list){
+          for(const fw of fcState.forgot){
+            const match=list.words.find(w=>w.fr===fw.fr);
+            if(match)match.hard=true;
+          }
+          saveState();
+        }
+        fcState={words:shuffle([...fcState.forgot]),forgot:[],known:[],initialized:true,dir:fcState.dir};
+        render();
+      };
+      btns.appendChild(repeatForgot);
+    }
+    const again=document.createElement('button');
+    again.className='btn btn-secondary';
+    again.textContent='🔄 התחל מהתחלה';
+    again.onclick=()=>{fcState={initialized:false};render();};
+    btns.appendChild(again);
+    fin.appendChild(btns);
+    screen.appendChild(fin);
     return;
   }
 
-  const pb=document.createElement('div');pb.className='progress-bar';
-  const pf=document.createElement('div');pf.className='progress-fill';
-  pf.style.width=`${Math.round((done/total)*100)}%`;
-  pb.appendChild(pf);screen.appendChild(pb);
+  // ── רשימת כרטיסיות ──
+  screen.style.cssText='display:flex;flex-direction:column;overflow:hidden';
+  const list=document.createElement('div');list.className='sfc-list';
 
-  const cr=document.createElement('div');cr.className='counter-row';
-  cr.innerHTML=`<span class="counter-label">כרטיסייה</span><span class="counter-num">${done+1} / ${total}</span>`;
-  screen.appendChild(cr);
+  fcState.words.forEach((w,idx)=>{
+    const wrap=document.createElement('div');wrap.className='sfc-wrap';
+    const card=document.createElement('div');card.className='sfc-card';
 
-  const w=remaining[0];
-  const wrap=document.createElement('div');wrap.className='flashcard-wrap';
-  const fc=document.createElement('div');fc.className='flashcard'+(fcState.flipped?' flipped':'');
+    // תוכן
+    const main=document.createElement('div');main.className='sfc-main';
+    const wordEl=document.createElement('div');
+    const transEl=document.createElement('div');
+    const isFlipped=w._flipped||false;
 
-  const front=document.createElement('div');front.className='card-face front';
-  const fw=document.createElement('div');fw.className='card-word fr';fw.textContent=w.fr;
-  const ftts=document.createElement('div');ftts.className='card-tts';ftts.textContent='🔊';
-  ftts.onclick=e=>{e.stopPropagation();speak(w.fr);};
-  front.appendChild(fw);front.appendChild(ftts);
+    if(fcState.dir==='fr'){
+      wordEl.className='sfc-word fr';wordEl.textContent=w.fr;
+      transEl.className='sfc-trans he';transEl.textContent=isFlipped?w.he:'';
+    } else {
+      wordEl.className='sfc-word he';wordEl.textContent=w.he;
+      transEl.className='sfc-trans fr';transEl.textContent=isFlipped?w.fr:'';
+    }
+    main.appendChild(wordEl);main.appendChild(transEl);
 
-  const back=document.createElement('div');back.className='card-face back';
-  const bw=document.createElement('div');bw.className='card-word he';bw.textContent=w.he;
-  const btts=document.createElement('div');btts.className='card-tts';btts.textContent='🔊';
-  btts.onclick=e=>{e.stopPropagation();speak(w.fr);};
-  back.appendChild(bw);back.appendChild(btts);
+    const tts=document.createElement('button');tts.className='sfc-tts';tts.textContent='🔊';
+    tts.onclick=e=>{e.stopPropagation();speak(w.fr);};
 
-  fc.appendChild(front);fc.appendChild(back);
-  fc.onclick=()=>{fcState.flipped=!fcState.flipped;render();};
-  wrap.appendChild(fc);screen.appendChild(wrap);
+    card.appendChild(main);card.appendChild(tts);
+    wrap.appendChild(card);
+    list.appendChild(wrap);
 
-  const acts=document.createElement('div');acts.className='fc-actions';
-  const flipBtn=document.createElement('button');flipBtn.className='fc-btn fc-flip';flipBtn.textContent='🔁 הפוך';
-  flipBtn.onclick=()=>{fcState.flipped=!fcState.flipped;render();};
-  const knowBtn=document.createElement('button');knowBtn.className='fc-btn fc-know';knowBtn.textContent='✓ ידעתי';
-  knowBtn.onclick=()=>{fcState.known.push(remaining.shift());fcState.flipped=false;render();};
-  const forgotBtn=document.createElement('button');forgotBtn.className='fc-btn fc-forgot';forgotBtn.textContent='↩ שכחתי';
-  forgotBtn.onclick=()=>{remaining.push(remaining.shift());fcState.flipped=false;render();};
-  acts.appendChild(flipBtn);acts.appendChild(knowBtn);acts.appendChild(forgotBtn);
-  screen.appendChild(acts);
+    // ── לחיצה להפיכה ──
+    card.addEventListener('click',e=>{
+      if(card._swiped||card._wasSwiping)return;
+      w._flipped=!w._flipped;
+      if(w._flipped){
+        transEl.textContent=fcState.dir==='fr'?w.he:w.fr;
+        transEl.style.opacity='0';
+        requestAnimationFrame(()=>{transEl.style.transition='opacity .2s';transEl.style.opacity='1';});
+      } else {
+        transEl.textContent='';
+      }
+    });
+
+    // ── גרירה (swipe) ──
+    let startX=0,startY=0,curX=0,tracking=false,axis=null;
+    const SWIPE_THRESH=70;
+
+    function onStart(x,y){
+      if(card._swiped)return;
+      startX=x;startY=y;curX=0;tracking=true;axis=null;
+      card.classList.add('swiping');
+    }
+    function onMove(x,y){
+      if(!tracking||card._swiped)return;
+      const dx=x-startX,dy=y-startY;
+      if(!axis){
+        if(Math.abs(dx)<5&&Math.abs(dy)<5)return;
+        axis=Math.abs(dx)>Math.abs(dy)?'h':'v';
+      }
+      if(axis==='v'){tracking=false;card.classList.remove('swiping');card.style.transform='';return;}
+      curX=dx;
+      card.style.transform=`translateX(${dx}px) rotate(${dx*0.06}deg)`;
+      card.classList.toggle('hint-right',dx>30);
+      card.classList.toggle('hint-left',dx<-30);
+    }
+    function onEnd(){
+      if(!tracking||card._swiped){tracking=false;return;}
+      tracking=false;
+      card.classList.remove('swiping','hint-right','hint-left');
+      if(Math.abs(curX)>=SWIPE_THRESH){
+        card._swiped=true;
+        card._wasSwiping=true;
+        const dir=curX>0?'right':'left';
+        card.classList.add(dir==='right'?'swipe-right':'swipe-left');
+        // הסר מהמערך ושמור תוצאה
+        setTimeout(()=>{
+          const i=fcState.words.indexOf(w);
+          if(i>-1)fcState.words.splice(i,1);
+          if(dir==='right'){
+            fcState.known.push(w);
+            // נקה hard flag אם ידע
+            const list=findList(currentListId,appState.folders);
+            if(list){const m=list.words.find(x=>x.fr===w.fr);if(m)m.hard=false;}
+          } else {
+            fcState.forgot.push(w);
+            // סמן כ-hard
+            const list=findList(currentListId,appState.folders);
+            if(list){const m=list.words.find(x=>x.fr===w.fr);if(m)m.hard=true;}
+          }
+          saveState();
+          wrap.remove();
+          if(!fcState.words.length)render();
+        },280);
+      } else {
+        card.style.transform='';
+        setTimeout(()=>{card._wasSwiping=false;},50);
+      }
+    }
+
+    card.addEventListener('touchstart',e=>{const t=e.touches[0];onStart(t.clientX,t.clientY);},{passive:true});
+    card.addEventListener('touchmove',e=>{const t=e.touches[0];onMove(t.clientX,t.clientY);},{passive:true});
+    card.addEventListener('touchend',onEnd);
+    card.addEventListener('mousedown',e=>onStart(e.clientX,e.clientY));
+    document.addEventListener('mousemove',e=>{if(tracking)onMove(e.clientX,e.clientY);},{passive:true});
+    document.addEventListener('mouseup',e=>{if(tracking)onEnd();},{once:false,passive:true});
+  });
+
+  screen.appendChild(list);
 }
 
 // ════════════════════════════════════════
@@ -2423,17 +2572,48 @@ async function processImageImport(file){
   showModal(frag);
   try{
     const T=await loadTesseract();
-    status.textContent='מזהה טקסט בתמונה...';
-    const result=await T.recognize(file,'heb+fra',{
-      logger:m=>{if(m.status==='recognizing text')status.textContent=`מזהה... ${Math.round((m.progress||0)*100)}%`;}
+    // סריקה כפולה — עברית בלבד ואז צרפתית בלבד
+    status.textContent='סורק עברית... (1/2)';
+    const heRes=await T.recognize(file,'heb',{
+      logger:m=>{if(m.status==='recognizing text')status.textContent=`עברית... ${Math.round((m.progress||0)*100)}%`;}
     });
-    const pairs=parseOcrText(result.data.text);
+    status.textContent='סורק צרפתית... (2/2)';
+    const frRes=await T.recognize(file,'fra',{
+      logger:m=>{if(m.status==='recognizing text')status.textContent=`צרפתית... ${Math.round((m.progress||0)*100)}%`;}
+    });
+    const pairs=matchOcrLines(heRes.data.lines,frRes.data.lines);
     closeModal();
-    if(!pairs.length){alert('לא זוהו זוגות מילים בתמונה. ודא שהתמונה ברורה ומכילה עמודות צרפתית ועברית.');return;}
+    if(!pairs.length){alert('לא זוהו זוגות מילים. נסה תמונה ברורה יותר.');return;}
     showOcrPreviewModal(pairs);
   }catch(e){closeModal();alert('שגיאה בעיבוד התמונה: '+e.message);}
 }
 
+function matchOcrLines(heLines,frLines){
+  const heRe=/[א-ת]/;
+  const frRe=/[a-zA-ZÀ-ÿ]/;
+  function cln(t){return t.trim().replace(/^\d+[\.\)\-\s]+/,'').replace(/\s+/g,' ').trim();}
+  const cleanHe=heLines
+    .filter(l=>l.confidence>20&&heRe.test(l.text))
+    .map(l=>({text:cln(l.text),y:l.bbox.y0,h:l.bbox.y1-l.bbox.y0}))
+    .filter(l=>l.text.length>1);
+  const cleanFr=frLines
+    .filter(l=>l.confidence>20&&frRe.test(l.text))
+    .map(l=>({text:cln(l.text),y:l.bbox.y0,h:l.bbox.y1-l.bbox.y0}))
+    .filter(l=>l.text.length>1);
+  const pairs=[];const used=new Set();
+  for(const he of cleanHe){
+    let best=null,bestDist=Infinity;
+    for(let i=0;i<cleanFr.length;i++){
+      if(used.has(i))continue;
+      const fr=cleanFr[i];
+      const dist=Math.abs((he.y+he.h/2)-(fr.y+fr.h/2));
+      const tol=Math.max(he.h,fr.h)*1.8;
+      if(dist<tol&&dist<bestDist){bestDist=dist;best=i;}
+    }
+    if(best!==null){used.add(best);pairs.push({he:he.text,fr:cleanFr[best].text,hard:false});}
+  }
+  return pairs;
+}
 function parseOcrText(text){
   const heRe=/[ְ-׿יִ-ﭏ]/;
   const frRe=/[a-zA-ZÀ-ÿ]/;
