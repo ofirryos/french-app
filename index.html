@@ -2749,7 +2749,19 @@ function mkBtn(cls,text,onclick){
 window.addEventListener('online',()=>document.getElementById('offline-banner').classList.remove('show'));
 window.addEventListener('offline',()=>document.getElementById('offline-banner').classList.add('show'));
 if(!navigator.onLine)document.getElementById('offline-banner').classList.add('show');
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/french-app/sw.js').then(reg=>{
+    // כשיש גרסה חדשה — טען מחדש אוטומטית
+    reg.addEventListener('updatefound',()=>{
+      const nw=reg.installing;
+      nw.addEventListener('statechange',()=>{
+        if(nw.state==='activated')window.location.reload();
+      });
+    });
+    // בדוק עדכון בכל פתיחה
+    reg.update();
+  }).catch(()=>{});
+}
 
 // ════════════════════════════════════════
 //  INIT
