@@ -164,8 +164,8 @@ input.from-dict{border-color:var(--blue);background:#F0F6FF}
 .match-card{flex:1;padding:8px 6px;border-radius:12px;background:#fff;border:2px solid #E5E5EA;text-align:center;cursor:pointer;font-size:13px;font-weight:600;transition:all .12s;word-break:break-word;display:flex;align-items:center;justify-content:center;line-height:1.2;min-height:0}
 .match-card.fr-card{direction:ltr}
 .match-card.selected{border-color:var(--blue);background:#F0F6FF;color:var(--blue)}
-.match-card.correct{border-color:var(--green);background:#EAFEE6;color:#1A8C00;pointer-events:none;animation:pulse-green .3s ease}
-.match-card.wrong{border-color:var(--red);background:#FFF0ED;color:var(--red)}
+.match-card.correct{border-color:var(--green)!important;background:#EAFEE6!important;color:#1A8C00!important;pointer-events:none;transition:border-color .2s,background .2s}
+.match-card.wrong{border-color:var(--red)!important;background:#FFF0ED!important;color:var(--red)!important}
 .match-card.matched{opacity:.2;pointer-events:none;border-color:transparent;background:transparent;box-shadow:none}
 @keyframes pulse-green{0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
 
@@ -1633,11 +1633,11 @@ function renderFlashcards(screen){
   if(!activeFcWords.length){goBack();return;}
   if(!fcState.initialized){
     fcState={
-      words:shuffle([...activeFcWords]),
+      words:shuffle([...activeFcWords]).map(w=>({...w,_flipped:false})),
       forgot:[],
       known:[],
       initialized:true,
-      dir:'fr' // which side shown first
+      dir:'fr'
     };
   }
 
@@ -1663,7 +1663,7 @@ function renderFlashcards(screen){
           }
           saveState();
         }
-        fcState={words:shuffle([...fcState.forgot]),forgot:[],known:[],initialized:true,dir:fcState.dir};
+        fcState={words:shuffle([...fcState.forgot]).map(w=>({...w,_flipped:false})),forgot:[],known:[],initialized:true,dir:fcState.dir};
         render();
       };
       btns.appendChild(repeatForgot);
@@ -1704,7 +1704,8 @@ function renderFlashcards(screen){
     const tts=document.createElement('button');tts.className='sfc-tts';tts.textContent='🔊';
     tts.onclick=e=>{e.stopPropagation();speak(w.fr);};
 
-    card.appendChild(main);card.appendChild(tts);
+    // ימין = רמקול, שמאל = מילה (RTL: first child = rightmost)
+    card.appendChild(tts);card.appendChild(main);
     wrap.appendChild(card);
     list.appendChild(wrap);
 
@@ -2022,15 +2023,15 @@ function tryMatch(){
   if(!fr||!he)return;
   mgState.locked=true;
 
+  const frEls=document.querySelectorAll('.match-col:first-child .match-card');
+  const heEls=document.querySelectorAll('.match-col:last-child .match-card');
+  const fi=mgState.frCards.indexOf(fr);
+  const hi=mgState.heCards.indexOf(he);
+
   if(fr.fr===he.fr){
-    // Correct
-    const frEls=document.querySelectorAll('.match-col:first-child .match-card');
-    const heEls=document.querySelectorAll('.match-col:last-child .match-card');
-    const fi=mgState.frCards.indexOf(fr);
-    const hi=mgState.heCards.indexOf(he);
+    // צדקה — ירוק ל-1.5 שניות
     if(frEls[fi])frEls[fi].classList.add('correct');
     if(heEls[hi])heEls[hi].classList.add('correct');
-
     setTimeout(()=>{
       fr.done=true;he.done=true;
       mgState.score++;
@@ -2038,22 +2039,19 @@ function tryMatch(){
       mgState.locked=false;
       if(mgState.frCards.every(c=>c.done))render();
       else updateMatchCards();
-    },150);
+    },1500);
   } else {
-    // Wrong — shake + vibrate
-    const frEls=document.querySelectorAll('.match-col:first-child .match-card');
-    const heEls=document.querySelectorAll('.match-col:last-child .match-card');
-    const fi=mgState.frCards.indexOf(fr);
-    const hi=mgState.heCards.indexOf(he);
-    if(frEls[fi]){frEls[fi].classList.add('wrong');frEls[fi].classList.add('shake');}
-    if(heEls[hi]){heEls[hi].classList.add('wrong');heEls[hi].classList.add('shake');}
+    // טעות — אדום + רטט ל-1.5 שניות
+    if(frEls[fi]){frEls[fi].classList.add('wrong','shake');}
+    if(heEls[hi]){heEls[hi].classList.add('wrong','shake');}
     if(navigator.vibrate)navigator.vibrate([60,30,60]);
-
     setTimeout(()=>{
+      if(frEls[fi]){frEls[fi].classList.remove('wrong','shake');}
+      if(heEls[hi]){heEls[hi].classList.remove('wrong','shake');}
       mgState.selectedFr=null;mgState.selectedHe=null;
       mgState.locked=false;
       updateMatchCards();
-    },200);
+    },1500);
   }
 }
 
@@ -2204,23 +2202,22 @@ function renderQuiz(screen){
     }
     btn.onclick=()=>{
       if(q.locked)return;
-      q.locked=true;
       if(opt.correct){
         btn.classList.add('correct-ans');
+        q.locked=true;
         q.score++;
         setTimeout(()=>{
           q.idx++;q.options=null;q.locked=false;
           render();
         },480);
       } else {
+        // טעות — אדום לרגע, לא חושפים תשובה נכונה
         btn.classList.add('wrong-ans');
-        // Reveal correct answer
-        const allBtns=document.querySelectorAll('.quiz-opt');
-        allBtns.forEach(b=>{if(b.dataset.correct==='1')b.classList.add('reveal-ans');});
+        btn.style.pointerEvents='none';
         setTimeout(()=>{
           btn.classList.remove('wrong-ans');
-          q.locked=false;
-        },700);
+          btn.style.pointerEvents='';
+        },500);
       }
     };
     opts.appendChild(btn);
